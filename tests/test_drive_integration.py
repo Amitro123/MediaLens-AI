@@ -1,11 +1,9 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from fastapi.testclient import TestClient
-from app.main import app
-from app.services.drive_connector import DriveConnector, DriveError
+from pathlib import Path
 
-client = TestClient(app)
+# TestClient is provided by conftest.py's client fixture
 
 # Mock data
 MOCK_FILE_ID = "12345-abcde"
@@ -61,11 +59,10 @@ def mock_settings():
         mock_settings.frame_interval = 5
         yield mock_settings
 
-# Need to import Path for the mock above, but it's used inside the patch logic. 
-# We can just ignore the actua path creation since we mock everything else.
-from pathlib import Path
+
 
 def test_drive_upload_success(
+    client,
     mock_calendar_service, 
     mock_drive_connector, 
     mock_video_processor, 
@@ -125,7 +122,7 @@ def test_drive_upload_success(
     # Last call should be 'completed'
     assert mock_calendar.update_session_status.call_args_list[-1][0][1] == "completed"
 
-def test_drive_upload_invalid_url(mock_calendar_service, mock_drive_connector):
+def test_drive_upload_invalid_url(client, mock_calendar_service, mock_drive_connector):
     """Test invalid Drive URL handling"""
     mock_calendar = mock_calendar_service.return_value
     mock_calendar.get_session.return_value = MagicMock()
@@ -143,7 +140,7 @@ def test_drive_upload_invalid_url(mock_calendar_service, mock_drive_connector):
     assert response.status_code == 400
     assert "Invalid Google Drive URL" in response.json()["detail"]
 
-def test_drive_upload_session_not_found(mock_calendar_service):
+def test_drive_upload_session_not_found(client, mock_calendar_service):
     """Test upload with invalid session ID"""
     mock_calendar = mock_calendar_service.return_value
     mock_calendar.get_session.return_value = None

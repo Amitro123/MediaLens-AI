@@ -1,11 +1,8 @@
 
 import pytest
-from fastapi.testclient import TestClient
-from fastapi.testclient import TestClient
-from app.main import app
 from app.api.routes import session_feedback
 
-client = TestClient(app)
+# TestClient is provided by conftest.py's client fixture
 
 def test_submit_feedback_success(client):
     session_id = "test_feedback_session"

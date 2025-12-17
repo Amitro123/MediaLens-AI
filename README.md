@@ -11,6 +11,7 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
 ## ✨ Key Features
 
 * **📅 Calendar Integration** - Auto-creates draft sessions from upcoming meetings
+* **History & Persistence** - Revisit past documentation sessions via the dedicated History view
 * **☁️ Google Drive Import** - Import videos directly from Google Drive links
 * **⚡ Audio-First Smart Sampling** - Analyzes audio to extract frames only during technical discussions
 * **💻 Code Extraction (OCR)** - Transcribes visible code from IDEs and terminals verbatim
@@ -20,6 +21,7 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
 * **🔄 Async Processing** - Background workers for long videos (Celery + Redis)
 * **🔗 Export Integrations** - Send to Notion, create Jira tickets, copy to clipboard
 * **🏢 Multi-Department Support** - Specialized personas for R&D, HR, and Finance teams
+* **📜 Persistent Documentation** - Automated local storage of generated reports for later retrieval
 * **Multiple Documentation Modes**:
   - 🐛 **Bug Reports** - Identify bugs and create reproduction guides
   - ✨ **Feature Specs** - Generate comprehensive PRDs from demos

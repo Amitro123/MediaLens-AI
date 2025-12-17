@@ -26,6 +26,9 @@ export const api = {
 
     // Modes
     getModes: () => handleResponse(axios.get('/api/v1/modes')),
+    // Results
+    getHistory: () => handleResponse(axios.get('/api/v1/history')),
+    getResult: (taskId) => handleResponse(axios.get(`/api/v1/result/${taskId}`)),
     // Feedback
     sendFeedback: (sessionId, feedback) => handleResponse(axios.post(`/api/v1/sessions/${sessionId}/feedback`, feedback)),
     // Export

@@ -55,35 +55,6 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
-            {/* Mission Control Header */}
-            <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                            <span className="text-xl">🚀</span>
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight text-white">DevLens Mission Control</h1>
-                            <p className="text-xs text-slate-400 font-medium tracking-wide uppercase">AI-Powered Documentation</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700">
-                            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Dev Mode</span>
-                            <button
-                                onClick={() => setIsDevMode(!isDevMode)}
-                                className={`relative w-11 h-6 rounded-full transition-all duration-300 ${isDevMode ? 'bg-indigo-500 ring-2 ring-indigo-500/50' : 'bg-slate-600'
-                                    }`}
-                            >
-                                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${isDevMode ? 'left-6 shadow-sm' : 'left-1'
-                                    }`} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
             {/* Main Content Grid */}
             <main className="max-w-7xl mx-auto px-6 py-8">
                 <div className="grid grid-cols-12 gap-8 min-h-[600px]">
@@ -101,8 +72,8 @@ export default function Dashboard() {
                                         key={meeting.id}
                                         onClick={() => setSelectedMeeting(meeting)}
                                         className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${selectedMeeting?.id === meeting.id
-                                                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-lg shadow-indigo-900/50 scale-[1.02] border-transparent'
-                                                : 'bg-slate-800/50 hover:bg-slate-700/80 border border-slate-700/30'
+                                            ? 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-lg shadow-indigo-900/50 scale-[1.02] border-transparent'
+                                            : 'bg-slate-800/50 hover:bg-slate-700/80 border border-slate-700/30'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4">

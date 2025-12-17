@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.services.video_processor import extract_frames, get_video_duration, VideoProcessingError, extract_audio
 from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import get_prompt_loader, PromptLoadError
+from app.services.storage_service import get_storage_service
 from app.core.observability import get_acontext_client, extract_code_blocks, trace_session
 
 logger = logging.getLogger(__name__)
@@ -199,6 +200,17 @@ async def upload_video(
         # Store artifacts in Acontext (Flight Recorder)
         _store_artifacts(task_id, documentation, project_name)
         
+        # PERSIST TO HISTORY
+        storage = get_storage_service()
+        storage.add_session(task_id, {
+            "title": project_name,
+            "topic": prompt_config.name,
+            "status": "completed",
+            "documentation": documentation,
+            "mode": mode,
+            "mode_name": prompt_config.name
+        })
+        
         return UploadResponse(
             task_id=task_id,
             status="completed",
@@ -246,6 +258,16 @@ async def get_result(task_id: str):
         ResultResponse with generated documentation
     """
     if task_id not in task_results:
+        # Try loading from disk (Persistence Layer)
+        storage = get_storage_service()
+        persisted_result = storage.get_session_result(task_id)
+        if persisted_result:
+            # Cache in memory for next time
+            task_results[task_id] = persisted_result
+            return ResultResponse(
+                task_id=task_id,
+                documentation=persisted_result["documentation"]
+            )
         raise HTTPException(status_code=404, detail="Task not found")
     
     result = task_results[task_id]
@@ -310,6 +332,19 @@ async def get_draft_sessions():
     except Exception as e:
         logger.error(f"Failed to fetch draft sessions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/history")
+async def get_history():
+    """
+    Get the list of all past documentation sessions.
+    """
+    try:
+        storage = get_storage_service()
+        return {"sessions": storage.get_history()}
+    except Exception as e:
+        logger.error(f"Failed to fetch history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to load history")
 
 
 @router.post("/sessions/{session_id}/prep")
@@ -464,6 +499,17 @@ async def upload_from_drive(request: DriveUploadRequest):
         
         # Store artifacts in Acontext (Flight Recorder)
         _store_artifacts(request.session_id, documentation, session.title)
+        
+        # PERSIST TO HISTORY
+        storage = get_storage_service()
+        storage.add_session(request.session_id, {
+            "title": session.title,
+            "topic": prompt_config.name,
+            "status": "completed",
+            "documentation": documentation,
+            "mode": selected_mode,
+            "mode_name": prompt_config.name
+        })
         
         return UploadResponse(
             task_id=request.session_id,
@@ -671,6 +717,17 @@ async def upload_to_session(
         
         # Store artifacts in Acontext (Flight Recorder)
         _store_artifacts(session_id, documentation, session.title)
+        
+        # PERSIST TO HISTORY
+        storage = get_storage_service()
+        storage.add_session(session_id, {
+            "title": session.title,
+            "topic": prompt_config.name,
+            "status": "completed",
+            "documentation": documentation,
+            "mode": selected_mode,
+            "mode_name": prompt_config.name
+        })
         
         return UploadResponse(
             task_id=session_id,
