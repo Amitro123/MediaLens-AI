@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import UploadForm from './UploadForm'
+import { api } from '../api'
 
 // Mock meetings data
 const UPCOMING_MEETINGS = [
@@ -45,12 +46,37 @@ export default function Dashboard() {
     const [selectedMeeting, setSelectedMeeting] = useState(null)
     const [isDevMode, setIsDevMode] = useState(false)
 
+    // Check for active session on mount (Recovery)
+    useEffect(() => {
+        const checkActive = async () => {
+            try {
+                const active = await api.getActiveSession();
+                if (active) {
+                    console.log("Recovered active session:", active);
+                    // Mock a meeting object to activate the UI
+                    setSelectedMeeting({
+                        id: active.session_id,
+                        title: active.title,
+                        mode: active.mode || 'general_doc',
+                        type: 'active', // special type for recovered sessions
+                        keywords: [],
+                        status: active.status // Pass current status from backend
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to check active session:", err);
+            }
+        };
+        checkActive();
+    }, []);
+
     // Transform meeting to session object for UploadForm
     const sessionContext = selectedMeeting ? {
         id: selectedMeeting.id,
         title: selectedMeeting.title,
         context_keywords: selectedMeeting.keywords,
-        suggested_mode: selectedMeeting.mode
+        suggested_mode: selectedMeeting.mode,
+        status: selectedMeeting.status // Needed for recovery polling
     } : null
 
     return (

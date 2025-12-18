@@ -2,47 +2,50 @@
 
 This document outlines the planned features and development priorities for DevLens AI.
 
-## ✅ Q4 2025: MVP Stabilization & Core Memory
+## ✅ Q4 2025: MVP Stabilization, Persistence & UX
 
-The primary goal for this quarter is to solidify the MVP, ensure it's stable end-to-end, and integrate the core memory infrastructure.
+The primary goal for this quarter is to solidify the MVP, ensure it's stable end-to-end, and provide a seamless user experience with memory persistence.
 
 - [x] **MVP: Synchronous video processing**
 - [x] **Dynamic prompt registry system**
-- [x] **React frontend with mode selection**
+- [x] **React frontend with mode selection (Dark Mode)**
 - [x] **Calendar integration with draft sessions**
 - [x] **Audio-first smart sampling with Gemini Flash**
 - [x] **Google Drive Integration (Import via URL)**
-- [ ] **Manual End-to-End Testing & Bug Fixes**
-    - [ ] Verify the entire flow: Video Upload → Markdown Generation
-    - [ ] Fix blocking I/O issues with `run_in_threadpool`
-    - [ ] Resolve documentation/branding inconsistencies
-- [x] **Acontext Integration (Core Memory Layer)** *(Flight Recorder)*
-    - [x] Integrate Acontext via Docker Compose
-    - [x] Create `observability.py` with `AcontextClient` and `@trace_pipeline` decorator
-    - [x] Instrument pipeline: `extract_audio`, `extract_frames`, `analyze_audio_relevance`, `generate_documentation`
-    - [x] Store final documentation and code blocks as artifacts
+- [x] **Manual End-to-End Testing & Bug Fixes**
+    - [x] Verify the entire flow: Video Upload → Markdown Generation
+    - [x] Fix Markdown rendering (images & tables)
+    - [x] Resolve "White Screen" screenshots issue (Prompt Engineering)
+- [x] **Video Processing Optimization**
+    - [x] Implement 1-FPS downsampling for faster AI analysis
+- [x] **Acontext Lite (History & Persistence)**
+    - [x] Local storage based session history
+    - [x] "History" tab in Frontend
+    - [x] Active Session Recovery (Page refresh protection)
+- [x] **Interactive Click-to-Seek** ✅
+    - [x] Frontend video player integration
+    - [x] Timestamp extraction and clickable images
 - [ ] **MCP Server Integration (Agent Connectivity)**
     - [ ] Implement `fastapi-mcp` to expose memory endpoints
-    - [ ] Define tools for searching memory and retrieving session context
-    - [ ] Document how to connect Antigravity/Cursor to the MCP server
+    - [ ] Connect Google Drive via MCP Client (for automation)
 
-## 🚀 Q1 2026: "Smart Context" & Enhanced AI
+## 🚀 Q1 2026: "Smart Context" & Enhanced Distribution
 
-Focus on making the agent smarter by improving its understanding of context and providing richer data.
+Focus on making the agent smarter, securely shareable, and integrated with external tools.
 
+- [ ] **Deep Link Sharing (Google Drive)**
+    - [ ] Generate standard links in Markdown that point to specific timestamps in Google Drive video player (for email distribution).
+- [ ] **Enterprise Grade Security**
+    - [ ] Implement Basic Auth / Single Sign-On (SSO)
+    - [ ] Secure sensitive folders (`uploads`, `data`) via .gitignore and access controls
 - [ ] **Advanced OCR for Code Extraction**
     - [ ] Integrate PaddleOCR or a similar dedicated OCR library
-    - [ ] Implement a two-stage process: OCR for raw text, LLM for cleanup
 - [ ] **Speaker Diarization**
     - [ ] Integrate `pyannote.audio` to identify different speakers
-    - [ ] Tag the generated documentation with `Speaker A`, `Speaker B`, etc.
-- [ ] **"Deep Linking" in UI**
-    - [ ] Connect Markdown sections to video timestamps
-    - [ ] Allow users to click on a summary point and jump to the relevant video segment
 - [ ] **Real Calendar API Integration**
     - [ ] Move from mock data to real Google Calendar / Outlook integration
 - [ ] **Real Export API Integration**
-    - [ ] Implement real Notion & Jira API calls (move from mock)
+    - [ ] Implement real Notion & Jira API calls
 
 ## 🧠 Q2 2026: "Organizational Brain" & Production Readiness
 
@@ -50,16 +53,12 @@ Transition from a smart tool to a self-improving "organizational brain" ready fo
 
 - [ ] **Advanced RAG on Organizational Docs**
     - [ ] Implement entity linking (components, services, projects)
-    - [ ] Connect to the company's codebase/documentation for deeper context
 - [ ] **Self-Improving Memory Loop**
     - [ ] Use Acontext's "Experience Agent" to learn from past sessions
-    - [ ] The agent should get better at summarizing bugs or features for specific projects over time
 - [ ] **Privacy-First Local Mode**
-    - [ ] Support for local models via Ollama (e.g., Llama 3.2 Vision)
-    - [ ] Allow running the entire pipeline on-premise for sensitive organizations
+    - [ ] Support for local models via Ollama
 - [ ] **Full Async Processing**
-    - [ ] Migrate from `run_in_threadpool` to a robust Celery + Redis background worker queue
-    - [ ] Implement WebSockets or polling for real-time frontend progress updates
+    - [ ] Migrate to robust Celery + Redis background worker queue
 
 ## 🌐 Future Vision: Multi-Language & Beyond
 

@@ -1,8 +1,39 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { api } from '../api'
-import { ThumbsUp, ThumbsDown, MessageSquare, Check, Zap, Server, Database, Activity, Download, Copy, FileText, CheckSquare } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, MessageSquare, Check, Zap, Server, Database, Activity, Download, Copy, FileText, CheckSquare, Video, ChevronDown, ChevronUp, Play } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+
+// Utility: Extract timestamp from frame filename
+// Handles two patterns:
+// 1. New format (dual-stream): frame_0003_t15.5s.jpg -> 15.5 seconds (exact timestamp)
+// 2. Legacy format: frame_0012.jpg -> 12 * 5 = 60 seconds (assumes 5-second interval)
+function extractTimestampFromFilename(src) {
+    if (!src) return null;
+
+    // Pattern 1: Explicit timestamp - frame_XXXX_t15.5s.jpg
+    const timestampMatch = src.match(/_t(\d+\.?\d*)s\.(jpg|png|jpeg)/i);
+    if (timestampMatch) return parseFloat(timestampMatch[1]);
+
+    // Pattern 2: Frame index only - frame_0012.jpg
+    // Legacy videos use 5-second intervals, so frame 12 = 60 seconds
+    const frameMatch = src.match(/frame_(\d+)\.(jpg|png|jpeg)/i);
+    if (frameMatch) {
+        const frameIndex = parseInt(frameMatch[1], 10);
+        const FRAME_INTERVAL_SECONDS = 5; // Default interval for legacy frames
+        return frameIndex * FRAME_INTERVAL_SECONDS;
+    }
+
+    return null;
+}
+
+// Utility: Format seconds as MM:SS
+function formatTimestamp(seconds) {
+    if (seconds === null || isNaN(seconds)) return '';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
 
 export default function DocViewer({ content, taskId, isDevMode }) {
     const [rating, setRating] = useState(null)
@@ -12,6 +43,43 @@ export default function DocViewer({ content, taskId, isDevMode }) {
     const [feedbackLoading, setFeedbackLoading] = useState(false)
     const [showExportMenu, setShowExportMenu] = useState(false)
     const [exportStatus, setExportStatus] = useState(null)
+    const [isVideoExpanded, setIsVideoExpanded] = useState(false)
+
+    const videoRef = useRef(null)
+    const pendingSeekRef = useRef(null) // Store pending seek timestamp
+
+    // Seek video to timestamp and play
+    const seekToTimestamp = (seconds) => {
+        if (seconds === null) return;
+
+        setIsVideoExpanded(true)
+
+        const video = videoRef.current;
+        if (!video) {
+            // Video not mounted yet, store for later
+            pendingSeekRef.current = seconds;
+            return;
+        }
+
+        // Check if video metadata is loaded
+        if (video.readyState >= 1) {
+            // Metadata loaded, can seek immediately
+            video.currentTime = seconds;
+            video.play().catch(() => {
+                // Autoplay may be blocked
+            });
+        } else {
+            // Wait for metadata to load
+            pendingSeekRef.current = seconds;
+            video.addEventListener('loadedmetadata', () => {
+                if (pendingSeekRef.current !== null) {
+                    video.currentTime = pendingSeekRef.current;
+                    video.play().catch(() => { });
+                    pendingSeekRef.current = null;
+                }
+            }, { once: true });
+        }
+    }
 
     const handleRate = async (value) => {
         setRating(value)
@@ -83,8 +151,51 @@ export default function DocViewer({ content, taskId, isDevMode }) {
         ]
     }
 
+    // Video source URL
+    const videoSrc = taskId ? `/uploads/${taskId}/video.mp4` : null
+
     return (
         <div className="space-y-6">
+            {/* Collapsible Video Player */}
+            {videoSrc && (
+                <div className="bg-slate-900/80 border border-slate-700/50 rounded-xl overflow-hidden">
+                    <button
+                        onClick={() => setIsVideoExpanded(!isVideoExpanded)}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-800/50 transition-colors"
+                    >
+                        <div className="flex items-center gap-2 text-slate-300">
+                            <Video className="w-4 h-4 text-indigo-400" />
+                            <span className="font-medium text-sm">Source Video</span>
+                            <span className="text-xs text-slate-500">Click images to seek</span>
+                        </div>
+                        {isVideoExpanded ? (
+                            <ChevronUp className="w-4 h-4 text-slate-500" />
+                        ) : (
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
+                        )}
+                    </button>
+                    {isVideoExpanded && (
+                        <div className="p-4 pt-0">
+                            <video
+                                ref={videoRef}
+                                src={videoSrc}
+                                controls
+                                className="w-full max-h-64 rounded-lg bg-black"
+                                preload="metadata"
+                                onLoadedMetadata={() => {
+                                    // Process pending seek when video is ready
+                                    if (pendingSeekRef.current !== null && videoRef.current) {
+                                        videoRef.current.currentTime = pendingSeekRef.current;
+                                        videoRef.current.play().catch(() => { });
+                                        pendingSeekRef.current = null;
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Action Bar */}
             <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                 <div className="bg-emerald-900/30 text-emerald-400 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 border border-emerald-500/30">
@@ -134,14 +245,44 @@ export default function DocViewer({ content, taskId, isDevMode }) {
                 </div>
             )}
 
-            {/* Generated Content */}
+            {/* Generated Content with Clickable Images */}
             <div className="prose prose-sm prose-invert max-w-none bg-slate-900/50 p-6 rounded-xl border border-slate-700/50 shadow-inner overflow-x-auto">
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                        img: ({ node, ...props }) => (
-                            <img {...props} className="rounded-lg shadow-lg border border-slate-700/50 my-4 max-w-full" alt={props.alt || "Documentation Image"} />
-                        ),
+                        img: ({ node, src, alt, ...props }) => {
+                            const timestamp = extractTimestampFromFilename(src);
+                            const hasTimestamp = timestamp !== null;
+
+                            return (
+                                <div
+                                    className={`relative inline-block my-4 ${hasTimestamp ? 'cursor-pointer group' : ''}`}
+                                    onClick={() => hasTimestamp && seekToTimestamp(timestamp)}
+                                >
+                                    <img
+                                        {...props}
+                                        src={src}
+                                        alt={alt || "Documentation Image"}
+                                        className={`rounded-lg shadow-lg border border-slate-700/50 max-w-full transition-all ${hasTimestamp ? 'group-hover:border-indigo-500/50 group-hover:shadow-indigo-500/20' : ''}`}
+                                    />
+                                    {hasTimestamp && (
+                                        <>
+                                            {/* Timestamp Badge */}
+                                            <span className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                                                <Play className="w-3 h-3 fill-current" />
+                                                {formatTimestamp(timestamp)}
+                                            </span>
+                                            {/* Hover Overlay */}
+                                            <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/10 rounded-lg transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                <span className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg">
+                                                    Click to seek
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        },
                         code: ({ node, inline, className, children, ...props }) => {
                             const match = /language-(\w+)/.exec(className || '')
                             return !inline ? (
@@ -161,6 +302,7 @@ export default function DocViewer({ content, taskId, isDevMode }) {
                     {content}
                 </ReactMarkdown>
             </div>
+
 
             {/* DevStats Panel */}
             {isDevMode && (

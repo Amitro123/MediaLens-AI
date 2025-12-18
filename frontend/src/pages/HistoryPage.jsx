@@ -13,20 +13,26 @@ export default function HistoryPage() {
         const fetchHistory = async () => {
             try {
                 const data = await api.getHistory()
+                console.log("History data received:", data)
                 setHistory(data.sessions || [])
             } catch (err) {
                 console.error("Failed to fetch history:", err)
             } finally {
+                console.log("History loading completed")
                 setLoading(false)
             }
         }
         fetchHistory()
     }, [])
 
-    const filteredHistory = history.filter(session =>
-        session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        session.mode_name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const sortedHistory = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+
+    const filteredHistory = sortedHistory.filter(session => {
+        const title = session.title || 'Untitled Session';
+        const modeName = session.mode_name || 'General Documentation';
+        return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            modeName.toLowerCase().includes(searchQuery.toLowerCase());
+    })
 
     const formatDate = (isoString) => {
         const date = new Date(isoString)

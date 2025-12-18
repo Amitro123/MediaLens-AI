@@ -2,7 +2,7 @@
 
 import google.generativeai as genai
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 import logging
 import json
 import re
@@ -112,15 +112,35 @@ class DocumentationGenerator:
             raise AIGenerationError(f"Failed to initialize Gemini API: {str(e)}")
     
     
-    def _transcribe_audio_fast(self, audio_file):
+    def _analyze_multimodal_fast(self, video_file, context_keywords: List[str] = None):
         """
-        Internal method to analyze audio with Gemini Flash.
-        Isolated for easier mocking in tests.
+        Internal method to analyze video proxy with Gemini Flash.
+        Uses multimodal understanding to find technical segments and quality frames.
         """
-        prompt = "Analyze this audio and return JSON with relevant segments and their start/end timestamps. Also output a technical_percentage score."
+        keywords_str = ", ".join(context_keywords) if context_keywords else "general technical content"
+        prompt = f"""
+        Analyze this video demonstration. 
+        1. Identify segments where TECHNICAL content related to "{keywords_str}" is discussed or shown.
+        2. Within those segments, identify the EXACT timestamps for high-quality screenshots.
+        3. Visual Quality Control: NEVER select a frame that shows a blank/white screen, a loading spinner, or a blurred transition.
+        4. If a key moment happens during a loading state, look forward/backward by 2-3 seconds to find the fully rendered UI.
+        
+        Return STRICTLY JSON:
+        {{
+          "relevant_segments": [
+            {{
+              "start": float,
+              "end": float,
+              "reason": "string",
+              "key_timestamps": [float, float]
+            }}
+          ],
+          "technical_percentage": float
+        }}
+        """
         
         response = self.model_flash.generate_content(
-            [audio_file, prompt],
+            [video_file, prompt],
             generation_config=genai.GenerationConfig(
                 temperature=0.1,
                 top_p=0.95,
@@ -131,54 +151,54 @@ class DocumentationGenerator:
         return response
 
     @trace_pipeline
-    def analyze_audio_relevance(
+    def analyze_video_relevance(
         self,
-        audio_path: str,
+        video_path: str,
         context_keywords: List[str]
-    ) -> List[Dict[str, float]]:
+    ) -> List[Dict[str, Any]]:
         """
-        Analyze audio to identify timestamps where technical content is discussed.
+        Analyze video (usually a low-FPS proxy) to identify relevant segments and key timestamps.
+        Replaces audio-only analysis for better accuracy.
         """
         try:
-            logger.info(f"Analyzing audio relevance: {audio_path}")
+            logger.info(f"Performing multimodal analysis on: {video_path}")
             
-            # Load audio filter prompt (optional, we use internal prompt for strict JSON)
-            # from app.services.prompt_loader import get_prompt_loader
+            # Upload video file (Gemini handles video files directly)
+            logger.info("Uploading video proxy to Gemini Flash...")
+            video_file = genai.upload_file(video_path)
             
-            # Upload audio file
-            logger.info("Uploading audio to Gemini Flash...")
-            audio_file = genai.upload_file(audio_path)
+            # Wait for file to be processed if needed (Gemini backend async)
+            # For small proxies it's usually fast, but let's be safe
+            import time
+            while video_file.state.name == "PROCESSING":
+                time.sleep(1)
+                video_file = genai.get_file(video_file.name)
             
-            # Call internal transcription method
-            logger.info("Analyzing audio with Gemini Flash...")
-            response = self._transcribe_audio_fast(audio_file)
+            if video_file.state.name == "FAILED":
+                raise AIGenerationError(f"Video file processing failed: {video_file.name}")
+
+            # Call internal analysis method
+            logger.info("Analyzing video with Gemini Flash (Multimodal)...")
+            response = self._analyze_multimodal_fast(video_file, context_keywords)
             
             if not response.text:
                 raise AIGenerationError("Gemini Flash returned empty response")
             
             # Parse JSON response
             try:
-                # Direct JSON parsing since we requested mime_type="application/json"
                 result = json.loads(response.text)
                 segments = result.get("relevant_segments", [])
-                
-                # Filter segments based on keywords if provided (simple keyword matching simulation)
-                # In a real scenario, the LLM prompt would do this, but we can double check here
-                if context_keywords:
-                    # Rerank or filter logic could go here
-                    pass
-
-                logger.info(f"Found {len(segments)} relevant segments")
+                logger.info(f"Found {len(segments)} relevant segments via multimodal analysis")
                 
                 return segments
             
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON response: {response.text}")
-                raise AIGenerationError(f"Invalid JSON from audio analysis: {str(e)}")
+                raise AIGenerationError(f"Invalid JSON from video analysis: {str(e)}")
         
         except Exception as e:
-            logger.error(f"Audio analysis failed: {str(e)}")
-            raise AIGenerationError(f"Failed to analyze audio: {str(e)}")
+            logger.error(f"Video analysis failed: {str(e)}")
+            raise AIGenerationError(f"Failed to analyze video proxy: {str(e)}")
     
     @trace_pipeline
     def generate_documentation(

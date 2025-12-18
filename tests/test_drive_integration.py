@@ -26,10 +26,10 @@ def mock_drive_connector():
 
 @pytest.fixture
 def mock_video_processor():
-    # Patch extract_audio in routes.py imported namespace
-    with patch("app.api.routes.extract_audio") as mock_audio, \
-         patch("app.api.routes.extract_frames") as mock_frames, \
-         patch("app.api.routes.get_video_duration") as mock_duration:
+    # Patch video processing functions in the new video_pipeline module
+    with patch("app.services.video_pipeline.extract_audio") as mock_audio, \
+         patch("app.services.video_pipeline.extract_frames") as mock_frames, \
+         patch("app.services.video_pipeline.get_video_duration") as mock_duration:
         
         mock_duration.return_value = 60.0 # 60 seconds
         mock_audio.return_value = "mock_audio.mp3"
@@ -38,7 +38,7 @@ def mock_video_processor():
 
 @pytest.fixture
 def mock_ai_generator():
-    with patch("app.api.routes.get_generator") as mock_get_gen:
+    with patch("app.services.video_pipeline.get_generator") as mock_get_gen:
         generator = MagicMock()
         # Mock analyze_audio_relevance
         generator.analyze_audio_relevance.return_value = [
@@ -53,11 +53,15 @@ def mock_ai_generator():
 
 @pytest.fixture
 def mock_settings():
-    with patch("app.api.routes.settings") as mock_settings:
-        mock_settings.get_upload_path.return_value = Path("/tmp/uploads")
-        mock_settings.max_video_length = 300
-        mock_settings.frame_interval = 5
-        yield mock_settings
+    # Patch settings in both routes.py and video_pipeline.py
+    with patch("app.api.routes.settings") as mock_settings_routes, \
+         patch("app.services.video_pipeline.settings") as mock_settings_pipeline:
+        mock_settings_routes.get_upload_path.return_value = Path("/tmp/uploads")
+        mock_settings_routes.max_video_length = 300
+        mock_settings_routes.frame_interval = 5
+        mock_settings_pipeline.max_video_length = 300
+        mock_settings_pipeline.frame_interval = 5
+        yield mock_settings_routes
 
 
 
@@ -99,7 +103,10 @@ def test_drive_upload_success(
         mock_loader_get.return_value = mock_loader
         
         # Also need to mock Path.mkdir and open because routes opens file/dir
-        with patch("pathlib.Path.mkdir"), patch("builtins.open", create=True):
+        # And patch storage service in video_pipeline
+        with patch("pathlib.Path.mkdir"), \
+             patch("builtins.open", create=True), \
+             patch("app.services.video_pipeline.get_storage_service"):
              response = client.post("/api/v1/upload/drive", json=payload)
 
         # Assertions

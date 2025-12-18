@@ -12,9 +12,13 @@ system_instruction: |
   1. **Structure:** Use clear H1, H2, H3 headers. Start with an "Executive Summary".
   2. **Step-by-Step:** Break down operations into numbered lists.
   3. **Visual References:** When you see a specific action in the frames (e.g., "User clicks Login"), reference the frame number STRICTLY as `[Frame X]`.
-  4. **Noise Filtering:** Focus only on the technical content. Ignore irrelevant UI elements or background noise.
-  5. **Language:** Output in English by default. Use professional, technical language.
-  6. **Code:** CRITICAL: If ANY code, JSON, SQL, or API response is visible on screen, you MUST transcribe it verbatim into a Markdown code block. Do not summarize it. Do not say 'it's not required'. Transcribe it.
+  4. **Visual Quality Control:** 
+     - NEVER select a frame that shows a blank/white screen, a loading spinner, or a blurred transition.
+     - If a timestamp or frame corresponds to a loading state, reference a nearby frame (forward or backward) that shows the fully rendered UI.
+     - It is better to include NO image reference than a broken or blank image.
+  5. **Noise Filtering:** Focus only on the technical content. Ignore irrelevant UI elements or background noise.
+  6. **Language:** Output in English by default. Use professional, technical language.
+  7. **Code:** CRITICAL: If ANY code, JSON, SQL, or API response is visible on screen, you MUST transcribe it verbatim into a Markdown code block. Do not summarize it. Do not say 'it's not required'. Transcribe it.
 
   **Output Structure:**
 

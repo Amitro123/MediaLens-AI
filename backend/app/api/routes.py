@@ -13,6 +13,7 @@ from app.services.video_processor import extract_frames, get_video_duration, Vid
 from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import get_prompt_loader, PromptLoadError
 from app.services.storage_service import get_storage_service
+from app.services.video_pipeline import process_video_pipeline, PipelineError
 from app.core.observability import get_acontext_client, extract_code_blocks, trace_session
 
 logger = logging.getLogger(__name__)
@@ -25,44 +26,7 @@ task_results: Dict[str, dict] = {}
 session_feedback: Dict[str, list] = {}  # Store feedback by session_id
 
 
-def _store_artifacts(task_id: str, documentation: str, project_name: str) -> None:
-    """
-    Store generated documentation and code blocks as artifacts in Acontext.
-    
-    Args:
-        task_id: Unique task/session identifier
-        documentation: Generated markdown documentation
-        project_name: Name of the project
-    """
-    try:
-        client = get_acontext_client()
-        if not client.is_enabled:
-            return
-        
-        # Store the main documentation
-        client.add_artifact(
-            filename=f"{task_id}_docs.md",
-            content=documentation.encode('utf-8'),
-            path="/outputs/"
-        )
-        logger.info(f"Stored documentation artifact for {task_id}")
-        
-        # Extract and store code blocks
-        code_blocks = extract_code_blocks(documentation)
-        for i, block in enumerate(code_blocks):
-            ext = block.get('lang', 'txt')
-            client.add_artifact(
-                filename=f"{task_id}_code_{i}.{ext}",
-                content=block['code'].encode('utf-8'),
-                path="/outputs/code/"
-            )
-        
-        if code_blocks:
-            logger.info(f"Stored {len(code_blocks)} code block artifacts for {task_id}")
-            
-    except Exception as e:
-        # Don't fail the request if artifact storage fails
-        logger.warning(f"Failed to store artifacts in Acontext: {e}")
+# Note: _store_artifacts moved to video_pipeline.py (CR_FINDINGS 3.1 refactor)
 
 
 class UploadResponse(BaseModel):
@@ -91,6 +55,55 @@ class FeedbackRequest(BaseModel):
     section_id: Optional[str] = None
 
 
+class ActiveSessionResponse(BaseModel):
+    """Response model for active session recovery"""
+    session_id: str
+    status: str
+    title: str
+    mode: Optional[str] = None
+
+
+@router.get("/active-session", response_model=Optional[ActiveSessionResponse])
+async def get_active_session():
+    """
+    Check for any active processing or uploading session.
+    If multiple, returns the latest one.
+    """
+    # 1. Check draft sessions (Calendar/Drive flows)
+    try:
+        from app.services.calendar_service import get_calendar_watcher
+        calendar = get_calendar_watcher()
+        drafts = calendar.get_draft_sessions()
+        
+        # Latest active status (DraftSession handles processing, downloading_from_drive)
+        active_statuses = ["processing", "downloading_from_drive", "uploading"]
+        
+        for s in drafts:
+            if s.status in active_statuses:
+                logger.info(f"Active session found in calendar: {s.session_id}")
+                return ActiveSessionResponse(
+                    session_id=s.session_id,
+                    status=s.status,
+                    title=s.title,
+                    mode=s.suggested_mode
+                )
+    except Exception as e:
+        logger.error(f"Error checking active calendar sessions: {e}")
+
+    # 2. Check task_results (Manual upload flow)
+    for task_id, result in task_results.items():
+        if result.get("status") in ["processing", "uploading"]:
+            logger.info(f"Active session found in task_results: {task_id}")
+            return ActiveSessionResponse(
+                session_id=task_id,
+                status=result["status"],
+                title=result.get("project_name", "Untitled Project"),
+                mode=result.get("mode")
+            )
+
+    return None
+
+
 @router.post("/upload", response_model=UploadResponse)
 async def upload_video(
     file: UploadFile = File(...),
@@ -114,6 +127,13 @@ async def upload_video(
         UploadResponse with task_id and generated documentation
     """
     task_id = str(uuid.uuid4())
+    
+    # Initialize processing state for recovery/observability
+    task_results[task_id] = {
+        "status": "processing",
+        "project_name": project_name,
+        "mode": mode
+    }
     
     try:
         # Load prompt configuration
@@ -228,57 +248,77 @@ async def upload_video(
 async def get_status(task_id: str):
     """
     Get the status of a processing task.
-    
-    Args:
-        task_id: Unique task identifier
-    
-    Returns:
-        StatusResponse with current status and progress
+    Supports both manual uploads and calendar sessions.
     """
-    if task_id not in task_results:
-        raise HTTPException(status_code=404, detail="Task not found")
+    # 1. Check manual task results
+    if task_id in task_results:
+        result = task_results[task_id]
+        return StatusResponse(
+            status=result["status"],
+            progress=100 if result["status"] == "completed" else 50
+        )
     
-    result = task_results[task_id]
-    
-    return StatusResponse(
-        status=result["status"],
-        progress=100 if result["status"] == "completed" else 0
-    )
+    # 2. Check calendar draft sessions
+    try:
+        from app.services.calendar_service import get_calendar_watcher
+        calendar = get_calendar_watcher()
+        session = calendar.get_session(task_id)
+        if session:
+            # Map statuses to progress
+            progress = 0
+            if session.status == "completed": progress = 100
+            elif session.status == "processing": progress = 60
+            elif session.status == "downloading_from_drive": progress = 30
+            
+            return StatusResponse(
+                status=session.status,
+                progress=progress
+            )
+    except:
+        pass
+        
+    raise HTTPException(status_code=404, detail="Task not found")
 
 
 @router.get("/result/{task_id}", response_model=ResultResponse)
 async def get_result(task_id: str):
     """
     Get the generated documentation for a completed task.
-    
-    Args:
-        task_id: Unique task identifier
-    
-    Returns:
-        ResultResponse with generated documentation
     """
-    if task_id not in task_results:
-        # Try loading from disk (Persistence Layer)
-        storage = get_storage_service()
-        persisted_result = storage.get_session_result(task_id)
-        if persisted_result:
-            # Cache in memory for next time
-            task_results[task_id] = persisted_result
+    # 1. Try task_results first (Manual uploads)
+    if task_id in task_results:
+        result = task_results[task_id]
+        if result["status"] == "completed":
             return ResultResponse(
                 task_id=task_id,
-                documentation=persisted_result["documentation"]
+                documentation=result["documentation"]
             )
-        raise HTTPException(status_code=404, detail="Task not found")
     
-    result = task_results[task_id]
-    
-    if result["status"] != "completed":
-        raise HTTPException(status_code=400, detail="Task not completed yet")
-    
-    return ResultResponse(
-        task_id=task_id,
-        documentation=result["documentation"]
-    )
+    # 2. Try Draft Sessions (Calendar/Drive flows)
+    try:
+        from app.services.calendar_service import get_calendar_watcher
+        calendar = get_calendar_watcher()
+        session = calendar.get_session(task_id)
+        if session and session.status == "completed":
+            # Data might be in metadata or on disk
+            documentation = session.metadata.get("documentation")
+            if documentation:
+                return ResultResponse(task_id=task_id, documentation=documentation)
+    except:
+        pass
+
+    # 3. Try loading from disk (Universal Persistence Layer)
+    storage = get_storage_service()
+    persisted_result = storage.get_session_result(task_id)
+    if persisted_result:
+        # Cache in memory
+        task_results[task_id] = persisted_result
+        return ResultResponse(
+            task_id=task_id,
+            documentation=persisted_result["documentation"]
+        )
+        
+    raise HTTPException(status_code=404, detail="Task or result not found")
 
 
 @router.get("/modes")
@@ -339,12 +379,16 @@ async def get_history():
     """
     Get the list of all past documentation sessions.
     """
+    logger.info("Fetching session history...")
     try:
         storage = get_storage_service()
-        return {"sessions": storage.get_history()}
+        # Use run_in_threadpool for file I/O which might be slow/locked on Windows
+        sessions = await run_in_threadpool(storage.get_history)
+        logger.info(f"Successfully fetched {len(sessions)} history sessions")
+        return {"sessions": sessions}
     except Exception as e:
-        logger.error(f"Failed to fetch history: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to load history")
+        logger.error(f"Failed to fetch history: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to load history: {str(e)}")
 
 
 @router.post("/sessions/{session_id}/prep")
@@ -377,6 +421,8 @@ class DriveUploadRequest(BaseModel):
 async def upload_from_drive(request: DriveUploadRequest):
     """
     Import video from Google Drive and generate documentation.
+    
+    Uses shared video processing pipeline (CR_FINDINGS 3.1 refactor).
     """
     logger.info(f"Received Drive upload request for session {request.session_id}")
     
@@ -408,9 +454,6 @@ async def upload_from_drive(request: DriveUploadRequest):
         upload_path = settings.get_upload_path()
         task_dir = upload_path / request.session_id
         task_dir.mkdir(parents=True, exist_ok=True)
-        # We don't know extension yet, assuming mp4 for now or rely on file headers later
-        # But DriveConnector just streams bytes. Let's use a temporary name or default to mp4.
-        # Ideally we'd get metadata first, but for MVP let's assume video.mp4
         video_path = task_dir / "video.mp4"
         
         # Download file
@@ -419,22 +462,9 @@ async def upload_from_drive(request: DriveUploadRequest):
         except DriveError as e:
             calendar.update_session_status(request.session_id, "failed", {"error": str(e)})
             raise HTTPException(status_code=400, detail=str(e))
-            
-        # Trigger processing pipeline (Reuse logic or call a shared function)
-        # Ideally, we should refactor upload_to_session to separate "get file" from "process file".
-        # For now, we'll duplicate the processing/call logic or invoke it if we refactor.
-        # Given the constraint to just "trigger existing process", let's replicate the critical steps:
-        # 1. Load Prompt
-        # 2. Get Duration
-        # 3. Audio Extraction
-        # 4. Smart/Regular Frame Extraction
-        # 5. Generation
         
-        # --- Shared Processing Logic ---
-        # Determine mode
+        # Load prompt with session context
         selected_mode = session.suggested_mode or "general_doc"
-        
-        # Load prompt
         prompt_loader = get_prompt_loader()
         context = {
             "meeting_title": session.title,
@@ -445,76 +475,35 @@ async def upload_from_drive(request: DriveUploadRequest):
         
         calendar.update_session_status(request.session_id, "processing")
         
-        # Validate video duration
-        duration = await run_in_threadpool(get_video_duration, str(video_path))
-        if duration > settings.max_video_length:
-             raise HTTPException(status_code=400, detail="Video too long")
-
-        # Audio-First Pipeline
-        generator = get_generator()
-        relevant_segments = None
-        
+        # Use shared processing pipeline
         try:
-            audio_path = await run_in_threadpool(extract_audio, str(video_path))
-            relevant_segments = generator.analyze_audio_relevance(
-                audio_path, context_keywords=session.context_keywords
+            result = await process_video_pipeline(
+                video_path=video_path,
+                task_id=request.session_id,
+                prompt_config=prompt_config,
+                project_name=session.title,
+                context_keywords=session.context_keywords,
+                mode=selected_mode
             )
-        except Exception as e:
-            logger.warning(f"Audio analysis failed: {e}")
-            
-        # Frame Extraction
-        frames_dir = task_dir / "frames"
-        timestamps = None
-        if relevant_segments:
-            timestamps = []
-            for seg in relevant_segments:
-                timestamps.append(seg['start'])
-                timestamps.append(seg['end'])
+        except PipelineError as e:
+            calendar.update_session_status(request.session_id, "failed", {"error": str(e)})
+            raise HTTPException(status_code=500, detail=str(e))
         
-        frame_paths = await run_in_threadpool(
-            extract_frames,
-            str(video_path), 
-            str(frames_dir), 
-            settings.frame_interval,
-            timestamps
-        )
-        
-        # Generate Docs
-        documentation = generator.generate_documentation(
-            frame_paths=frame_paths,
-            prompt_config=prompt_config,
-            project_name=session.title
-        )
-        
-        # Complete
+        # Update session status
         calendar.update_session_status(
             request.session_id,
             "completed",
             {
-                "documentation": documentation,
-                "mode_used": selected_mode,
-                "mode_name": prompt_config.name
+                "documentation": result.documentation,
+                "mode_used": result.mode,
+                "mode_name": result.mode_name
             }
         )
         
-        # Store artifacts in Acontext (Flight Recorder)
-        _store_artifacts(request.session_id, documentation, session.title)
-        
-        # PERSIST TO HISTORY
-        storage = get_storage_service()
-        storage.add_session(request.session_id, {
-            "title": session.title,
-            "topic": prompt_config.name,
-            "status": "completed",
-            "documentation": documentation,
-            "mode": selected_mode,
-            "mode_name": prompt_config.name
-        })
-        
         return UploadResponse(
-            task_id=request.session_id,
-            status="completed",
-            result=documentation
+            task_id=result.task_id,
+            status=result.status,
+            result=result.documentation
         )
 
     except HTTPException:
@@ -630,109 +619,35 @@ async def upload_to_session(
         
         logger.info(f"Saved video for session {session_id}: {video_path}")
         
-        # Validate video duration
+        # Use shared processing pipeline (CR_FINDINGS 3.1 refactor)
         try:
-            duration = await run_in_threadpool(get_video_duration, str(video_path))
-            if duration > settings.max_video_length:
-                calendar.update_session_status(session_id, "failed", {"error": "Video too long"})
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Video too long. Maximum: {settings.max_video_length}s"
-                )
-            logger.info(f"Video duration: {duration:.2f}s")
-        except VideoProcessingError as e:
-            calendar.update_session_status(session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=400, detail=f"Invalid video file: {str(e)}")
-        
-        # --- Audio-First Pipeline ---
-        generator = get_generator()
-        relevant_segments = []
-        
-        # 1. Extract Audio
-        try:
-            logger.info("Starting Audio-First Analysis...")
-            audio_path = await run_in_threadpool(extract_audio, str(video_path))
-            
-            # 2. Analyze Audio Relevance (Gemini Flash)
-            relevant_segments = generator.analyze_audio_relevance(
-                audio_path,
-                context_keywords=session.context_keywords
-            )
-        except Exception as e:
-            logger.warning(f"Audio analysis failed, falling back to regular sampling: {e}")
-            # Fallback will happen naturally if relevant_segments is empty/None
-            relevant_segments = None
-
-        # 3. Smart Frame Extraction
-        frames_dir = task_dir / "frames"
-        try:
-            # Convert segments to timestamps list
-            timestamps = None
-            if relevant_segments:
-                timestamps = []
-                for seg in relevant_segments:
-                    # Extract frames at start, middle, and end
-                    timestamps.append(seg['start'])
-                    if seg['end'] - seg['start'] > 5.0:
-                        timestamps.append((seg['start'] + seg['end']) / 2)
-                    timestamps.append(seg['end'])
-                
-                logger.info(f"Smart Sampling: Extracting at {len(timestamps)} specific timestamps")
-            
-            frame_paths = await run_in_threadpool(
-                extract_frames,
-                str(video_path),
-                str(frames_dir),
-                settings.frame_interval,
-                timestamps
-            )
-            logger.info(f"Extracted {len(frame_paths)} frames")
-        except VideoProcessingError as e:
-            calendar.update_session_status(session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=500, detail=f"Frame extraction failed: {str(e)}")
-        
-        # 4. Generate documentation with context-aware prompt
-        try:
-            documentation = generator.generate_documentation(
-                frame_paths=frame_paths,
+            result = await process_video_pipeline(
+                video_path=video_path,
+                task_id=session_id,
                 prompt_config=prompt_config,
-                context="",  # RAG context (future)
-                project_name=session.title
+                project_name=session.title,
+                context_keywords=session.context_keywords,
+                mode=selected_mode
             )
-            logger.info(f"Generated documentation for session {session_id}")
-        except AIGenerationError as e:
+        except PipelineError as e:
             calendar.update_session_status(session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
         
         # Update session status
         calendar.update_session_status(
             session_id,
             "completed",
             {
-                "documentation": documentation,
-                "mode_used": selected_mode,
-                "mode_name": prompt_config.name
+                "documentation": result.documentation,
+                "mode_used": result.mode,
+                "mode_name": result.mode_name
             }
         )
         
-        # Store artifacts in Acontext (Flight Recorder)
-        _store_artifacts(session_id, documentation, session.title)
-        
-        # PERSIST TO HISTORY
-        storage = get_storage_service()
-        storage.add_session(session_id, {
-            "title": session.title,
-            "topic": prompt_config.name,
-            "status": "completed",
-            "documentation": documentation,
-            "mode": selected_mode,
-            "mode_name": prompt_config.name
-        })
-        
         return UploadResponse(
-            task_id=session_id,
-            status="completed",
-            result=documentation
+            task_id=result.task_id,
+            status=result.status,
+            result=result.documentation
         )
     
     except HTTPException:

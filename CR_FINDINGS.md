@@ -72,7 +72,7 @@
 
 ---
 
-## Resolution Status (2025-12-17)
+## Resolution Status (2025-12-18)
 
 | Issue | Status | Notes |
 |-------|--------|-------|
@@ -80,7 +80,7 @@
 | 1.2 Branding | ✅ Resolved | Changed "DocuFlow AI" → "DevLens AI" in `main.py`, `prompt_loader.py`, `conftest.py` |
 | 2.1 Blocking Operations | ✅ Resolved | Added `run_in_threadpool` wrappers in `routes.py` |
 | 2.2 In-Memory Persistence | ✅ Documented | Added TODO comment (acceptable for MVP) |
-| 3.1 Code Duplication | ⏳ Deferred | Significant refactor - planned for future iteration |
+| 3.1 Code Duplication | ✅ Resolved | Refactored into shared `video_pipeline.py` with `process_video_pipeline()` |
 | 3.2 Unsafe String Interpolation | ✅ Resolved | Replaced with `string.Template.safe_substitute()` |
 | 3.3 Unused Dependencies | ✅ Resolved | Removed `moviepy` from `requirements.txt` |
 | 4.1 Fake Progress Bar | ✅ Documented | Acceptable for MVP - noted in codebase |

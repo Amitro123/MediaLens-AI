@@ -32,6 +32,15 @@ export default function UploadForm({ session = null, isDevMode = false }) {
             if (session.suggested_mode) {
                 setSelectedMode(session.suggested_mode)
             }
+
+            // Recovery logic: if the session passed from parent is already active
+            const activeStatuses = ['processing', 'downloading_from_drive', 'uploading'];
+            if (activeStatuses.includes(session.status)) {
+                console.log("Attaching to active session:", session.id);
+                setUploading(true);
+                setStatusMessage("Re-attaching to session...");
+                pollActiveSession(session.id);
+            }
         }
     }, [session])
 
@@ -136,6 +145,42 @@ export default function UploadForm({ session = null, isDevMode = false }) {
         }
     }
 
+    const pollActiveSession = async (taskId) => {
+        // Polling interval
+        const interval = setInterval(async () => {
+            try {
+                const statusData = await api.getStatus(taskId);
+                console.log("Polling status:", statusData);
+
+                if (statusData.status === 'completed') {
+                    clearInterval(interval);
+                    setStatusMessage("Finalizing...");
+                    const resultData = await api.getResult(taskId);
+                    setResult({ result: resultData.documentation, task_id: taskId });
+                    setUploading(false);
+                    setProgress(100);
+                } else if (statusData.status === 'failed') {
+                    clearInterval(interval);
+                    setError(statusData.error || 'The background job failed.');
+                    setUploading(false);
+                } else {
+                    // Update progress incrementally
+                    setProgress(prev => Math.min(prev + 2, 95));
+                    if (statusData.status === 'downloading_from_drive') {
+                        setStatusMessage("Downloading from Drive...");
+                    } else {
+                        setStatusMessage("Processing video pipeline...");
+                    }
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }, 3000);
+
+        // Cleanup on unmount
+        return () => clearInterval(interval);
+    }
+
     const resetForm = () => {
         setVideoFile(null)
         setDriveUrl('')
@@ -158,8 +203,8 @@ export default function UploadForm({ session = null, isDevMode = false }) {
                     type="button"
                     onClick={() => { setUploadMode('file'); setError(null); }}
                     className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${uploadMode === 'file'
-                            ? 'bg-indigo-600 text-white shadow-lg'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
                         }`}
                 >
                     Upload Video
@@ -168,8 +213,8 @@ export default function UploadForm({ session = null, isDevMode = false }) {
                     type="button"
                     onClick={() => { setUploadMode('drive'); setError(null); }}
                     className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${uploadMode === 'drive'
-                            ? 'bg-indigo-600 text-white shadow-lg'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
                         }`}
                 >
                     Import from Drive

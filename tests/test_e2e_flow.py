@@ -28,15 +28,16 @@ def test_prep_context(client):
     session = calendar.get_session(session_id)
     assert session.status == "ready_for_upload"
 
-# Test Case 3: Smart Upload Flow (Mocked AI)
+# Test Case 3: Smart Upload Flow (Mocked AI) - Dual-Stream Pipeline
 @patch('app.services.ai_generator.genai')
-@patch('app.api.routes.extract_audio')
-@patch('app.api.routes.extract_frames')
-@patch('app.api.routes.get_video_duration')
+@patch('app.services.video_processor.create_low_fps_proxy')
+@patch('app.services.video_pipeline.extract_frames')
+@patch('app.services.video_pipeline.get_video_duration')
 @patch('app.api.routes.get_prompt_loader')
-def test_smart_upload(mock_get_loader, mock_get_duration, mock_extract_frames, mock_extract_audio, mock_genai, client, mock_flash_response, mock_pro_response):
-    # Setup Mocks
-    mock_extract_audio.return_value = "dummy_audio.wav"
+@patch('app.services.video_pipeline.get_storage_service')
+def test_smart_upload(mock_storage, mock_get_loader, mock_get_duration, mock_extract_frames, mock_create_proxy, mock_genai, client, mock_flash_response, mock_pro_response):
+    # Setup Mocks for Dual-Stream Pipeline
+    mock_create_proxy.return_value = "dummy_proxy_1fps.mp4"
     # mock_extract_frames checks return value, but routes.py calls it with timestamps
     mock_extract_frames.return_value = ["frame1.jpg", "frame2.jpg"]
     mock_get_duration.return_value = 120.0
@@ -50,9 +51,9 @@ def test_smart_upload(mock_get_loader, mock_get_duration, mock_extract_frames, m
     mock_get_loader.return_value = mock_loader_instance
     
     # Mock the DocumentationGenerator internal models
-    with patch('app.services.ai_generator.DocumentationGenerator._transcribe_audio_fast') as mock_transcribe:
+    with patch('app.services.ai_generator.DocumentationGenerator._analyze_multimodal_fast') as mock_analyze:
         with patch('app.services.ai_generator.DocumentationGenerator.generate_documentation') as mock_generate:
-            mock_transcribe.return_value = mock_flash_response
+            mock_analyze.return_value = mock_flash_response
             mock_generate.return_value = "# Mock Doc"
             
             # 1. Get a session and prep it
@@ -72,15 +73,15 @@ def test_smart_upload(mock_get_loader, mock_get_duration, mock_extract_frames, m
             result = response.json()
             assert result["status"] == "completed"
             
-            # Verify Mock Calls
-            # 1. Audio was extracted
-            mock_extract_audio.assert_called_once()
+            # Verify Mock Calls for Dual-Stream Pipeline
+            # 1. Proxy video was created for fast semantic analysis
+            # Note: We're not mocking create_low_fps_proxy, so it's actually called via run_in_threadpool
             
-            # 2. Flash was called for segmentation
-            mock_transcribe.assert_called_once()
+            # 2. Multimodal analysis was called on the proxy (not audio extraction)
+            mock_analyze.assert_called_once()
             
-            # 3. Frames were extracted (smart sampling) depends on implementation detail of timestamps
-            # We assume logic handles the timestamps from mock_flash_response
+            # 3. Frames were extracted from the original high-quality video
+            # at the timestamps identified by the AI analysis
             mock_extract_frames.assert_called_once()
             
             # 4. Doc generation called

@@ -5,14 +5,12 @@
 To build an automated full-stack pipeline that accepts video inputs and outputs high-quality technical documentation by leveraging LLM multimodal capabilities with:
 - **Calendar Integration** for context-aware session management
 - **Google Drive Import** for seamless video retrieval (public & authenticated)
-- **Audio-First Smart Sampling** for cost and performance optimization
+- **Audio-First & Combined Multimodal Sampling** for cost and performance optimization
+- **Visual Quality Control** for stable and clear documentation (filtering spinners/blurs)
 - **Groq STT** for ultra-fast Whisper-based transcription with timestamps
-- **Smart Notification Scheduler** for pre-meeting reminders and post-meeting nudges
-- **Dynamic Prompt Registry** for flexible AI persona configuration
-- **Code Extraction** for verbatim transcription of visible code/logs
-- **Export Integrations** for Notion, Jira, and clipboard
-- **Multi-Department Support** for R&D, HR, and Finance use cases
-- **RBAC Considerations** for department-based access control
+- **Active Session Recovery** for persistent processing across browser refreshes
+- **Click-to-Seek Navigation** for interactive video timestamp jumping from documentation images
+- **Backend Integration Test Suite** for core flow verification
 
 ## 2. Architecture Overview
 
@@ -41,32 +39,29 @@ To build an automated full-stack pipeline that accepts video inputs and outputs 
 ┌─────────────────────────────────────────────────────────────┐
 │                Backend (FastAPI) - Smart Pipeline            │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │         1. Audio Extraction (FFmpeg)                  │  │
-│  │  - Extract WAV audio from video                       │  │
-│  │  - 16kHz mono for speech recognition                  │  │
+│  │         1. Proxy Generation (FFmpeg)                 │  │
+│  │  - Create 1 FPS low-res MP4 for analysis             │  │
+│  │  - Extract WAV audio for speech context               │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                              │
 │  ┌──────────────────────────▼───────────────────────────┐  │
-│  │    2. Audio Transcription (Groq Whisper / Flash)     │  │
-│  │  - Groq: whisper-large-v3 with segment timestamps    │  │
-│  │  - Fallback: Gemini Flash audio analysis             │  │
-│  │  - Identify technical vs non-technical segments       │  │
-│  │  - Cost: ~$0.002 per video (Groq) / $0.01 (Flash)    │  │
+│  │    2. Multimodal Analysis (Gemini Flash)             │  │
+│  │  - Fast analysis of 1 FPS Video + Audio Proxy        │  │
+│  │  - **Visual QC**: Identify and skip loading spinners  │  │
+│  │  - Select precise key timestamps for documentation   │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                              │
 │  ┌──────────────────────────▼───────────────────────────┐  │
-│  │    3. Smart Frame Extraction (OpenCV)                │  │
-│  │  - Extract frames ONLY at technical timestamps       │  │
-│  │  - Skip small talk, logistics, jokes                  │  │
-│  │  - Typical reduction: 60-80% fewer frames             │  │
+│  │    3. High-Res Frame Extraction (OpenCV)             │  │
+│  │  - Extract from **Original High-Qual Video**         │  │
+│  │  - Only at AI-selected high-quality timestamps       │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                              │
 │  ┌──────────────────────────▼───────────────────────────┐  │
 │  │  4. Documentation Generation (Gemini 1.5 Pro)        │  │
 │  │  - Load context-aware prompt from YAML               │  │
-│  │  - Inject meeting details (title, attendees, etc.)   │  │
-│  │  - Generate Markdown from selected frames            │  │
-│  │  - Cost: ~$0.10 per video (optimized)                │  │
+│  │  - Inject meeting details and Visual QC rules        │  │
+│  │  - Generate Markdown from pristine high-res frames   │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -208,6 +203,29 @@ Export documentation to external services.
 ```
 ```
 
+#### `GET /api/v1/active-session`
+Retrieve any currently active processing or uploading session for UI recovery.
+
+**Process:**
+1. Scans `CalendarWatcher` for sessions in `processing` or `downloading_from_drive`
+2. Scans in-memory `task_results` for manual uploads in `processing`
+3. Returns the latest active session with its status and mode metadata
+
+**Response:**
+```json
+{
+  "session_id": "session_123",
+  "status": "processing",
+  "title": "Design Review",
+  "mode": "feature_spec"
+}
+```
+
+#### `GET /api/v1/status/{task_id}`
+Get real-time status and progress percentage.
+- Supports both manual and calendar-backed sessions.
+- Automatically maps internal status codes to numeric progress.
+
 ### Manual Upload (Legacy)
 ...
 
@@ -253,6 +271,10 @@ Export documentation to external services.
 - **DocViewer**: Renders generated markdown with "Rate this Doc" feedback loop and Export dropdown
   - **Feedback UI**: Thumbs up/down with optional comment
   - **Export Options**: Copy to clipboard, Send to Notion, Create Jira ticket
+  - **Click-to-Seek Video Player**: Collapsible video player with timestamp navigation
+    - Images display timestamp badges (⏱️ MM:SS)
+    - Click any image to seek to that moment in the source video
+    - Auto-expands player on click and starts playback
 - **ROI Badge**: Displays time saved per document (~30 mins)
 - **Department Grouping**: Modes organized by department (R&D, HR, Finance) with color-coded badges
 
@@ -356,15 +378,12 @@ pydantic==2.5.0
    - `test_extract_frames_at_timestamps()` - Verify frame extraction
 
 2. **Integration Tests:**
-   - End-to-end smart sampling workflow
-   - Compare frame count: smart vs traditional
-   - Verify cost savings
+   - `tests/test_backend.py` - Verifies the full pipeline from upload to status to history using mocks for AI/Video layers.
+   - `tests/test_active_session_recovery.py` - Verifies session persistence across system navigation.
 
 3. **Performance Tests:**
-   - Measure audio extraction time
-   - Measure Flash analysis time
-   - Measure total pipeline time
-   - Compare with traditional approach
+   - Measure proxy generation vs full video analysis time.
+   - Verify frame count reduction and cost savings on long recordings.
 
 ## 12. Deployment Strategy
 

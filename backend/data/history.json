@@ -1,3 +1,13 @@
 {
-  "sessions": []
+  "sessions": [
+    {
+      "id": "mtg_1",
+      "timestamp": "2025-12-18T14:14:12.069298",
+      "title": "Session mtg_1",
+      "topic": "Technical Documentation Writer",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "Technical Documentation Writer"
+    }
+  ]
 }

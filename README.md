@@ -28,32 +28,34 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
   - 📚 **Technical Docs** - Create step-by-step guides from tutorials
   - 👔 **HR Interviews** - Candidate scorecards with strengths and cultural fit
   - 💰 **Finance Reviews** - Budget analysis and financial data extraction
-* **🤖 Dual-Model AI** - Gemini Flash for audio analysis, Gemini Pro for documentation
-* **💻 Modern Web UI** - React frontend with developer mode and telemetry
-* **📊 Session Management** - Track documentation sessions from meeting to completion
-* **💬 Feedback Loop** - Rate generated docs and provide improvement feedback
+* **🔄 Active Session Recovery** - Automatically reconnect to pending jobs after navigation or refresh
+* **🚀 Dual-Stream Optimization** - 1 FPS proxy for fast analysis + original video for high-res extraction
+* **🛡️ Visual Quality Control** - AI filters out blank screens, spinners, and blurred transitions
+* **🎬 Click-to-Seek Navigation** - Click any documentation image to jump to that moment in the source video
+* **🧪 Integration Test Suite** - Comprehensive backend tests for upload, status, and history
 
 ## 💡 Why DevLens?
 
-### Audio-First Architecture: The Smart Way
+### Dual-Stream Architecture: Speed + Quality
 
 **Traditional Approach (Expensive & Slow):**
 - Extract 1 frame every 5 seconds → 120 frames for a 10-minute video
 - Send all frames to Gemini Pro → ~$0.50 per video
 - Processing time: ~30 seconds
-- Includes irrelevant content (small talk, jokes, logistics)
+- Includes irrelevant content and blank screenshots (loading states)
 
-**DevLens Audio-First (Fast & Accurate):**
-- Step 1: Extract audio (2s)
-- Step 2: Analyze with Gemini Flash (5s) → Identify technical segments (ignores small talk)
-- Step 3: Extract frames **only at technical moments** → 60-80% fewer frames
-- Step 4: Generate docs with Gemini Pro from relevant frames
+**DevLens Dual-Stream (Optimized):**
+- **Step 1: Create 1 FPS Proxy** - Ultra-fast FFmpeg proxy for semantic analysis (2s)
+- **Step 2: Multimodal Analysis** - Gemini Flash analyzes proxy video + audio (5s) → Identifies technical segments and **precise key timestamps**.
+- **Step 3: Visual QC** - AI filters out loading spinners, blank screens, and blurs.
+- **Step 4: High-Res Extraction** - Extract frames from **original video** only at selected high-quality moments.
+- **Step 5: Documentation** - Gemini Pro generates docs from pristine, high-res frames.
 
 **Results:**
 - 💰 **78% Cost Reduction** - Process only relevant frames (~$0.11 per 10min video)
-- ⚡ **3x Faster** - Skip non-technical content entirely
-- 🎯 **Higher Quality** - No hallucinations from irrelevant context
-- 💻 **Code Accuracy** - Verbatim extraction when visible on screen
+- ⚡ **3x Faster** - Proxy-based analysis is significantly lighter than full video analysis
+- 🎯 **Visual Excellence** - Zero blank screenshots or "Loading..." spinners in your docs
+- 💻 **Code Accuracy** - Verbatim extraction from the original high-resolution source
 
 ## 🏗️ Architecture
 
@@ -166,7 +168,7 @@ npm run dev
 
 Frontend will run at `http://localhost:5173`
 
-###  🔍 Acontext Flight Recorder (Optional)
+### 🔍 Acontext Flight Recorder (Optional)
 
 Start the observability stack with Docker Compose:
 
@@ -182,41 +184,46 @@ This starts:
 
 All video processing steps are automatically traced when Acontext is running.
 
-##  Usage
+## Usage
 
 ### Calendar-Based Workflow
 
-1. Navigate to `http://localhost:5173`
-2. **"Upcoming Meetings"** section shows draft sessions from calendar
-3. Click **"⚡ Prep Context"** on any scheduled meeting to prime the AI
-   - This "primes" the session with meeting details (title, attendees, keywords)
-   - Status changes to **"Ready for Upload"** (Green)
-4. Click the meeting card to focus the upload area
-5. Drag & drop video to process with context automatically injected
+1.  Navigate to `http://localhost:5173`
+2.  **"Upcoming Meetings"** section shows draft sessions from calendar
+3.  Click **"⚡ Prep Context"** on any scheduled meeting to prime the AI
+    -   This "primes" the session with meeting details (title, attendees, keywords)
+    -   Status changes to **"Ready for Upload"** (Green)
+4.  Click the meeting card to focus the upload area
+5.  Drag & drop video to process with context automatically injected
 
-### Manual Upload
+### Video Import & Recovery
 
-1. If no meeting is selected, the upload area works in **"Manual Processing"** mode
-2. Select documentation mode (Bug Report, Feature Spec, etc.)
-3. Enter project name (optional)
-4. Drag & drop your video or click to upload
-5. Wait for AI to process and generate documentation
+1.  **Google Drive Import**: Select "Import from Drive", paste a link, and click "Import".
+2.  **🔄 Active Session Recovery**: If you navigate away or refresh during processing, DevLens will automatically re-attach to the pending job when you return to the Dashboard.
+
+### Manual Upload (Legacy)
+
+1.  If no meeting is selected, the upload area works in **"Manual Processing"** mode
+2.  Select documentation mode (Bug Report, Feature Spec, etc.)
+3.  Enter project name (optional)
+4.  Drag & drop your video or click to upload
+5.  Wait for AI to process and generate documentation
 
 ### Google Drive Import
 
-1. Select **"Import from Drive"** tab
-2. Paste a Google Drive share link (must be accessible)
-3. Click "Import & Analyze"
-4. System downloads and processes the video automatically
+1.  Select **"Import from Drive"** tab
+2.  Paste a Google Drive share link (must be accessible)
+3.  Click "Import & Analyze"
+4.  System downloads and processes the video automatically
 
 ### Export & Integrations
 
 After documentation is generated:
-1. Click **"Export"** dropdown in the DocViewer
-2. Choose:
-   - **Copy to Clipboard** - Copy Markdown directly
-   - **Send to Notion** - Create a new page in your Notion workspace
-   - **Create Jira Ticket** - Auto-create a ticket with the documentation
+1.  Click **"Export"** dropdown in the DocViewer
+2.  Choose:
+    -   **Copy to Clipboard** - Copy Markdown directly
+    -   **Send to Notion** - Create a new page in your Notion workspace
+    -   **Create Jira Ticket** - Auto-create a ticket with the documentation
 
 ### API Usage
 
@@ -253,6 +260,16 @@ curl -X POST "http://localhost:8000/api/v1/upload" \
 **List Available Modes:**
 ```bash
 curl "http://localhost:8000/api/v1/modes"
+```
+
+**Check for Active Session (Recovery):**
+```bash
+curl "http://localhost:8000/api/v1/active-session"
+```
+
+**Get Task Status:**
+```bash
+curl "http://localhost:8000/api/v1/status/{task_id}"
 ```
 
 ## 🎨 Documentation Modes
@@ -293,7 +310,7 @@ MAX_VIDEO_LENGTH=900
 
 ### Adding Custom Modes
 
-1. Create a new YAML file in `backend/prompts/`:
+1.  Create a new YAML file in `backend/prompts/`:
 
 ```yaml
 id: "your_mode"
@@ -316,8 +333,8 @@ guidelines:
   - Guideline 2
 ```
 
-2. Restart the backend server
-3. The new mode will appear in the frontend dropdown
+2.  Restart the backend server
+3.  The new mode will appear in the frontend dropdown
 
 ## 📚 API Documentation
 
@@ -392,7 +409,11 @@ DevLens-AI/
 - [x] Developer Mode with Telemetry
 - [x] Feedback Loop (Rate docs)
 - [x] Export to Notion/Jira (Mock)
-- [ ] Async processing with Celery workers (In Progress)
+- [x] Async processing with Celery workers
+- [x] Active Session Recovery (Auto-re-attach to pending jobs)
+- [x] Refactored shared video processing pipeline
+- [x] Dual-Stream Pipeline Optimization (Speed & Quality)
+- [x] Backend Integration Test Suite
 - [ ] RAG integration with ChromaDB
 - [ ] Real calendar API integration (Google Calendar, Outlook)
 - [ ] Multi-language support (Hebrew/English)

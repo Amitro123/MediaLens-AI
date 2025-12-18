@@ -19,6 +19,70 @@ class VideoProcessingError(Exception):
 
 
 @trace_pipeline
+def create_low_fps_proxy(video_path: str, output_dir: Optional[str] = None, fps: int = 1) -> str:
+    """
+    Create a low-FPS version of the video specifically for multimodal analysis.
+    This drastically reduces token count while maintaining semantic context.
+    
+    Args:
+        video_path: Path to the input video file
+        output_dir: Optional directory to save proxy (defaults to task directory)
+        fps: Target frame rate (default: 1 FPS)
+    
+    Returns:
+        Path to the generated low-FPS proxy video
+    """
+    try:
+        video_path_obj = Path(video_path)
+        
+        if output_dir:
+            output_path = Path(output_dir)
+            output_path.mkdir(parents=True, exist_ok=True)
+        else:
+            output_path = video_path_obj.parent
+            
+        proxy_filename = f"{video_path_obj.stem}_proxy_1fps.mp4"
+        proxy_path = output_path / proxy_filename
+        
+        # FFmpeg command to drop frames to 1 FPS and lower resolution/quality for analysis speed
+        # -r 1: Set output frame rate
+        # -vf scale=640:-2: Scale to 640px width (maintaining aspect ratio, ensuring width is even)
+        # -crf 28: Lower quality/higher compression
+        # -preset veryfast: Faster encoding
+        command = [
+            'ffmpeg',
+            '-i', str(video_path),
+            '-filter:v', f'fps={fps},scale=640:-2',
+            '-c:v', 'libx264',
+            '-crf', '28',
+            '-preset', 'veryfast',
+            '-an', # Skip audio, we extract audio separately if needed
+            '-y',
+            str(proxy_path)
+        ]
+        
+        logger.info(f"Creating {fps} FPS proxy for {video_path}")
+        
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        if not proxy_path.exists():
+            raise VideoProcessingError("Video proxy was not created")
+            
+        logger.info(f"Proxy created at {proxy_path}")
+        return str(proxy_path)
+        
+    except subprocess.CalledProcessError as e:
+        raise VideoProcessingError(f"FFmpeg proxy error: {e.stderr}")
+    except Exception as e:
+        raise VideoProcessingError(f"Failed to create video proxy: {str(e)}")
+
+
+@trace_pipeline
 def extract_audio(video_path: str, output_dir: Optional[str] = None) -> str:
     """
     Extract audio track from a video file.

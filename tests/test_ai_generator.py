@@ -46,11 +46,11 @@ class TestDocumentationGenerator:
             
             assert "Failed to initialize" in str(exc_info.value)
 
-    def test_analyze_audio_relevance(self, mock_genai, mock_settings):
-        """Test audio relevance analysis"""
+    def test_analyze_video_relevance(self, mock_genai, mock_settings):
+        """Test video relevance analysis (multimodal)"""
         # Mock response
         mock_response = MagicMock()
-        mock_response.text = '{"relevant_segments": [{"start": 0, "end": 10, "reason": "tech talk"}]}'
+        mock_response.text = '{"relevant_segments": [{"start": 0, "end": 10, "reason": "tech talk", "key_timestamps": [5.0]}]}'
         
         mock_model = MagicMock()
         mock_model.generate_content.return_value = mock_response
@@ -59,17 +59,17 @@ class TestDocumentationGenerator:
         
         generator = DocumentationGenerator()
         # Override the internal method
-        generator._transcribe_audio_fast = MagicMock(return_value=mock_response)
+        generator._analyze_multimodal_fast = MagicMock(return_value=mock_response)
         
-        segments = generator.analyze_audio_relevance(
-            "test_audio.wav",
+        segments = generator.analyze_video_relevance(
+            "test_video.mp4",
             context_keywords=["api", "docs"]
         )
         
         assert isinstance(segments, list)
 
-    def test_analyze_audio_empty_response(self, mock_genai, mock_settings):
-        """Test handling of empty audio analysis response"""
+    def test_analyze_video_empty_response(self, mock_genai, mock_settings):
+        """Test handling of empty video analysis response"""
         mock_response = MagicMock()
         mock_response.text = ""
         
@@ -78,10 +78,10 @@ class TestDocumentationGenerator:
         mock_genai.upload_file.return_value = MagicMock()
         
         generator = DocumentationGenerator()
-        generator._transcribe_audio_fast = MagicMock(return_value=mock_response)
+        generator._analyze_multimodal_fast = MagicMock(return_value=mock_response)
         
         with pytest.raises(AIGenerationError) as exc_info:
-            generator.analyze_audio_relevance("test.wav", [])
+            generator.analyze_video_relevance("test.mp4", [])
         
         assert "empty response" in str(exc_info.value)
 
