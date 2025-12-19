@@ -1,4 +1,4 @@
-"""MVP Test Script for DocuFlow AI"""
+"""MVP Test Script for DevLens AI"""
 
 import sys
 from pathlib import Path
@@ -99,7 +99,7 @@ def test_api():
 def main():
     """Run all tests"""
     print("=" * 50)
-    print("DocuFlow AI - MVP Test Suite")
+    print("DevLens AI - MVP Test Suite")
     print("=" * 50)
     
     tests = [
@@ -129,7 +129,7 @@ def main():
     all_passed = all(result for _, result in results)
     
     if all_passed:
-        print("\n✓ All tests passed! DocuFlow AI is ready to use.")
+        print("\n✓ All tests passed! DevLens AI is ready to use.")
         print("\nNext steps:")
         print("1. Set GEMINI_API_KEY in .env file")
         print("2. Run: uvicorn app.main:app --reload")

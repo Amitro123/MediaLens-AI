@@ -38,6 +38,10 @@ export default function UploadForm({ session = null, isDevMode = false }) {
             if (activeStatuses.includes(session.status)) {
                 console.log("Attaching to active session:", session.id);
                 setUploading(true);
+                // Set initial progress if available
+                if (session.progress) {
+                    setProgress(session.progress);
+                }
                 setStatusMessage("Re-attaching to session...");
                 pollActiveSession(session.id);
             }
@@ -164,8 +168,13 @@ export default function UploadForm({ session = null, isDevMode = false }) {
                     setError(statusData.error || 'The background job failed.');
                     setUploading(false);
                 } else {
-                    // Update progress incrementally
-                    setProgress(prev => Math.min(prev + 2, 95));
+                    // Update progress from backend if available, otherwise incremental
+                    if (statusData.progress && statusData.progress > 0) {
+                        setProgress(statusData.progress);
+                    } else {
+                        setProgress(prev => Math.min(prev + 2, 95));
+                    }
+
                     if (statusData.status === 'downloading_from_drive') {
                         setStatusMessage("Downloading from Drive...");
                     } else {
@@ -180,6 +189,7 @@ export default function UploadForm({ session = null, isDevMode = false }) {
         // Cleanup on unmount
         return () => clearInterval(interval);
     }
+
 
     const resetForm = () => {
         setVideoFile(null)

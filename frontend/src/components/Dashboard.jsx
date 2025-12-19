@@ -51,6 +51,7 @@ export default function Dashboard() {
         const checkActive = async () => {
             try {
                 const active = await api.getActiveSession();
+                console.log("Active session check result:", active);
                 if (active) {
                     console.log("Recovered active session:", active);
                     // Mock a meeting object to activate the UI

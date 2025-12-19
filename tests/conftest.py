@@ -81,7 +81,6 @@ def mock_settings():
     """Provide mock settings for tests"""
     settings = MagicMock()
     settings.gemini_api_key = "test_gemini_key"
-    settings.groq_api_key = "test_groq_key"
     settings.upload_dir = "./test_uploads"
     settings.frame_interval = 5
     settings.max_video_length = 900

@@ -6,13 +6,13 @@ to eliminate code duplication (CR_FINDINGS 3.1).
 """
 
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Callable, Awaitable
 import logging
 
 from fastapi.concurrency import run_in_threadpool
 
 from app.core.config import settings
-from app.services.video_processor import extract_frames, get_video_duration, extract_audio, VideoProcessingError
+from app.services.video_processor import extract_frames, get_video_duration, VideoProcessingError
 from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import PromptConfig
 from app.services.storage_service import get_storage_service
@@ -52,7 +52,8 @@ async def process_video_pipeline(
     prompt_config: PromptConfig,
     project_name: str,
     context_keywords: Optional[List[str]] = None,
-    mode: Optional[str] = None
+    mode: Optional[str] = None,
+    progress_callback: Optional[Callable[[int, str], Awaitable[None]]] = None
 ) -> VideoPipelineResult:
     """
     Core video processing pipeline shared across upload routes.
@@ -94,7 +95,11 @@ async def process_video_pipeline(
     except VideoProcessingError as e:
         raise PipelineError(f"Invalid video file: {str(e)}")
     
+    
     # 2 & 3. Optimization: Create Low-FPS Proxy for Semantic Analysis
+    if progress_callback:
+        await progress_callback(10, "Analyzing video duration...")
+
     generator = get_generator()
     relevant_segments = None
     
@@ -102,12 +107,20 @@ async def process_video_pipeline(
         logger.info("Starting Dual-Stream Optimization: Creating Low-FPS Proxy...")
         from app.services.video_processor import create_low_fps_proxy
         
+        if progress_callback:
+            await progress_callback(20, "Creating optimized proxy...")
+
         # 1 FPS Proxy for analysis
         proxy_path = await run_in_threadpool(create_low_fps_proxy, str(video_path))
         
+        if progress_callback:
+            await progress_callback(30, "Analyzing content relevance...")
+
         logger.info("Starting Multimodal Semantic Analysis using Gemini Flash...")
         # Use multimodal analysis on the proxy video instead of audio-only
-        relevant_segments = generator.analyze_video_relevance(
+        # Wrapped in run_in_threadpool to prevent blocking the event loop (CR_FINDINGS 1.1)
+        relevant_segments = await run_in_threadpool(
+            generator.analyze_video_relevance,
             proxy_path,
             context_keywords=context_keywords
         )
@@ -116,6 +129,9 @@ async def process_video_pipeline(
         relevant_segments = None
     
     # 4. Frame extraction (Smart Extraction from Original High-Qual Video)
+    if progress_callback:
+        await progress_callback(50, "Extracting key frames...")
+
     frames_dir = task_dir / "frames"
     try:
         timestamps = None
@@ -150,11 +166,16 @@ async def process_video_pipeline(
     
     # 5. Generate documentation
     try:
-        documentation = generator.generate_documentation(
-            frame_paths=frame_paths,
-            prompt_config=prompt_config,
-            context="",  # RAG context (future enhancement)
-            project_name=project_name
+        if progress_callback:
+            await progress_callback(70, "Generating documentation with Gemini...")
+        
+        # Wrapped in run_in_threadpool to prevent blocking the event loop (CR_FINDINGS 1.1)
+        documentation = await run_in_threadpool(
+            generator.generate_documentation,
+            frame_paths,
+            prompt_config,
+            "",  # RAG context (future enhancement)
+            project_name
         )
         logger.info(f"Generated documentation for task {task_id}")
     except AIGenerationError as e:

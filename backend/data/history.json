@@ -1,6 +1,24 @@
 {
   "sessions": [
     {
+      "id": "mtg_3",
+      "timestamp": "2025-12-19T22:04:39.238319",
+      "title": "Session mtg_3",
+      "topic": "🐛 Bug Report Analyzer",
+      "status": "failed",
+      "mode": "bug_report",
+      "mode_name": "🐛 Bug Report Analyzer"
+    },
+    {
+      "id": "mtg_2",
+      "timestamp": "2025-12-19T13:50:58.347034",
+      "title": "Session mtg_2",
+      "topic": "✨ Feature Architect",
+      "status": "completed",
+      "mode": "feature_kickoff",
+      "mode_name": "✨ Feature Architect"
+    },
+    {
       "id": "mtg_1",
       "timestamp": "2025-12-18T14:14:12.069298",
       "title": "Session mtg_1",

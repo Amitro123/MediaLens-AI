@@ -14,7 +14,10 @@ from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import get_prompt_loader, PromptLoadError
 from app.services.storage_service import get_storage_service
 from app.services.video_pipeline import process_video_pipeline, PipelineError
+from app.services.video_pipeline import process_video_pipeline, PipelineError
 from app.core.observability import get_acontext_client, extract_code_blocks, trace_session
+from app.core.streaming import video_stream_response
+from fastapi import Request, Header
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +26,8 @@ router = APIRouter(prefix="/api/v1", tags=["video"])
 # In-memory storage for MVP
 # TODO: [CR_FINDINGS 2.2] Replace with PostgreSQL/Redis for production persistence
 task_results: Dict[str, dict] = {}
+session_feedback: Dict[str, list] = {}  # Store feedback by session_id
+STALE_TIMEOUT_SECONDS = 600  # 10 minutes timeout for zombie sessions
 session_feedback: Dict[str, list] = {}  # Store feedback by session_id
 
 
@@ -61,6 +66,8 @@ class ActiveSessionResponse(BaseModel):
     status: str
     title: str
     mode: Optional[str] = None
+    progress: int = 0
+
 
 
 @router.get("/active-session", response_model=Optional[ActiveSessionResponse])
@@ -81,25 +88,83 @@ async def get_active_session():
         for s in drafts:
             if s.status in active_statuses:
                 logger.info(f"Active session found in calendar: {s.session_id}")
+                progress = 0
+                if s.session_id in task_results:
+                    progress = task_results[s.session_id].get("progress", 0)
+                
                 return ActiveSessionResponse(
                     session_id=s.session_id,
                     status=s.status,
                     title=s.title,
-                    mode=s.suggested_mode
+                    mode=s.suggested_mode,
+                    progress=progress
                 )
+
     except Exception as e:
         logger.error(f"Error checking active calendar sessions: {e}")
 
-    # 2. Check task_results (Manual upload flow)
-    for task_id, result in task_results.items():
+    # 2. Check task_results (Manual upload flow - In Memory)
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    
+    # Create key list to avoid runtime error during modification
+    for task_id in list(task_results.keys()):
+        result = task_results[task_id]
         if result.get("status") in ["processing", "uploading"]:
+            # Check for staleness
+            last_updated = result.get("last_updated", now)
+            if (now - last_updated).total_seconds() > STALE_TIMEOUT_SECONDS:
+                logger.warning(f"Zombie session found in memory: {task_id}. Expiring.")
+                task_results[task_id]["status"] = "failed"
+                task_results[task_id]["error"] = "Session timed out (Zombie)"
+                continue
+
             logger.info(f"Active session found in task_results: {task_id}")
             return ActiveSessionResponse(
                 session_id=task_id,
                 status=result["status"],
                 title=result.get("project_name", "Untitled Project"),
-                mode=result.get("mode")
+                mode=result.get("mode"),
+                progress=result.get("progress", 0)
             )
+
+    # 3. Check persistent storage (For recovery after restart active session)
+    try:
+        from app.services.storage_service import get_storage_service
+        storage = get_storage_service()
+        history = storage.get_history()
+        
+        # Check for latest processing session
+        for session in history:
+            if session.get("status") in ["processing", "uploading"]:
+                # Check timestamps (parsing ISO format)
+                # Ensure we handle potential parsing errors
+                try:
+                    ts_str = session.get("timestamp")
+                    if ts_str:
+                         session_ts = datetime.fromisoformat(ts_str)
+                         if (now - session_ts).total_seconds() > STALE_TIMEOUT_SECONDS:
+                             logger.warning(f"Zombie session found in persistence: {session.get('id')}. Marking failed.")
+                             # Update storage to failed to prevent recurring checks
+                             storage.add_session(session.get("id"), {
+                                 **session,
+                                 "status": "failed",
+                                 "error": "Session timed out (Zombie)"
+                             })
+                             continue
+                except Exception as ex:
+                    logger.warning(f"Failed to parse timestamp for session {session.get('id')}: {ex}")
+
+                logger.info(f"Active session found in persistent storage: {session.get('id')}")
+                return ActiveSessionResponse(
+                    session_id=session.get("id"),
+                    status=session.get("status"),
+                    title=session.get("title", "Untitled Project"),
+                    mode=session.get("mode"),
+                    progress=session.get("progress", 0)
+                )
+    except Exception as e:
+        logger.error(f"Error checking persistent storage for active session: {e}")
 
     return None
 
@@ -128,12 +193,24 @@ async def upload_video(
     """
     task_id = str(uuid.uuid4())
     
+    from datetime import datetime
+    
     # Initialize processing state for recovery/observability
     task_results[task_id] = {
         "status": "processing",
         "project_name": project_name,
-        "mode": mode
+        "mode": mode,
+        "progress": 0,
+        "last_updated": datetime.now()
     }
+    
+    async def update_progress(progress: int, message: str) -> None:
+        """Callback to update progress in memory"""
+        if task_id in task_results:
+            task_results[task_id]["progress"] = progress
+            task_results[task_id]["status_message"] = message
+            task_results[task_id]["last_updated"] = datetime.now()
+
     
     try:
         # Load prompt configuration
@@ -193,6 +270,17 @@ async def upload_video(
             logger.info(f"Extracted {len(frame_paths)} frames")
         except VideoProcessingError as e:
             raise HTTPException(status_code=500, detail=f"Frame extraction failed: {str(e)}")
+        
+        # PERSIST "PROCESSING" STATUS BEFORE PIPELINE
+        # This ensures that if the server crashes/restarts, we know we were processing
+        storage = get_storage_service()
+        storage.add_session(task_id, {
+            "title": project_name,
+            "topic": prompt_config.name,
+            "status": "processing",
+            "mode": mode,
+            "mode_name": prompt_config.name
+        })
         
         # Generate documentation with dynamic prompt
         try:
@@ -255,7 +343,7 @@ async def get_status(task_id: str):
         result = task_results[task_id]
         return StatusResponse(
             status=result["status"],
-            progress=100 if result["status"] == "completed" else 50
+            progress=result.get("progress", 100 if result["status"] == "completed" else 0)
         )
     
     # 2. Check calendar draft sessions
@@ -618,6 +706,18 @@ async def upload_to_session(
             buffer.write(content)
         
         logger.info(f"Saved video for session {session_id}: {video_path}")
+
+        # PERSIST "PROCESSING" STATUS BEFORE PIPELINE
+        # This ensures recovery works even if we crash during processing
+        from app.services.storage_service import get_storage_service
+        storage = get_storage_service()
+        storage.add_session(session_id, {
+            "title": session.title,
+            "topic": prompt_config.name,
+            "status": "processing",
+            "mode": selected_mode,
+            "mode_name": prompt_config.name
+        })
         
         # Use shared processing pipeline (CR_FINDINGS 3.1 refactor)
         try:
@@ -681,6 +781,53 @@ async def submit_feedback(session_id: str, feedback: FeedbackRequest):
     return {"status": "success", "message": "Feedback received"}
 
 
+@router.post("/sessions/{session_id}/cancel")
+async def cancel_session(session_id: str):
+    """
+    Cancel an active processing session.
+    """
+    logger.info(f"Requesting cancellation for session {session_id}")
+    
+    cancelled = False
+    
+    # 1. Check in-memory tasks
+    if session_id in task_results:
+        task_results[session_id]["status"] = "cancelled"
+        task_results[session_id]["status_message"] = "Cancelled by user"
+        logger.info(f"Cancelled in-memory task {session_id}")
+        cancelled = True
+        
+    # 2. Check Calendar/Draft sessions
+    from app.services.calendar_service import get_calendar_watcher
+    calendar = get_calendar_watcher()
+    session = calendar.get_session(session_id)
+    if session and session.status in ["processing", "uploading", "waiting_for_upload"]:
+        calendar.update_session_status(session_id, "cancelled")
+        logger.info(f"Cancelled calendar session {session_id}")
+        cancelled = True
+
+    # 3. Update persistent storage if it exists there
+    from app.services.storage_service import get_storage_service
+    storage = get_storage_service()
+    history = storage.get_history()
+    # Find active session in history
+    persistent_session = next((s for s in history if s["id"] == session_id), None)
+    if persistent_session and persistent_session.get("status") in ["processing", "uploading"]:
+         storage.add_session(session_id, {
+             **persistent_session,
+             "status": "cancelled"
+         })
+         logger.info(f"Cancelled persistent session {session_id}")
+         cancelled = True
+         
+    if cancelled:
+        return {"status": "success", "message": "Session cancelled"}
+    else:
+        # If we didn't find anything to cancel, verify if it was already stale/done
+        # But we return 200 to be idempotent for the UI
+        return {"status": "success", "message": "Session not found or already completed"}
+
+
 class ExportRequest(BaseModel):
     """Request model for session export"""
     target: str  # "jira" or "notion" or "clipboard"
@@ -718,11 +865,39 @@ async def export_session(session_id: str, request: ExportRequest):
             "page_url": page_url
         }
     
-    else:  # clipboard
-        return {
-            "status": "success",
-            "message": "Content copied to clipboard"
-        }
+
+
+
+@router.get("/stream/{task_id}")
+async def stream_video_endpoint(task_id: str, request: Request, range: Optional[str] = Header(None)):
+    """
+    Stream video with Range support (required for seeking).
+    """
+    try:
+        upload_path = settings.get_upload_path()
+        # Handle both draft sessions (might store video in task_dir) and manual uploads
+        # Manual/Normal structure: uploads/{task_id}/video.mp4
+        
+        video_path = upload_path / task_id / "video.mp4"
+        
+        if not video_path.exists():
+             # Fallback check for extensions
+             for ext in [".mov", ".avi", ".webm"]:
+                 p = upload_path / task_id / f"video{ext}"
+                 if p.exists():
+                     video_path = p
+                     break
+
+        if not video_path.exists():
+            raise HTTPException(status_code=404, detail="Video file not found")
+            
+        return video_stream_response(str(video_path), range)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Streaming error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 

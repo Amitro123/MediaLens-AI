@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { api } from '../api'
 import { ThumbsUp, ThumbsDown, MessageSquare, Check, Zap, Server, Database, Activity, Download, Copy, FileText, CheckSquare, Video, ChevronDown, ChevronUp, Play } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
@@ -11,16 +11,21 @@ import remarkGfm from 'remark-gfm'
 function extractTimestampFromFilename(src) {
     if (!src) return null;
 
-    // Pattern 1: Explicit timestamp - frame_XXXX_t15.5s.jpg
-    const timestampMatch = src.match(/_t(\d+\.?\d*)s\.(jpg|png|jpeg)/i);
-    if (timestampMatch) return parseFloat(timestampMatch[1]);
+    // Decode URL just in case
+    try { src = decodeURIComponent(src); } catch (e) { }
 
-    // Pattern 2: Frame index only - frame_0012.jpg
-    // Legacy videos use 5-second intervals, so frame 12 = 60 seconds
-    const frameMatch = src.match(/frame_(\d+)\.(jpg|png|jpeg)/i);
+    // Pattern 1: Explicit timestamp - frame_XXXX_t15.5s.jpg or similar
+    // We look for _t followed by digits/dots followed by s.
+    const timestampMatch = src.match(/_t(\d+(\.\d+)?)s\.(?:jpg|png|jpeg|webp)/i);
+    if (timestampMatch) {
+        return parseFloat(timestampMatch[1]);
+    }
+
+    // Pattern 2: Legacy frame index - frame_0012.jpg
+    const frameMatch = src.match(/frame_(\d+)\.(?:jpg|png|jpeg|webp)/i);
     if (frameMatch) {
         const frameIndex = parseInt(frameMatch[1], 10);
-        const FRAME_INTERVAL_SECONDS = 5; // Default interval for legacy frames
+        const FRAME_INTERVAL_SECONDS = 5;
         return frameIndex * FRAME_INTERVAL_SECONDS;
     }
 
@@ -48,29 +53,54 @@ export default function DocViewer({ content, taskId, isDevMode }) {
     const videoRef = useRef(null)
     const pendingSeekRef = useRef(null) // Store pending seek timestamp
 
+    // Effect to handle pending seeks when video expands or mounts
+    useEffect(() => {
+        if (isVideoExpanded && videoRef.current && pendingSeekRef.current !== null) {
+            const video = videoRef.current;
+            console.log("Process pending seek (effect):", pendingSeekRef.current);
+
+            const performSeek = () => {
+                video.currentTime = pendingSeekRef.current;
+                video.play().catch(e => console.warn("Autoplay blocked:", e));
+                pendingSeekRef.current = null;
+            };
+
+            if (video.readyState >= 1) {
+                performSeek();
+            } else {
+                video.addEventListener('loadedmetadata', performSeek, { once: true });
+            }
+        }
+    }, [isVideoExpanded]);
+
     // Seek video to timestamp and play
     const seekToTimestamp = (seconds) => {
-        if (seconds === null) return;
+        if (seconds === null || seconds === undefined) return;
+
+        // Ensure strictly number
+        const targetTime = parseFloat(seconds);
+        console.log(`Seeking to: ${targetTime}s`);
 
         setIsVideoExpanded(true)
 
         const video = videoRef.current;
         if (!video) {
             // Video not mounted yet, store for later
-            pendingSeekRef.current = seconds;
+            pendingSeekRef.current = targetTime;
             return;
         }
 
         // Check if video metadata is loaded
         if (video.readyState >= 1) {
             // Metadata loaded, can seek immediately
-            video.currentTime = seconds;
-            video.play().catch(() => {
-                // Autoplay may be blocked
+            video.currentTime = targetTime;
+            // Explicitly play as requested
+            video.play().catch((err) => {
+                console.warn("Autoplay blocked/failed:", err);
             });
         } else {
             // Wait for metadata to load
-            pendingSeekRef.current = seconds;
+            pendingSeekRef.current = targetTime;
             video.addEventListener('loadedmetadata', () => {
                 if (pendingSeekRef.current !== null) {
                     video.currentTime = pendingSeekRef.current;
@@ -152,7 +182,9 @@ export default function DocViewer({ content, taskId, isDevMode }) {
     }
 
     // Video source URL
-    const videoSrc = taskId ? `/uploads/${taskId}/video.mp4` : null
+    // Use streaming endpoint for Range support
+    const API_BASE = 'http://localhost:8000';
+    const videoSrc = taskId ? `${API_BASE}/api/v1/stream/${taskId}` : null
 
     return (
         <div className="space-y-6">
@@ -254,33 +286,48 @@ export default function DocViewer({ content, taskId, isDevMode }) {
                             const timestamp = extractTimestampFromFilename(src);
                             const hasTimestamp = timestamp !== null;
 
+                            const handleImageClick = (e) => {
+                                if (hasTimestamp) {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    console.log("Seek Click Triggered:", timestamp);
+                                    seekToTimestamp(timestamp);
+                                }
+                            };
+
                             return (
-                                <div
+                                <span
                                     className={`relative inline-block my-4 ${hasTimestamp ? 'cursor-pointer group' : ''}`}
-                                    onClick={() => hasTimestamp && seekToTimestamp(timestamp)}
+                                    onClick={handleImageClick}
+                                    data-timestamp={timestamp}
                                 >
                                     <img
                                         {...props}
                                         src={src}
                                         alt={alt || "Documentation Image"}
                                         className={`rounded-lg shadow-lg border border-slate-700/50 max-w-full transition-all ${hasTimestamp ? 'group-hover:border-indigo-500/50 group-hover:shadow-indigo-500/20' : ''}`}
+                                        onClick={handleImageClick}
                                     />
                                     {hasTimestamp && (
                                         <>
                                             {/* Timestamp Badge */}
-                                            <span className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                                            <span className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm pointer-events-none">
                                                 <Play className="w-3 h-3 fill-current" />
                                                 {formatTimestamp(timestamp)}
                                             </span>
-                                            {/* Hover Overlay */}
-                                            <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/10 rounded-lg transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                                <span className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg">
+                                            {/* Hover Overlay - Also Clickable */}
+                                            <div
+                                                className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/10 rounded-lg transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                                onClick={handleImageClick}
+                                            >
+                                                <span className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg pointer-events-none">
                                                     Click to seek
                                                 </span>
                                             </div>
                                         </>
                                     )}
-                                </div>
+
+                                </span>
                             );
                         },
                         code: ({ node, inline, className, children, ...props }) => {

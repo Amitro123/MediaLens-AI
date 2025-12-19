@@ -46,8 +46,52 @@ class CalendarWatcher:
     
     def __init__(self):
         """Initialize the calendar watcher with mock data"""
+        """Initialize the calendar watcher with mock data"""
         self.draft_sessions: Dict[str, DraftSession] = {}
-        logger.info("CalendarWatcher initialized with mock data")
+        
+        # Determine fixed mock events for consistent testing (mtg_1, mtg_2, mtg_3)
+        now = datetime.now()
+        
+        # Mock Session 1: Completed
+        self.draft_sessions["mtg_1"] = DraftSession(
+            session_id="mtg_1",
+            event_id="evt_mock_1",
+            title="Design Review: User Profile",
+            attendees=["alice@company.com", "bob@company.com"],
+            context_keywords=["profile", "settings", "ui"],
+            status="completed", # Already done
+            created_at=now - timedelta(days=1),
+            suggested_mode="feature_kickoff",
+            metadata={"description": "Review new user profile designs", "event_start": (now - timedelta(days=1)).isoformat(), "event_end": (now - timedelta(days=1, hours=-1)).isoformat()}
+        )
+
+        # Mock Session 2: Ready for upload
+        self.draft_sessions["mtg_2"] = DraftSession(
+            session_id="mtg_2",
+            event_id="evt_mock_2",
+            title="Bug Bash: Login Errors",
+            attendees=["qa@company.com", "dev@company.com"],
+            context_keywords=["auth", "login", "500 error"],
+            status="ready_for_upload",
+            created_at=now,
+            suggested_mode="bug_report",
+            metadata={"description": "Investigate login 500 errors", "event_start": (now + timedelta(hours=2)).isoformat(), "event_end": (now + timedelta(hours=3)).isoformat()}
+        )
+        
+        # Mock Session 3: Architecture Deep Dive (changed from processing to avoid stuck UI)
+        self.draft_sessions["mtg_3"] = DraftSession(
+            session_id="mtg_3",
+            event_id="evt_mock_3",
+            title="Architecture Deep Dive",
+            attendees=["cto@company.com", "yann@company.com"],
+            context_keywords=["scalability", "database", "sharding"],
+            status="ready_for_upload",
+            created_at=now,
+            suggested_mode="general_doc",
+            metadata={"description": "Discussing database sharding strategy", "event_start": (now + timedelta(hours=4)).isoformat(), "event_end": (now + timedelta(hours=5)).isoformat()}
+        )
+
+        logger.info("CalendarWatcher initialized with deterministic mock data (mtg_1, mtg_2, mtg_3)")
     
     def check_upcoming_meetings(self, hours_ahead: int = 24) -> List[CalendarEvent]:
         """

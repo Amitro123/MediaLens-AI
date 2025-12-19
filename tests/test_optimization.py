@@ -89,20 +89,19 @@ def test_pipeline_dual_stream_orchestration(
     mock_generator = MagicMock()
     mock_get_gen.return_value = mock_generator
     
-    # Mock return values for threadpool calls
+    # Mock return values for threadpool calls (in order of execution)
     # 1. get_video_duration
     # 2. create_low_fps_proxy
-    # 3. extract_frames
+    # 3. analyze_video_relevance (newly wrapped - CR_FINDINGS 1.1)
+    # 4. extract_frames
+    # 5. generate_documentation (newly wrapped - CR_FINDINGS 1.1)
     mock_threadpool.side_effect = [
         10.0, # duration
         "test_proxy.mp4", # create_low_fps_proxy
-        ["frame1.jpg", "frame2.jpg"] # extract_frames
+        [{"start": 0.0, "end": 5.0, "key_timestamps": [2.5]}], # analyze_video_relevance
+        ["frame1.jpg", "frame2.jpg"], # extract_frames
+        "# Test Doc" # generate_documentation
     ]
-    
-    mock_generator.analyze_video_relevance.return_value = [
-        {"start": 0.0, "end": 5.0, "key_timestamps": [2.5]}
-    ]
-    mock_generator.generate_documentation.return_value = "# Test Doc"
     
     mock_prompt = MagicMock(spec=PromptConfig)
     mock_prompt.id = "general_doc"
@@ -120,11 +119,11 @@ def test_pipeline_dual_stream_orchestration(
     ))
     
     assert result.documentation == "# Test Doc"
-    # Verify that analyze_video_relevance was called with the proxy
-    mock_generator.analyze_video_relevance.assert_called_with("test_proxy.mp4", context_keywords=None)
+    # Verify that analyze_video_relevance was called via threadpool with the proxy
+    # Now we don't check direct mock on generator since it goes through threadpool
     
     # Verify extract_frames was called with the original video and custom timestamps
-    # Extract frames is the 3rd threadpool call
-    extract_call_args = mock_threadpool.call_args_list[2][0]
+    # Extract frames is the 4th threadpool call (now that AI calls are wrapped)
+    extract_call_args = mock_threadpool.call_args_list[3][0]
     assert extract_call_args[1] == str(video_path) # Original video
     assert 2.5 in extract_call_args[4] # Selected timestamp

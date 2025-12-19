@@ -1,0 +1,294 @@
+﻿python : C:\Users\USE
+R\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+pydantic\_internal\_f
+ields.py:149: 
+UserWarning: Field 
+"model_settings" has 
+conflict with 
+protected namespace 
+"model_".
+At line:1 char:1
++ python -m pytest 
+-v --tb=short 2>&1 | 
+Out-File -FilePath 
+full_test.tx ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (C:\User   
+ s\USER\A...space    
+ "model_".:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+You may be able to 
+resolve this warning 
+by setting `model_con
+fig['protected_namesp
+aces'] = ()`.
+  warnings.warn(
+C:\Users\USER\AppData
+\Local\Packages\Pytho
+nSoftwareFoundation.P
+ython.3.11_qbz5n2kfra
+8p0\LocalCache\local-
+packages\Python311\si
+te-packages\pydantic\
+_internal\_fields.py:
+184: UserWarning: 
+Field name "name" 
+shadows an attribute 
+in parent 
+"Operation"; 
+  warnings.warn(
+C:\Users\USER\AppData
+\Local\Packages\Pytho
+nSoftwareFoundation.P
+ython.3.11_qbz5n2kfra
+8p0\LocalCache\local-
+packages\Python311\si
+te-packages\pydantic\
+_internal\_fields.py:
+184: UserWarning: 
+Field name 
+"metadata" shadows 
+an attribute in 
+parent "Operation"; 
+  warnings.warn(
+C:\Users\USER\AppData
+\Local\Packages\Pytho
+nSoftwareFoundation.P
+ython.3.11_qbz5n2kfra
+8p0\LocalCache\local-
+packages\Python311\si
+te-packages\pydantic\
+_internal\_fields.py:
+184: UserWarning: 
+Field name "done" 
+shadows an attribute 
+in parent 
+"Operation"; 
+  warnings.warn(
+C:\Users\USER\AppData
+\Local\Packages\Pytho
+nSoftwareFoundation.P
+ython.3.11_qbz5n2kfra
+8p0\LocalCache\local-
+packages\Python311\si
+te-packages\pydantic\
+_internal\_fields.py:
+184: UserWarning: 
+Field name "error" 
+shadows an attribute 
+in parent 
+"Operation"; 
+  warnings.warn(
+C:\Users\USER\AppData
+\Local\Packages\Pytho
+nSoftwareFoundation.P
+ython.3.11_qbz5n2kfra
+8p0\LocalCache\local-
+packages\Python311\si
+te-packages\pydantic\
+_internal\_fields.py:
+149: UserWarning: 
+Field 
+"model_settings" has 
+conflict with 
+protected namespace 
+"model_".
+
+You may be able to 
+resolve this warning 
+by setting `model_con
+fig['protected_namesp
+aces'] = ()`.
+  warnings.warn(
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.3.4, pluggy-1.6.0 -- C:\Users\USER\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\USER\.gemini\antigravity\playground\chrono-meteoroid
+configfile: pytest.ini
+plugins: anyio-4.12.0, deepeval-3.7.4, asyncio-0.24.0, cov-7.0.0, repeat-0.9.4, rerunfailures-16.1, xdist-3.8.0
+asyncio: mode=Mode.AUTO, default_loop_scope=function
+collecting ... collected 92 items
+
+backend/scripts/test_mvp.py::test_imports PASSED                         [  1%]
+backend/scripts/test_mvp.py::test_config PASSED                          [  2%]
+backend/scripts/test_mvp.py::test_services PASSED                        [  3%]
+backend/scripts/test_mvp.py::test_api PASSED                             [  4%]
+tests/test_active_session_recovery.py::test_get_active_session_none PASSED [  5%]
+tests/test_active_session_recovery.py::test_get_active_session_calendar PASSED [  6%]
+tests/test_active_session_recovery.py::test_get_active_session_manual PASSED [  7%]
+tests/test_active_session_recovery.py::test_get_status_recovery PASSED   [  8%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_generator_init PASSED [  9%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_generator_init_failure PASSED [ 10%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_analyze_video_relevance PASSED [ 11%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_analyze_video_empty_response PASSED [ 13%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_generate_documentation PASSED [ 14%]
+tests/test_ai_generator.py::TestDocumentationGenerator::test_generate_documentation_no_frames PASSED [ 15%]
+tests/test_ai_generator.py::TestGeneratorSingleton::test_get_generator_singleton PASSED [ 16%]
+tests/test_backend.py::test_upload_video PASSED                          [ 17%]
+tests/test_backend.py::test_status_endpoint PASSED                       [ 18%]
+tests/test_backend.py::test_history_endpoint PASSED                      [ 19%]
+tests/test_calendar_service.py::TestCalendarEvent::test_calendar_event_creation PASSED [ 20%]
+tests/test_calendar_service.py::TestDraftSession::test_draft_session_creation PASSED [ 21%]
+tests/test_calendar_service.py::TestDraftSession::test_draft_session_default_values PASSED [ 22%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_calendar_watcher_init PASSED [ 23%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_check_upcoming_meetings PASSED [ 25%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_check_upcoming_meetings_time_window PASSED [ 26%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_create_draft_session PASSED [ 27%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_suggest_mode_bug_keywords PASSED [ 28%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_suggest_mode_feature_keywords PASSED [ 29%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_suggest_mode_docs_keywords PASSED [ 30%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_suggest_mode_default PASSED [ 31%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_get_draft_sessions PASSED [ 32%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_get_session_by_id PASSED [ 33%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_update_session_status PASSED [ 34%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_sync_calendar PASSED [ 35%]
+tests/test_calendar_service.py::TestCalendarWatcher::test_sync_calendar_no_duplicates PASSED [ 36%]
+tests/test_drive_integration.py::test_drive_upload_success ERROR         [ 38%]
+tests/test_drive_integration.py::test_drive_upload_invalid_url PASSED    [ 39%]
+tests/test_drive_integration.py::test_drive_upload_session_not_found PASSED [ 40%]
+tests/test_e2e_flow.py::test_calendar_flow PASSED                        [ 41%]
+tests/test_e2e_flow.py::test_prep_context PASSED                         [ 42%]
+tests/test_e2e_flow.py::test_smart_upload PASSED                         [ 43%]
+tests/test_feedback.py::test_submit_feedback_success PASSED              [ 44%]
+tests/test_feedback.py::test_submit_feedback_invalid_rating PASSED       [ 45%]
+tests/test_feedback.py::test_submit_feedback_multiple PASSED             [ 46%]
+tests/test_history.py::test_storage_service_add_session PASSED           [ 47%]
+tests/test_history.py::test_api_history_endpoint PASSED                  [ 48%]
+tests/test_history.py::test_api_persistent_result_loading PASSED         [ 50%]
+tests/test_notification_service.py::TestNotificationService::test_notification_service_init PASSED [ 51%]
+tests/test_notification_service.py::TestNotificationService::test_send_reminder PASSED [ 52%]
+tests/test_notification_service.py::TestNotificationService::test_send_upload_nudge PASSED [ 53%]
+tests/test_notification_service.py::TestNotificationService::test_send_completion_notification PASSED [ 54%]
+tests/test_notification_service.py::TestNotificationService::test_get_notification_service_singleton PASSED [ 55%]
+tests/test_notification_service.py::TestNotificationScheduler::test_pre_meeting_reminder_trigger PASSED [ 56%]
+tests/test_notification_service.py::TestNotificationScheduler::test_post_meeting_nudge_trigger PASSED [ 57%]
+tests/test_notification_service.py::TestNotificationScheduler::test_no_duplicate_reminders PASSED [ 58%]
+tests/test_notification_service.py::TestNotificationScheduler::test_completed_sessions_skipped PASSED [ 59%]
+tests/test_observability.py::TestAcontextClient::test_client_initialization PASSED [ 60%]
+tests/test_observability.py::TestAcontextClient::test_client_disabled_when_setting_false PASSED [ 61%]
+tests/test_observability.py::TestAcontextClient::test_client_connection_check_success PASSED [ 63%]
+tests/test_observability.py::TestAcontextClient::test_client_connection_check_failure PASSED [ 64%]
+tests/test_observability.py::TestAcontextClient::test_create_session PASSED [ 65%]
+tests/test_observability.py::TestAcontextClient::test_send_message PASSED [ 66%]
+tests/test_observability.py::TestAcontextClient::test_send_message_when_disabled PASSED [ 67%]
+tests/test_observability.py::TestAcontextClient::test_add_artifact PASSED [ 68%]
+tests/test_observability.py::TestTracePipelineDecorator::test_decorator_traces_function PASSED [ 69%]
+tests/test_observability.py::TestTracePipelineDecorator::test_decorator_captures_errors PASSED [ 70%]
+tests/test_observability.py::TestTracePipelineDecorator::test_decorator_noop_when_disabled PASSED [ 71%]
+tests/test_observability.py::TestExtractCodeBlocks::test_extract_python_code_block PASSED [ 72%]
+tests/test_observability.py::TestExtractCodeBlocks::test_extract_multiple_code_blocks PASSED [ 73%]
+tests/test_observability.py::TestExtractCodeBlocks::test_extract_no_code_blocks PASSED [ 75%]
+tests/test_observability.py::TestExtractCodeBlocks::test_extract_unlabeled_code_block PASSED [ 76%]
+tests/test_observability.py::TestSingletonClient::test_get_acontext_client_returns_singleton PASSED [ 77%]
+tests/test_observability.py::TestSingletonClient::test_reset_acontext_client_clears_singleton PASSED [ 78%]
+tests/test_optimization.py::test_create_low_fps_proxy PASSED             [ 79%]
+tests/test_optimization.py::test_analyze_video_relevance PASSED          [ 80%]
+tests/test_optimization.py::test_pipeline_dual_stream_orchestration PASSED [ 81%]
+tests/test_prompt_loader.py::TestPromptLoader::test_prompt_loader_imports PASSED [ 82%]
+tests/test_prompt_loader.py::TestPromptLoader::test_prompt_config_creation PASSED [ 83%]
+tests/test_prompt_loader.py::TestPromptLoader::test_prompt_config_defaults PASSED [ 84%]
+tests/test_prompt_loader.py::TestPromptLoader::test_list_available_modes PASSED [ 85%]
+tests/test_prompt_loader.py::TestPromptLoader::test_load_prompt_bug_report PASSED [ 86%]
+tests/test_prompt_loader.py::TestPromptLoader::test_load_prompt_with_context PASSED [ 88%]
+tests/test_prompt_loader.py::TestPromptLoader::test_prompt_not_found_error PASSED [ 89%]
+tests/test_prompt_loader.py::TestPromptLoader::test_get_modes_metadata PASSED [ 90%]
+tests/test_prompt_loader.py::TestPromptLoader::test_cache_behavior PASSED [ 91%]
+tests/test_video_processor.py::TestVideoProcessor::test_video_processor_imports PASSED [ 92%]
+tests/test_video_processor.py::TestVideoProcessor::test_video_processing_error PASSED [ 93%]
+tests/test_video_processor.py::TestVideoProcessor::test_video_processing_error_message PASSED [ 94%]
+tests/test_video_processor.py::TestVideoProcessor::test_extract_frames_nonexistent_file PASSED [ 95%]
+tests/test_video_processor.py::TestVideoProcessor::test_extract_audio_nonexistent_file PASSED [ 96%]
+tests/test_video_processor.py::TestVideoProcessor::test_get_video_duration_nonexistent_file PASSED [ 97%]
+tests/test_video_processor.py::TestExtractFramesAtTimestamps::test_extract_frames_at_timestamps_import PASSED [ 98%]
+tests/test_video_processor.py::TestExtractFramesAtTimestamps::test_extract_frames_at_timestamps_nonexistent PASSED [100%]Running teardown with pytest sessionfinish...
+
+
+=================================== ERRORS ====================================
+_________________ ERROR at setup of test_drive_upload_success _________________
+tests\test_drive_integration.py:30: in mock_video_processor
+    with patch("app.services.video_pipeline.extract_audio") as mock_audio, \
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\unittest\mock.py:1446: in __enter__
+    original, local = self.get_original()
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\unittest\mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app.services.video_pipeline' from 'C:\\Users\\USER\\.gemini\\antigravity\\playground\\chrono-meteoroid\\backend\\app\\services\\video_pipeline.py'> does not have the attribute 'extract_audio'
+============================== warnings summary ===============================
+..\..\..\..\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\httpx\_client.py:680: 1 warning
+tests/test_backend.py: 3 warnings
+tests/test_drive_integration.py: 3 warnings
+tests/test_e2e_flow.py: 3 warnings
+tests/test_feedback.py: 3 warnings
+tests/test_history.py: 2 warnings
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\httpx\_client.py:680: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+backend/scripts/test_mvp.py::test_imports
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but backend/scripts/test_mvp.py::test_imports returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+backend/scripts/test_mvp.py::test_config
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but backend/scripts/test_mvp.py::test_config returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+backend/scripts/test_mvp.py::test_services
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but backend/scripts/test_mvp.py::test_services returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+backend/scripts/test_mvp.py::test_api
+  C:\Users\USER\.gemini\antigravity\playground\chrono-meteoroid\backend\app\main.py:63: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+backend/scripts/test_mvp.py::test_api
+backend/scripts/test_mvp.py::test_api
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+backend/scripts/test_mvp.py::test_api
+  C:\Users\USER\.gemini\antigravity\playground\chrono-meteoroid\backend\app\main.py:83: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+backend/scripts/test_mvp.py::test_api
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\_pytest\python.py:163: PytestReturnNotNoneWarning: Expected None, but backend/scripts/test_mvp.py::test_api returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_optimization.py::test_pipeline_dual_stream_orchestration
+  C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\unittest\mock.py:515: PydanticDeprecatedSince20: The `__fields__` attribute is deprecated, use `model_fields` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    if iscoroutinefunction(getattr(spec, attr, None)):
+
+tests/test_optimization.py::test_pipeline_dual_stream_orchestration
+  C:\Users\USER\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pydantic\_internal\_model_construction.py:248: PydanticDeprecatedSince20: The `__fields__` attribute is deprecated, use `model_fields` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warnings.warn('The `__fields__` attribute is deprecated, use `model_fields` instead.', DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_drive_integration.py::test_drive_upload_success - AttributeE...
+================== 91 passed, 25 warnings, 1 error in 34.84s ==================

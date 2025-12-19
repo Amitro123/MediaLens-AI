@@ -1,6 +1,6 @@
-# DocuFlow AI Frontend
+# DevLens AI Frontend
 
-React-based frontend for DocuFlow AI video-to-documentation system.
+React-based frontend for DevLens AI video-to-documentation system.
 
 ## Features
 

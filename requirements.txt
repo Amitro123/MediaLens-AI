@@ -34,8 +34,5 @@ google-api-python-client==2.111.0
 google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.0
 
-# Groq STT Integration
-groq==0.4.2
-
 # Note: Acontext observability uses requests (already included above)
 # The acontext SDK is optional - we use the REST API directly
