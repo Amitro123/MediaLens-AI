@@ -1,29 +1,47 @@
 {
   "sessions": [
     {
-      "id": "570ecdd4-adf5-41a1-a555-22752f65084f",
-      "timestamp": "2025-12-19T23:13:24.322576",
+      "id": "mtg_3",
+      "timestamp": "2025-12-22T12:01:30.372048",
+      "title": "Architecture Deep Dive",
+      "topic": "General",
+      "status": "failed",
+      "mode": "bug_report",
+      "mode_name": null
+    },
+    {
+      "id": "aa0ca5e5-9de0-4e6d-980c-aeb9d69270cc",
+      "timestamp": "2025-12-21T21:17:34.136135",
       "title": "Import: Demo_Walkthrough.mp4",
       "topic": "Drive Import",
-      "status": "downloading",
+      "status": "failed",
+      "mode": "bug_report",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "cd6cb120-4d9e-4d10-81bf-d307af3645fa",
+      "timestamp": "2025-12-21T21:06:49.823973",
+      "title": "Import: Demo_Walkthrough.mp4",
+      "topic": "Drive Import",
+      "status": "failed",
       "mode": "general_doc",
       "mode_name": "General Documentation"
     },
     {
       "id": "c2b7570d-2763-44c8-b2b9-c90a0251a2eb",
-      "timestamp": "2025-12-19T23:00:46.626304",
+      "timestamp": "2025-12-21T21:06:49.800877",
       "title": "Import: Feature_Preview.mov",
       "topic": "Drive Import",
-      "status": "downloading",
+      "status": "failed",
       "mode": "general_doc",
       "mode_name": "General Documentation"
     },
     {
-      "id": "cd6cb120-4d9e-4d10-81bf-d307af3645fa",
-      "timestamp": "2025-12-19T23:00:28.407369",
+      "id": "570ecdd4-adf5-41a1-a555-22752f65084f",
+      "timestamp": "2025-12-21T21:06:49.759608",
       "title": "Import: Demo_Walkthrough.mp4",
       "topic": "Drive Import",
-      "status": "downloading",
+      "status": "failed",
       "mode": "general_doc",
       "mode_name": "General Documentation"
     }

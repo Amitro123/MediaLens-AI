@@ -12,7 +12,7 @@ function App() {
                 <main>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
-                        <Route path="/history" element={<HistoryPage />} />
+                        <Route path="/history/:sessionId?" element={<HistoryPage />} />
                         <Route path="/doc/:taskId" element={<DocPage />} />
                     </Routes>
                 </main>

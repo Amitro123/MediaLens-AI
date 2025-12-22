@@ -25,9 +25,15 @@ class DocumentationGenerator:
         """Initialize the Gemini API clients"""
         try:
             genai.configure(api_key=settings.gemini_api_key)
-            self.model_pro = genai.GenerativeModel('gemini-2.5-flash-lite')
-            self.model_flash = genai.GenerativeModel('gemini-2.5-flash-lite')
-            logger.info("Gemini API clients initialized successfully")
+            
+            # Use configurable model names
+            pro_model = getattr(settings, 'doc_model_pro_name', 'gemini-2.5-flash-lite')
+            flash_model = getattr(settings, 'doc_model_flash_name', 'gemini-2.5-flash-lite')
+            
+            self.model_pro = genai.GenerativeModel(pro_model)
+            self.model_flash = genai.GenerativeModel(flash_model)
+            
+            logger.info(f"Gemini API initialized: Pro={pro_model}, Flash={flash_model}")
         except Exception as e:
             raise AIGenerationError(f"Failed to initialize Gemini API: {str(e)}")
     
@@ -74,13 +80,44 @@ class DocumentationGenerator:
     def analyze_video_relevance(
         self,
         video_path: str,
-        context_keywords: List[str]
+        context_keywords: List[str],
+        audio_path: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        Analyze video (usually a low-FPS proxy) to identify relevant segments and key timestamps.
-        Replaces audio-only analysis for better accuracy.
+        Analyze video/audio to identify relevant segments and key timestamps.
+        
+        Uses FastSTT for local transcription when available, with fallback to
+        Gemini multimodal analysis.
         """
         try:
+            # Try Fast STT path if audio is available and STT is enabled
+            if audio_path and settings.fast_stt_enabled:
+                try:
+                    from app.services.stt_fast_service import get_fast_stt_service
+                    stt_service = get_fast_stt_service()
+                    
+                    if stt_service.is_available:
+                        stt_result = stt_service.transcribe_video(audio_path)
+                        
+                        # Log STT metrics
+                        logger.info(
+                            f"STT: {stt_result.model_used}, "
+                            f"{stt_result.segment_count} segments, "
+                            f"{stt_result.processing_time_ms:.0f}ms"
+                        )
+                        
+                        # If we have segments, use text-based relevance analysis
+                        if stt_result.segments:
+                            return self._analyze_text_relevance(
+                                stt_result, 
+                                context_keywords
+                            )
+                except ImportError:
+                    logger.warning("FastSttService not available, using video analysis")
+                except Exception as e:
+                    logger.warning(f"Fast STT failed, falling back to video analysis: {e}")
+            
+            # Fall back to multimodal video analysis
             logger.info(f"Performing multimodal analysis on: {video_path}")
             
             # Upload video file (Gemini handles video files directly)
@@ -120,6 +157,70 @@ class DocumentationGenerator:
             logger.error(f"Video analysis failed: {str(e)}")
             raise AIGenerationError(f"Failed to analyze video proxy: {str(e)}")
     
+    def _analyze_text_relevance(
+        self,
+        stt_result: 'SttResult',
+        context_keywords: List[str],
+        session_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Analyze STT transcript text to identify relevant segments.
+        Uses Gemini Flash for text-based relevance scoring - much faster than video.
+        """
+        from app.services.stt_fast_service import SttResult
+        
+        # Get condensed summary for Gemini
+        summary_text = stt_result.get_text_summary(max_tokens=500)
+        keywords_str = ", ".join(context_keywords) if context_keywords else "general technical content"
+        
+        prompt = f"""
+You are analyzing a video transcript to find relevant technical segments.
+The video contains discussion about: {keywords_str}
+
+TRANSCRIPT (with timestamps):
+{summary_text}
+
+Identify the time ranges where TECHNICAL content related to "{keywords_str}" is discussed.
+For each relevant segment, suggest key_timestamps for screenshot extraction.
+
+Return STRICTLY JSON:
+{{
+  "relevant_segments": [
+    {{
+      "start": float,
+      "end": float,
+      "reason": "string",
+      "key_timestamps": [float, float]
+    }}
+  ],
+  "technical_percentage": float
+}}
+"""
+        
+        response = self.model_flash.generate_content(
+            prompt,
+            generation_config=genai.GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                max_output_tokens=2048,
+                response_mime_type="application/json"
+            )
+        )
+        
+        try:
+            result = json.loads(response.text)
+            segments = result.get("relevant_segments", [])
+            logger.info(f"Found {len(segments)} relevant segments via text analysis (Fast STT)")
+            
+            # Log AGENT_NOTE turns for each relevant segment
+            if session_id and segments:
+                self._log_agent_notes(session_id, segments, keywords_str)
+            
+            return segments
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse text analysis response: {response.text}")
+            raise AIGenerationError(f"Invalid JSON from text analysis: {str(e)}")
+    
     @trace_pipeline
     def generate_documentation(
         self,
@@ -127,7 +228,8 @@ class DocumentationGenerator:
         prompt_config: 'PromptConfig',
         context: str = "",
         project_name: str = "Project",
-        audio_transcript: Optional[str] = None
+        audio_transcript: Optional[str] = None,
+        session_id: Optional[str] = None
     ) -> str:
         """
         Generate technical documentation from video frames using dynamic prompts.
@@ -233,6 +335,15 @@ class DocumentationGenerator:
             documentation = re.sub(r'\[Frame (\d+)\]', replace_match, documentation)
             
             logger.info(f"Successfully generated {len(documentation)} characters of documentation")
+            
+            # Log DOC_SECTION turn if session_id provided
+            if session_id:
+                self._log_doc_section(
+                    session_id=session_id,
+                    section_markdown=documentation,
+                    heading=f"{project_name} Full Document",
+                    segment_ids=[]
+                )
             
             return documentation
         
@@ -396,6 +507,53 @@ class DocumentationGenerator:
         logger.info(f"Merged {len(sorted_docs)} segments into {len(merged)} character document")
         
         return merged
+    
+    def _log_agent_notes(self, session_id: str, segments: List[Dict], keywords: str) -> None:
+        """Log AGENT_NOTE turns for relevant segments identified during analysis."""
+        try:
+            from app.services.turn_log_service import get_turn_log_service, SessionTurn, TurnType
+            
+            turn_log = get_turn_log_service()
+            for i, seg in enumerate(segments):
+                turn = SessionTurn(
+                    session_id=session_id,
+                    type=TurnType.AGENT_NOTE,
+                    segment_id=f"rel_{i}",
+                    start=seg.get("start"),
+                    end=seg.get("end"),
+                    text=seg.get("reason", "Identified as relevant"),
+                    metadata={
+                        "keywords": keywords,
+                        "key_timestamps": seg.get("key_timestamps", [])
+                    }
+                )
+                turn_log.append_turn(turn)
+            
+            logger.info(f"Logged {len(segments)} AGENT_NOTE turns for session {session_id}")
+        except Exception as e:
+            logger.warning(f"Failed to log agent notes: {e}")
+    
+    def _log_doc_section(self, session_id: str, section_markdown: str, heading: str, segment_ids: List[str] = None) -> None:
+        """Log a DOC_SECTION turn for generated documentation."""
+        try:
+            from app.services.turn_log_service import get_turn_log_service, SessionTurn, TurnType
+            
+            turn_log = get_turn_log_service()
+            turn = SessionTurn(
+                session_id=session_id,
+                type=TurnType.DOC_SECTION,
+                markdown=section_markdown[:2000],  # Truncate to avoid huge logs
+                metadata={
+                    "heading": heading,
+                    "segment_ids": segment_ids or [],
+                    "char_count": len(section_markdown)
+                }
+            )
+            turn_log.append_turn(turn)
+            
+            logger.debug(f"Logged DOC_SECTION turn: {heading}")
+        except Exception as e:
+            logger.warning(f"Failed to log doc section: {e}")
 
 
 # Singleton instance

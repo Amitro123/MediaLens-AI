@@ -1,29 +1,30 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api'
-import DocViewer from '../components/DocViewer'
+import SessionDetails from '../components/SessionDetails'
 import { ChevronLeft } from 'lucide-react'
 
 export default function DocPage() {
     const { taskId } = useParams()
     const navigate = useNavigate()
-    const [content, setContent] = useState('')
+    const [session, setSession] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        const fetchDoc = async () => {
+        const fetchSession = async () => {
             try {
-                const data = await api.getResult(taskId)
-                setContent(data.documentation)
+                // Use getSession instead of getResult to get full metadata + details
+                const data = await api.getSession(taskId)
+                setSession(data)
             } catch (err) {
-                console.error("Failed to fetch doc:", err)
+                console.error("Failed to fetch session:", err)
                 setError(err.message)
             } finally {
                 setLoading(false)
             }
         }
-        fetchDoc()
+        fetchSession()
     }, [taskId])
 
     if (loading) {
@@ -60,7 +61,7 @@ export default function DocPage() {
                 Back to History
             </button>
 
-            <DocViewer content={content} taskId={taskId} isDevMode={false} />
+            <SessionDetails session={session} />
         </div>
     )
 }

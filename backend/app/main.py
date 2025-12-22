@@ -35,7 +35,9 @@ app.add_middleware(
 )
 
 # Include API routes
+from app.api.routes import router, minimal_router
 app.include_router(router)
+app.include_router(minimal_router)
 
 # Mount static files for upload access
 from fastapi.staticfiles import StaticFiles

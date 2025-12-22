@@ -158,6 +158,31 @@ The `DevLensAgent` is the **main orchestrator** for video documentation generati
 - `backend/app/services/agent_orchestrator.py` - DevLensAgent class
 - `backend/app/api/routes.py` - Uses agent for /upload endpoints
 
+## 2.4 Fast STT Service: Local Audio Transcription
+
+The `FastSttService` provides **~10x faster** audio transcription using local faster-whisper with automatic Gemini fallback.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    FastSttService API                       │
+│                                                             │
+│  transcribe_video(audio_path) → SttResult                   │
+│                                                             │
+│  SttResult:                                                 │
+│  • segments - [{"start", "end", "text"}]                    │
+│  • processing_time_ms - Performance metric                  │
+│  • model_used - "faster_whisper_small" or "gemini_fallback" │
+│                                                             │
+│  Config:                                                    │
+│  • FAST_STT_ENABLED=True (default)                          │
+│  • FAST_STT_MODEL="small" (tiny/base/small/medium)          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Files:**
+- `backend/app/services/stt_fast_service.py` - FastSttService class
+- `backend/app/services/ai_generator.py` - Uses STT for relevance analysis
+
 ## 3. API Endpoints (FastAPI)
 
 ### Calendar & Session Management

@@ -37,6 +37,7 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
 * **📦 Chunk-based Processing** - Process videos in 30s segments for granular progress and smaller AI contexts
 * **📊 Session Timeline Events** - Structured event logging (JSONL) for full pipeline observability
 * **🤖 DevLensAgent Orchestrator** - Single-point coordination for all video processing tools
+* **🎙️ Fast STT Service** - Local faster-whisper transcription with Gemini fallback (~10x faster)
 
 ## 💡 Why DevLens?
 
@@ -64,44 +65,49 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
 ## 🏗️ Architecture
 
 ```mermaid
-graph TB
-    Calendar[Calendar Service] -->|Mock Events| Sessions[Draft Sessions]
-    User[User] -->|View Meetings| Dashboard[React Dashboard]
-    Dashboard -->|Upload to Session| API[FastAPI Backend]
-    User -->|Manual Upload| Upload[Upload Form]
-    Upload -->|HTTP| API
-    
-    API -->|1. Extract Audio| FFmpeg[FFmpeg]
-    FFmpeg -->|Audio File| Groq[Groq Whisper STT]
-    Groq -->|Transcript + Timestamps| Flash[Gemini Flash]
-    Flash -->|2. Analyze Relevance| Timestamps[Technical Timestamps]
-    
-    API -->|3. Smart Frame Extract| OpenCV[OpenCV]
-    Timestamps -->|Guide Extraction| OpenCV
-    
-    API -->|Load Context Prompt| Registry[YAML Prompt Registry]
-    API -->|4. Generate Docs| Pro[Gemini 1.5 Pro]
-    OpenCV -->|Relevant Frames| Pro
-    Pro -->|Markdown| API
-    API -->|Response| Dashboard
-    
-    Dashboard -->|Export| Integrations[Notion/Jira]
+flowchart LR
+    subgraph Client
+        U[User] --> UF[Upload Form]
+        U --> RD[React Dashboard]
+    end
+
+    UF -->|Upload to Session| B[FastAPI Backend]
+
+    subgraph Pipeline
+        B --> STT[Fast STT<br/>faster-whisper]
+        STT --> VS[VIDEO_SEGMENT Turns<br/>start / end / text]
+
+        VS --> AG[Agent / LLM Analysis<br/>Gemini Flash]
+        AG --> AN[AGENT_NOTE Turns<br/>reasoning + relevance]
+        AN --> DS[DOC_SECTION Turns<br/>Markdown sections]
+        DS --> GD[Generate Docs<br/>Gemini 1.5 Pro]
+    end
+
+    GD --> EXP[Final Doc Export<br/>Markdown / Notion / Jira]
+
+    subgraph Observability
+        VS -.-> TL[Turn Log<br/>JSONL per session]
+        AN -.-> TL
+        DS -.-> TL
+    end
+
+    RD -->|View Meetings / Export| EXP
 ```
 
-## 🎯 Smart Sampling Workflow
+## 🎯 Video Processing Pipeline
 
-1. **Extract Audio** - FFmpeg extracts audio track from video
-2. **Analyze with Flash** - Gemini 1.5 Flash analyzes audio and identifies technical segments (ignores small talk)
-3. **Smart Frame Extraction** - Extract frames only at relevant timestamps
-4. **Code Extraction** - If IDE/terminal visible, transcribe code verbatim
-5. **Generate with Pro** - Gemini 1.5 Pro creates documentation from selected frames
-6. **Export** - Send to Notion, Jira, or copy to clipboard
+1. **Fast STT** - Local faster-whisper (CPU) transcribes audio to timestamped segments (~10x faster than cloud APIs)
+2. **VIDEO_SEGMENT Turns** - Each segment has start/end times and transcribed text
+3. **Agent Analysis** - Gemini Flash identifies technical content, filters irrelevant segments
+4. **AGENT_NOTE / DOC_SECTION Turns** - Agent reasoning and structured documentation sections
+5. **Generate Docs** - Gemini 1.5 Pro creates final Markdown from the structured turns
+6. **Turn Log** - All turns saved as JSONL for context, search, and analytics
 
 **Benefits:**
-- 💰 **60-80% Cost Reduction** - Process only relevant frames
-- ⚡ **3x Faster** - Skip non-technical content
-- 🎯 **Higher Quality** - Focus on technical discussions
-- 💻 **No Code Hallucinations** - Verbatim extraction from screen
+- ⚡ **~10x Faster STT** - Local Whisper vs. cloud transcription
+- 📊 **Full Traceability** - Every decision logged as a Turn
+- 💰 **Cost Efficient** - Only final doc uses expensive Pro model
+- � **Fallback Ready** - Automatic Gemini fallback if local STT unavailable
 
 ## 📦 Chunk-based Processing
 

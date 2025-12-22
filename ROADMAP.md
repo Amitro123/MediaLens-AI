@@ -25,6 +25,9 @@ The primary goal for this quarter is to solidify the MVP, ensure it's stable end
 - [x] **Interactive Click-to-Seek** ✅
     - [x] Frontend video player integration
     - [x] Timestamp extraction and clickable images
+- [x] **Fast STT Service** ✅
+    - [x] Local faster-whisper transcription (~10x faster)
+    - [x] Automatic Gemini fallback when model unavailable
 - [ ] **MCP Server Integration (Agent Connectivity)**
     - [ ] Implement `fastapi-mcp` to expose memory endpoints
     - [ ] Connect Google Drive via MCP Client (for automation)

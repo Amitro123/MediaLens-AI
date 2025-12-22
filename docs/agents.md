@@ -19,6 +19,7 @@ The system now includes:
 - **Chunk-based Processing** - Process videos in 30s segments with per-segment progress reporting
 - **Session Timeline Events** - Structured JSONL event logging for pipeline traceability
 - **DevLensAgent Orchestrator** - Single orchestrator coordinating VideoProcessor, AIGenerator, and StorageService
+- **Fast STT Service** - Local faster-whisper transcription for audio relevance with ~10x speedup
 
 ## Prompt Registry Architecture
 

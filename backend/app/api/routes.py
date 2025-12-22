@@ -1,6 +1,7 @@
 """API routes for video upload and processing"""
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from pathlib import Path
@@ -24,6 +25,7 @@ from fastapi import Request, Header
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["video"])
+minimal_router = APIRouter(prefix="/api", tags=["minimal"])
 
 # In-memory storage for MVP
 # TODO: [CR_FINDINGS 2.2] Replace with PostgreSQL/Redis for production persistence
@@ -332,6 +334,56 @@ async def get_draft_sessions():
     except Exception as e:
         logger.error(f"Failed to fetch draft sessions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sessions/{session_id}")
+async def get_session_details(session_id: str):
+    """
+    Get detailed information for a specific session.
+    Unified endpoint for both active and checking archived sessions.
+    """
+    # 1. Check Active Sessions (in-memory)
+    session_mgr = get_session_manager()
+    active = session_mgr.get_active_session()
+    
+    if active and active["session_id"] == session_id:
+        return {
+            "id": active["session_id"],
+            "title": active["title"],
+            "status": active["status"],
+            "created_at": active.get("created_at"),
+            "mode": active.get("mode"),
+            "doc_markdown": None, # Usually not ready until complete
+            "video_url": None,
+            "turn_log_path": None,
+            "pipeline_stages": {
+                "stt": "processing" if active["progress"] < 30 else "completed",
+                "analysis": "processing" if 30 <= active["progress"] < 70 else "pending",
+                "generation": "processing" if active["progress"] >= 70 else "pending"
+            }
+        }
+
+    # 2. Check Persisted/Archived Sessions (storage)
+    try:
+        storage = get_storage_service()
+        session_details = await run_in_threadpool(storage.get_session_details, session_id)
+        
+        if session_details:
+            return session_details
+            
+    except Exception as e:
+        logger.error(f"Error fetching session {session_id}: {e}")
+        
+    raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+
+
+@router.get("/sessions/{session_id}/turns")
+async def get_session_turns(session_id: str):
+    """Download the turn log for a session (JSONL)."""
+    file_path = Path("data/timelines") / f"{session_id}.jsonl"
+    if not file_path.exists():
+         raise HTTPException(status_code=404, detail="Turn log not found")
+    return FileResponse(file_path, media_type="application/json", filename=f"{session_id}_turns.jsonl")
 
 
 @router.get("/history")
@@ -869,3 +921,18 @@ async def import_drive_file(request: DriveImportRequest):
 
 
 
+@minimal_router.get("/sessions")
+async def list_sessions_minimal():
+    """List sessions for the History tab (minimal endpoint)."""
+    storage = get_storage_service()
+    return await run_in_threadpool(storage.list_sessions)
+
+
+@minimal_router.get("/sessions/{session_id}")
+async def get_session_minimal(session_id: str):
+    """Get full session details for History details view (minimal endpoint)."""
+    storage = get_storage_service()
+    details = await run_in_threadpool(storage.get_session_details, session_id)
+    if not details:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return details

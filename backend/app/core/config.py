@@ -48,6 +48,14 @@ class Settings(BaseSettings):
     acontext_api_key: str = "sk-ac-your-root-api-bearer-token"
     acontext_enabled: bool = False  # Disabled by default for local dev
     
+    # Fast STT Configuration
+    fast_stt_enabled: bool = True  # Use local Whisper for fast transcription
+    fast_stt_model: str = "small"  # "tiny", "base", "small", "medium"
+    
+    # Gemini Model Configuration
+    doc_model_pro_name: str = "gemini-2.5-flash-lite"  # High-quality model for documentation
+    doc_model_flash_name: str = "gemini-2.5-flash-lite"  # Fast model for analysis
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

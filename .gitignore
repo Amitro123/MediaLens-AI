@@ -68,3 +68,7 @@ build/
 
 # Debug files
 verify_imports.py
+
+# Session timeline data
+data/timelines/*.jsonl
+data/history.json

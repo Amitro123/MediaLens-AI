@@ -11,9 +11,15 @@ const handleResponse = async (request) => {
 }
 
 export const api = {
-    // Sessions
+    // Sessions (v1 - legacy)
     getDraftMeetings: () => handleResponse(axios.get('/api/v1/sessions/drafts')),
+    getSession: (sessionId) => handleResponse(axios.get(`/api/v1/sessions/${sessionId}`)),
     prepSession: (sessionId) => handleResponse(axios.post(`/api/v1/sessions/${sessionId}/prep`)),
+
+    // Sessions (minimal - new History UI)
+    // Uses /api/sessions which returns key_frames via storage_service.get_session_details()
+    listSessions: () => handleResponse(axios.get('/api/sessions')),
+    getSessionDetails: (sessionId) => handleResponse(axios.get(`/api/sessions/${sessionId}`)),
 
     // Uploads
     uploadToSession: (sessionId, formData) => handleResponse(axios.post(`/api/v1/upload/${sessionId}`, formData, {
@@ -39,3 +45,4 @@ export const api = {
     // Export
     exportSession: (sessionId, target) => handleResponse(axios.post(`/api/v1/sessions/${sessionId}/export`, { target })),
 }
+
