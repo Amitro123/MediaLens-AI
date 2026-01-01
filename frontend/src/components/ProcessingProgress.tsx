@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { 
-  Mic, 
-  Brain, 
-  FileText, 
-  Check, 
+import {
+  Mic,
+  Brain,
+  FileText,
+  Check,
   Loader2,
   Video
 } from "lucide-react";
@@ -54,9 +54,10 @@ const steps: StepConfig[] = [
 interface ProcessingProgressProps {
   currentStep: ProcessingStep;
   progress?: number;
+  stage?: string;  // Backend stage label (e.g., "Extracting key frames...")
 }
 
-export const ProcessingProgress = ({ currentStep, progress = 0 }: ProcessingProgressProps) => {
+export const ProcessingProgress = ({ currentStep, progress = 0, stage = "" }: ProcessingProgressProps) => {
   const currentIndex = steps.findIndex(s => s.id === currentStep);
 
   return (
@@ -65,15 +66,23 @@ export const ProcessingProgress = ({ currentStep, progress = 0 }: ProcessingProg
       animate={{ opacity: 1, y: 0 }}
       className="glass rounded-2xl p-6 md:p-8"
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Processing Video</h3>
-        <span className="text-sm font-mono text-primary">{Math.round(progress)}%</span>
+        <span className="text-lg font-bold text-primary">{Math.round(progress)}%</span>
       </div>
 
+      {/* Backend Stage Label */}
+      {stage && (
+        <div className="mb-4 text-sm text-muted-foreground flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          <span>{stage}</span>
+        </div>
+      )}
+
       {/* Progress Bar */}
-      <div className="h-2 bg-secondary rounded-full mb-8 overflow-hidden">
+      <div className="h-3 bg-secondary rounded-full mb-8 overflow-hidden border border-border">
         <motion.div
-          className="h-full gradient-primary rounded-full"
+          className="h-full bg-gradient-to-r from-primary to-purple-500 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -84,7 +93,7 @@ export const ProcessingProgress = ({ currentStep, progress = 0 }: ProcessingProg
       <div className="relative">
         {/* Connection Line */}
         <div className="absolute top-5 left-5 right-5 h-0.5 bg-border hidden md:block" />
-        
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {steps.map((step, index) => {
             const isActive = index === currentIndex;

@@ -29,6 +29,9 @@ pyyaml==6.0.1
 # Utilities
 requests==2.31.0
 
+# CLI
+typer>=0.9.0
+
 # Google Drive Integration
 google-api-python-client==2.111.0
 google-auth-httplib2==0.2.0
@@ -36,12 +39,16 @@ google-auth-oauthlib==1.2.0
 
 # Model Context Protocol
 mcp
-google-api-python-client
-google-auth-oauthlib
-google-auth-httplib2==1.0.0
 
 # Note: Acontext observability uses requests (already included above)
 # The acontext SDK is optional - we use the REST API directly
 
 # Fast STT (Local Whisper)
 faster-whisper==1.0.2
+
+# Hebrew TTS & Dataset Generation
+torch
+torchaudio
+chatterbox-tts>=0.1.0
+pandas
+soundfile

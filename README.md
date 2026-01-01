@@ -38,6 +38,10 @@ In modern engineering, knowledge is often lost in video calls. DevLens acts as a
 * **📊 Session Timeline Events** - Structured event logging (JSONL) for full pipeline observability
 * **🤖 DevLensAgent Orchestrator** - Single-point coordination for all video processing tools
 * **🎙️ Fast STT Service** - Local faster-whisper transcription with Gemini fallback (~10x faster)
+* **🇮🇱 Hebrish STT** - Hebrew + English tech term recognition for Israeli dev meetings (production, deploy, API, etc.)
+* **📊 Granular Progress Bar** - Real-time 0-100% progress with stage labels ("Extracting frames... 50%")
+* **📋 Copy JSON per Frame** - One-click copy of frame metadata to clipboard for Postman/API testing
+* **🎓 Kaggle Fine-tuning** - Notebook for Hebrish vocabulary extraction using Whisper + LoRA
 
 ## 💡 Why DevLens?
 
@@ -107,7 +111,8 @@ flowchart LR
 - ⚡ **~10x Faster STT** - Local Whisper vs. cloud transcription
 - 📊 **Full Traceability** - Every decision logged as a Turn
 - 💰 **Cost Efficient** - Only final doc uses expensive Pro model
--  **Fallback Ready** - Automatic Gemini fallback if local STT unavailable
+- 🔄 **Fallback Ready** - Automatic Gemini fallback if local STT unavailable
+- 🇮🇱 **Hebrish Mode** - Hebrew + English tech terms for Israeli meetings (auto-detected)
 
 ## 📦 Chunk-based Processing
 
@@ -439,9 +444,9 @@ DevLens-AI/
 - [x] Refactored shared video processing pipeline
 - [x] Dual-Stream Pipeline Optimization (Speed & Quality)
 - [x] Backend Integration Test Suite
+- [x] Hebrish STT (Hebrew + English tech terms for Israeli meetings)
 - [ ] RAG integration with ChromaDB
 - [ ] Real calendar API integration (Google Calendar, Outlook)
-- [ ] Multi-language support (Hebrew/English)
 - [ ] Real Notion/Jira API integration
 - [ ] OCR enhancement for better code extraction
 

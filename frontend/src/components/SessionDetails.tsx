@@ -1,6 +1,6 @@
-import { useRef } from "react";
-import { motion } from "framer-motion";
-import { X, Play, Clock, FileText } from "lucide-react";
+import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Play, Clock, FileText, Clipboard, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type Session } from "@/api";
 import { ExportOptions } from "./ExportOptions";
@@ -21,11 +21,31 @@ const formatTime = (seconds: number): string => {
 
 export const SessionDetails = ({ session, onClose }: SessionDetailsProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
     const handleSeek = (seconds: number) => {
         if (videoRef.current) {
             videoRef.current.currentTime = seconds;
             videoRef.current.play();
+        }
+    };
+
+    const handleCopyJson = async (idx: number, frame: { timestamp_sec: number; label?: string; json_data?: Record<string, unknown> }) => {
+        // Create JSON payload for this frame
+        const payload = frame.json_data || {
+            frame_index: idx,
+            timestamp_sec: frame.timestamp_sec,
+            label: frame.label || `Frame at ${formatTime(frame.timestamp_sec)}`,
+            session_id: session.id,
+            session_title: session.title
+        };
+
+        try {
+            await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+            setCopiedIdx(idx);
+            setTimeout(() => setCopiedIdx(null), 2000);
+        } catch (err) {
+            console.error("Failed to copy:", err);
         }
     };
 
@@ -72,24 +92,62 @@ export const SessionDetails = ({ session, onClose }: SessionDetailsProps) => {
                     <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                         <Clock className="w-5 h-5" /> Key Moments (Click to Jump)
                     </h3>
-                    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {session.key_frames.map((frame, idx) => (
-                            <button
+                            <div
                                 key={idx}
-                                className="group bg-secondary border border-border rounded-lg p-1 hover:border-primary/50 hover:scale-105 transition-all"
-                                onClick={() => handleSeek(frame.timestamp_sec)}
+                                className="group bg-secondary border border-border rounded-lg p-2 hover:border-primary/50 transition-all relative"
                             >
-                                <img
-                                    src={frame.thumbnail_url}
-                                    alt={`Frame ${formatTime(frame.timestamp_sec)}`}
-                                    className="w-full h-12 object-cover rounded"
-                                />
-                                <div className="text-xs text-center text-muted-foreground group-hover:text-primary mt-1">
-                                    {frame.label || formatTime(frame.timestamp_sec)}
-                                </div>
-                            </button>
+                                <button
+                                    className="w-full"
+                                    onClick={() => handleSeek(frame.timestamp_sec)}
+                                >
+                                    <img
+                                        src={frame.thumbnail_url}
+                                        alt={`Frame ${formatTime(frame.timestamp_sec)}`}
+                                        className="w-full h-16 object-cover rounded"
+                                    />
+                                    <div className="text-xs text-center text-muted-foreground group-hover:text-primary mt-1">
+                                        {frame.label || formatTime(frame.timestamp_sec)}
+                                    </div>
+                                </button>
+                                {/* Copy JSON Button */}
+                                <button
+                                    className="mt-2 w-full flex items-center justify-center gap-1 text-xs py-1 px-2 rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyJson(idx, frame);
+                                    }}
+                                >
+                                    {copiedIdx === idx ? (
+                                        <>
+                                            <Check className="w-3 h-3" />
+                                            Copied!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Clipboard className="w-3 h-3" />
+                                            Copy JSON
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         ))}
                     </div>
+                    {/* Toast notification */}
+                    <AnimatePresence>
+                        {copiedIdx !== null && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="fixed bottom-6 right-6 bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+                            >
+                                <Check className="w-4 h-4" />
+                                JSON copied! Ready for Postman 🚀
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </section>
             )}
 

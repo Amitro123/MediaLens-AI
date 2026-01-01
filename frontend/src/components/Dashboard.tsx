@@ -28,6 +28,7 @@ export const Dashboard = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState<ProcessingStep>("upload");
   const [progress, setProgress] = useState(0);
+  const [stage, setStage] = useState("");  // Backend stage label
   const [showResults, setShowResults] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [generatedDoc, setGeneratedDoc] = useState<string>("");
@@ -41,9 +42,10 @@ export const Dashboard = () => {
     const pollStatus = async () => {
       try {
         const response = await api.getStatus(currentTaskId);
-        const { status, progress: serverProgress } = response.data;
+        const { status, progress: serverProgress, stage: serverStage } = response.data;
 
         setProgress(serverProgress);
+        if (serverStage) setStage(serverStage);
 
         // Map status to step
         if (serverProgress < 20) setProcessingStep("upload");
@@ -192,7 +194,7 @@ export const Dashboard = () => {
 
             {/* Upload Zone or Processing Progress */}
             {isProcessing ? (
-              <ProcessingProgress currentStep={processingStep} progress={progress} />
+              <ProcessingProgress currentStep={processingStep} progress={progress} stage={stage} />
             ) : (
               <UploadZone onFileSelect={handleFileSelect} />
             )}

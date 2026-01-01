@@ -11,6 +11,7 @@ export interface KeyFrame {
     timestamp_sec: number;
     thumbnail_url: string;
     label?: string;
+    json_data?: Record<string, unknown>;  // Raw JSON for Copy feature
 }
 
 export interface Segment {
@@ -50,6 +51,7 @@ export interface UploadResponse {
 export interface StatusResponse {
     status: string;
     progress: number;
+    stage?: string;  // Current processing stage label
 }
 
 export interface ActiveSession {

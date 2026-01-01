@@ -1,0 +1,400 @@
+{"audio": "audio/0000.wav", "text": "תעשה deploy ל-production ותבדוק את ה-logs"}
+{"audio": "audio/0001.wav", "text": "ה-deployment נכשל בגלל בעיה ב-environment variables"}
+{"audio": "audio/0002.wav", "text": "אני צריך לעשות rollback ל-version הקודם"}
+{"audio": "audio/0003.wav", "text": "ה-staging environment לא מתחבר ל-database"}
+{"audio": "audio/0004.wav", "text": "תוודא שה-CI/CD pipeline עובד לפני ה-merge"}
+{"audio": "audio/0005.wav", "text": "יש לנו downtime ב-production כרגע"}
+{"audio": "audio/0006.wav", "text": "ה-load balancer לא מפזר את ה-traffic נכון"}
+{"audio": "audio/0007.wav", "text": "צריך לעדכן את ה-SSL certificate"}
+{"audio": "audio/0008.wav", "text": "ה-container לא עולה כי יש בעיה ב-Dockerfile"}
+{"audio": "audio/0009.wav", "text": "תעשה docker build ותבדוק שהכל רץ"}
+{"audio": "audio/0010.wav", "text": "ה-kubernetes cluster צריך יותר resources"}
+{"audio": "audio/0011.wav", "text": "יש לנו memory leak ב-production"}
+{"audio": "audio/0012.wav", "text": "ה-auto-scaling לא עובד כמו שצריך"}
+{"audio": "audio/0013.wav", "text": "צריך לבדוק את ה-health checks של ה-pods"}
+{"audio": "audio/0014.wav", "text": "ה-deployment הצליח אבל יש latency גבוה"}
+{"audio": "audio/0015.wav", "text": "תעשה restart ל-service ותבדוק שוב"}
+{"audio": "audio/0016.wav", "text": "אני רואה הרבה errors ב-logs של ה-backend"}
+{"audio": "audio/0017.wav", "text": "ה-monitoring מראה spike ב-CPU usage"}
+{"audio": "audio/0018.wav", "text": "צריך להוסיף יותר replicas ל-service"}
+{"audio": "audio/0019.wav", "text": "ה-ingress לא מנתב נכון את ה-requests"}
+{"audio": "audio/0020.wav", "text": "תבדוק את ה-resource limits של ה-pod"}
+{"audio": "audio/0021.wav", "text": "יש bottleneck ב-database connection pool"}
+{"audio": "audio/0022.wav", "text": "ה-cron job לא רץ בזמן"}
+{"audio": "audio/0023.wav", "text": "צריך לעדכן את ה-helm chart"}
+{"audio": "audio/0024.wav", "text": "ה-secrets לא נטענים נכון ב-environment"}
+{"audio": "audio/0025.wav", "text": "תעשה port-forward כדי לבדוק את ה-service"}
+{"audio": "audio/0026.wav", "text": "ה-namespace חדש וצריך להגדיר permissions"}
+{"audio": "audio/0027.wav", "text": "יש conflict ב-config maps"}
+{"audio": "audio/0028.wav", "text": "ה-volume לא נמאונט נכון"}
+{"audio": "audio/0029.wav", "text": "צריך לבדוק את ה-network policies"}
+{"audio": "audio/0030.wav", "text": "ה-service mesh לא מתפקד"}
+{"audio": "audio/0031.wav", "text": "תעשה kubectl logs ותראה מה קורה"}
+{"audio": "audio/0032.wav", "text": "ה-horizontal pod autoscaler לא מגיב"}
+{"audio": "audio/0033.wav", "text": "יש בעיה ב-persistent volume claim"}
+{"audio": "audio/0034.wav", "text": "ה-init container נכשל"}
+{"audio": "audio/0035.wav", "text": "צריך לעדכן את ה-base image"}
+{"audio": "audio/0036.wav", "text": "ה-security context לא מוגדר נכון"}
+{"audio": "audio/0037.wav", "text": "תבדוק את ה-liveness probe"}
+{"audio": "audio/0038.wav", "text": "ה-readiness probe נכשל"}
+{"audio": "audio/0039.wav", "text": "יש בעיה ב-service discovery"}
+{"audio": "audio/0040.wav", "text": "ה-DNS resolution לא עובד"}
+{"audio": "audio/0041.wav", "text": "צריך לעשות drain ל-node"}
+{"audio": "audio/0042.wav", "text": "ה-cluster upgrade נתקע"}
+{"audio": "audio/0043.wav", "text": "יש בעיה ב-etcd"}
+{"audio": "audio/0044.wav", "text": "ה-api server לא מגיב"}
+{"audio": "audio/0045.wav", "text": "צריך לבדוק את ה-controller manager"}
+{"audio": "audio/0046.wav", "text": "ה-scheduler לא מקצה pods נכון"}
+{"audio": "audio/0047.wav", "text": "יש בעיה ב-kubelet"}
+{"audio": "audio/0048.wav", "text": "ה-kube-proxy לא עובד"}
+{"audio": "audio/0049.wav", "text": "צריך לרסטרט את ה-CNI plugin"}
+{"audio": "audio/0050.wav", "text": "ה-merge request תקוע ב-code review של ה-backend team"}
+{"audio": "audio/0051.wav", "text": "תעשה rebase מול ה-main branch"}
+{"audio": "audio/0052.wav", "text": "יש conflicts ב-merge שצריך לפתור"}
+{"audio": "audio/0053.wav", "text": "ה-commit message לא ברור, תשנה אותו"}
+{"audio": "audio/0054.wav", "text": "צריך לעשות squash ל-commits לפני ה-merge"}
+{"audio": "audio/0055.wav", "text": "ה-PR מחכה לאישור מה-tech lead"}
+{"audio": "audio/0056.wav", "text": "תוסיף unit tests לפני שאני מאשר"}
+{"audio": "audio/0057.wav", "text": "יש לך breaking change ב-API"}
+{"audio": "audio/0058.wav", "text": "ה-linter מוצא הרבה שגיאות בקוד"}
+{"audio": "audio/0059.wav", "text": "צריך לעשות refactor לפונקציה הזאת"}
+{"audio": "audio/0060.wav", "text": "ה-code coverage ירד אחרי ה-changes שלך"}
+{"audio": "audio/0061.wav", "text": "תעשה cherry-pick ל-commit הזה"}
+{"audio": "audio/0062.wav", "text": "ה-branch שלך לא up to date"}
+{"audio": "audio/0063.wav", "text": "יש duplicate code שצריך לאחד"}
+{"audio": "audio/0064.wav", "text": "ה-naming convention לא עקבי"}
+{"audio": "audio/0065.wav", "text": "צריך להוסיף documentation לפונקציות"}
+{"audio": "audio/0066.wav", "text": "ה-pull request גדול מדי, תפצל אותו"}
+{"audio": "audio/0067.wav", "text": "יש hardcoded values שצריך להוציא ל-config"}
+{"audio": "audio/0068.wav", "text": "ה-git history מבולגן"}
+{"audio": "audio/0069.wav", "text": "צריך לעשות force push אחרי ה-rebase"}
+{"audio": "audio/0070.wav", "text": "ה-feature branch צריך לעבור QA"}
+{"audio": "audio/0071.wav", "text": "יש regression ב-code הזה"}
+{"audio": "audio/0072.wav", "text": "תעשה stash לשינויים לפני ה-switch"}
+{"audio": "audio/0073.wav", "text": "ה-hotfix branch מוכן ל-production"}
+{"audio": "audio/0074.wav", "text": "צריך לעשות tag ל-release החדש"}
+{"audio": "audio/0075.wav", "text": "ה-workflow נכשל ב-GitHub Actions"}
+{"audio": "audio/0076.wav", "text": "יש dependency conflict ב-package.json"}
+{"audio": "audio/0077.wav", "text": "ה-lockfile לא מעודכן"}
+{"audio": "audio/0078.wav", "text": "צריך לעדכן את ה-dependencies לגרסאות האחרונות"}
+{"audio": "audio/0079.wav", "text": "יש security vulnerability ב-packages"}
+{"audio": "audio/0080.wav", "text": "ה-pre-commit hooks לא רצים"}
+{"audio": "audio/0081.wav", "text": "צריך להוסיף integration tests"}
+{"audio": "audio/0082.wav", "text": "ה-snapshot tests נכשלו"}
+{"audio": "audio/0083.wav", "text": "תעדכן את ה-mocks בטסטים"}
+{"audio": "audio/0084.wav", "text": "יש flaky test שצריך לתקן"}
+{"audio": "audio/0085.wav", "text": "ה-test coverage report מראה gaps"}
+{"audio": "audio/0086.wav", "text": "צריך לכתוב e2e tests"}
+{"audio": "audio/0087.wav", "text": "ה-cypress tests לא עוברים"}
+{"audio": "audio/0088.wav", "text": "יש race condition בקוד"}
+{"audio": "audio/0089.wav", "text": "ה-async/await לא מטופל נכון"}
+{"audio": "audio/0090.wav", "text": "צריך להוסיף error handling"}
+{"audio": "audio/0091.wav", "text": "ה-try/catch חסר"}
+{"audio": "audio/0092.wav", "text": "יש null pointer exception פוטנציאלי"}
+{"audio": "audio/0093.wav", "text": "ה-type safety לא מלא"}
+{"audio": "audio/0094.wav", "text": "צריך להוסיף TypeScript types"}
+{"audio": "audio/0095.wav", "text": "ה-interface definition חסר"}
+{"audio": "audio/0096.wav", "text": "יש magic numbers בקוד"}
+{"audio": "audio/0097.wav", "text": "ה-constants לא מוגדרים"}
+{"audio": "audio/0098.wav", "text": "צריך להוסיף enums"}
+{"audio": "audio/0099.wav", "text": "ה-code style לא עקבי"}
+{"audio": "audio/0100.wav", "text": "ה-API endpoint מחזיר 500 error"}
+{"audio": "audio/0101.wav", "text": "יש bug ב-authentication middleware"}
+{"audio": "audio/0102.wav", "text": "ה-JWT token פג תוקף אבל לא מחזיר unauthorized"}
+{"audio": "audio/0103.wav", "text": "צריך להוסיף rate limiting ל-endpoint"}
+{"audio": "audio/0104.wav", "text": "ה-request validation לא עובד"}
+{"audio": "audio/0105.wav", "text": "יש בעיה ב-JSON serialization"}
+{"audio": "audio/0106.wav", "text": "ה-REST API לא RESTful מספיק"}
+{"audio": "audio/0107.wav", "text": "צריך לעשות migrate ל-GraphQL"}
+{"audio": "audio/0108.wav", "text": "ה-query parameters לא מטופלים נכון"}
+{"audio": "audio/0109.wav", "text": "יש injection vulnerability בקוד"}
+{"audio": "audio/0110.wav", "text": "ה-CORS policy חוסם requests"}
+{"audio": "audio/0111.wav", "text": "צריך להוסיף caching layer"}
+{"audio": "audio/0112.wav", "text": "ה-Redis cache לא מתעדכן"}
+{"audio": "audio/0113.wav", "text": "יש בעיה ב-session management"}
+{"audio": "audio/0114.wav", "text": "ה-cookie לא נשלח עם ה-response"}
+{"audio": "audio/0115.wav", "text": "צריך להוסיף pagination ל-API"}
+{"audio": "audio/0116.wav", "text": "ה-sorting לא עובד על כל ה-fields"}
+{"audio": "audio/0117.wav", "text": "יש N+1 query problem"}
+{"audio": "audio/0118.wav", "text": "ה-database connection pool מתמלא"}
+{"audio": "audio/0119.wav", "text": "צריך לעשות optimize ל-queries"}
+{"audio": "audio/0120.wav", "text": "ה-index חסר על ה-column הזה"}
+{"audio": "audio/0121.wav", "text": "יש deadlock ב-database"}
+{"audio": "audio/0122.wav", "text": "ה-transaction לא מתבצע נכון"}
+{"audio": "audio/0123.wav", "text": "צריך להוסיף foreign key constraint"}
+{"audio": "audio/0124.wav", "text": "ה-migration נכשלה"}
+{"audio": "audio/0125.wav", "text": "יש data corruption issue"}
+{"audio": "audio/0126.wav", "text": "ה-backup לא רץ"}
+{"audio": "audio/0127.wav", "text": "צריך לעשות restore מ-snapshot"}
+{"audio": "audio/0128.wav", "text": "ה-replication lag גבוה"}
+{"audio": "audio/0129.wav", "text": "יש בעיה ב-read replica"}
+{"audio": "audio/0130.wav", "text": "ה-connection string לא נכון"}
+{"audio": "audio/0131.wav", "text": "צריך להצפין את ה-credentials"}
+{"audio": "audio/0132.wav", "text": "ה-environment variables חסרים"}
+{"audio": "audio/0133.wav", "text": "יש בעיה ב-config loading"}
+{"audio": "audio/0134.wav", "text": "ה-service discovery לא מוצא את ה-service"}
+{"audio": "audio/0135.wav", "text": "צריך להוסיף health check endpoint"}
+{"audio": "audio/0136.wav", "text": "ה-graceful shutdown לא עובד"}
+{"audio": "audio/0137.wav", "text": "יש memory leak ב-connection handling"}
+{"audio": "audio/0138.wav", "text": "ה-thread pool מתמלא"}
+{"audio": "audio/0139.wav", "text": "צריך להוסיף async processing"}
+{"audio": "audio/0140.wav", "text": "ה-message queue לא מתרוקן"}
+{"audio": "audio/0141.wav", "text": "יש בעיה ב-RabbitMQ"}
+{"audio": "audio/0142.wav", "text": "ה-Kafka consumer לא צורך messages"}
+{"audio": "audio/0143.wav", "text": "צריך להוסיף dead letter queue"}
+{"audio": "audio/0144.wav", "text": "ה-retry mechanism לא עובד"}
+{"audio": "audio/0145.wav", "text": "יש exponential backoff חסר"}
+{"audio": "audio/0146.wav", "text": "ה-circuit breaker לא נפתח"}
+{"audio": "audio/0147.wav", "text": "צריך להוסיף fallback logic"}
+{"audio": "audio/0148.wav", "text": "ה-timeout לא מוגדר נכון"}
+{"audio": "audio/0149.wav", "text": "יש connection timeout issues"}
+{"audio": "audio/0150.wav", "text": "ה-component לא מתרנדר נכון"}
+{"audio": "audio/0151.wav", "text": "יש bug ב-React state management"}
+{"audio": "audio/0152.wav", "text": "ה-useEffect גורם ל-infinite loop"}
+{"audio": "audio/0153.wav", "text": "צריך לעשות memoization לפונקציה"}
+{"audio": "audio/0154.wav", "text": "ה-Redux store לא מתעדכן"}
+{"audio": "audio/0155.wav", "text": "יש בעיה ב-context provider"}
+{"audio": "audio/0156.wav", "text": "ה-props לא מועברים נכון"}
+{"audio": "audio/0157.wav", "text": "צריך להוסיף PropTypes validation"}
+{"audio": "audio/0158.wav", "text": "ה-CSS לא מיושר נכון"}
+{"audio": "audio/0159.wav", "text": "יש z-index issue"}
+{"audio": "audio/0160.wav", "text": "ה-responsive design לא עובד על mobile"}
+{"audio": "audio/0161.wav", "text": "צריך לתקן את ה-flexbox layout"}
+{"audio": "audio/0162.wav", "text": "ה-grid לא מתפקד בכל ה-browsers"}
+{"audio": "audio/0163.wav", "text": "יש accessibility issues"}
+{"audio": "audio/0164.wav", "text": "ה-ARIA labels חסרים"}
+{"audio": "audio/0165.wav", "text": "צריך להוסיף keyboard navigation"}
+{"audio": "audio/0166.wav", "text": "ה-focus trap לא עובד"}
+{"audio": "audio/0167.wav", "text": "יש contrast ratio נמוך"}
+{"audio": "audio/0168.wav", "text": "ה-font size קטן מדי"}
+{"audio": "audio/0169.wav", "text": "צריך להוסיף dark mode"}
+{"audio": "audio/0170.wav", "text": "ה-theme switching לא עובד"}
+{"audio": "audio/0171.wav", "text": "יש flickering בזמן loading"}
+{"audio": "audio/0172.wav", "text": "ה-skeleton loader לא מופיע"}
+{"audio": "audio/0173.wav", "text": "צריך להוסיף loading states"}
+{"audio": "audio/0174.wav", "text": "ה-error boundary לא תופס errors"}
+{"audio": "audio/0175.wav", "text": "יש unhandled promise rejection"}
+{"audio": "audio/0176.wav", "text": "ה-async data fetching לא עובד"}
+{"audio": "audio/0177.wav", "text": "צריך להוסיף React Query"}
+{"audio": "audio/0178.wav", "text": "ה-SWR cache לא מתעדכן"}
+{"audio": "audio/0179.wav", "text": "יש stale data בתצוגה"}
+{"audio": "audio/0180.wav", "text": "ה-optimistic updates לא עובדים"}
+{"audio": "audio/0181.wav", "text": "צריך להוסיף real-time updates"}
+{"audio": "audio/0182.wav", "text": "ה-WebSocket connection נופל"}
+{"audio": "audio/0183.wav", "text": "יש reconnection logic חסר"}
+{"audio": "audio/0184.wav", "text": "ה-event listeners לא מנוקים"}
+{"audio": "audio/0185.wav", "text": "צריך לעשות cleanup ב-useEffect"}
+{"audio": "audio/0186.wav", "text": "יש memory leak ב-component"}
+{"audio": "audio/0187.wav", "text": "ה-subscription לא מבוטל"}
+{"audio": "audio/0188.wav", "text": "צריך להוסיף debouncing"}
+{"audio": "audio/0189.wav", "text": "ה-throttling לא עובד"}
+{"audio": "audio/0190.wav", "text": "יש too many re-renders"}
+{"audio": "audio/0191.wav", "text": "ה-virtual scroll לא עובד"}
+{"audio": "audio/0192.wav", "text": "צריך להוסיף infinite scroll"}
+{"audio": "audio/0193.wav", "text": "ה-pagination לא מתעדכנת"}
+{"audio": "audio/0194.wav", "text": "יש בעיה ב-router navigation"}
+{"audio": "audio/0195.wav", "text": "ה-deep linking לא עובד"}
+{"audio": "audio/0196.wav", "text": "צריך להוסיף route guards"}
+{"audio": "audio/0197.wav", "text": "ה-authentication flow שבור"}
+{"audio": "audio/0198.wav", "text": "יש redirect loop"}
+{"audio": "audio/0199.wav", "text": "ה-history API לא עובד נכון"}
+{"audio": "audio/0200.wav", "text": "יש null pointer exception בקוד"}
+{"audio": "audio/0201.wav", "text": "ה-stack trace מראה error ב-line 42"}
+{"audio": "audio/0202.wav", "text": "צריך לעשות debug ל-function הזאת"}
+{"audio": "audio/0203.wav", "text": "ה-breakpoint לא נעצר"}
+{"audio": "audio/0204.wav", "text": "יש race condition שקשה לשחזר"}
+{"audio": "audio/0205.wav", "text": "ה-error message לא מספיק מפורט"}
+{"audio": "audio/0206.wav", "text": "צריך להוסיף יותר logging"}
+{"audio": "audio/0207.wav", "text": "ה-debug mode לא עובד"}
+{"audio": "audio/0208.wav", "text": "יש בעיה בשחזור ה-bug"}
+{"audio": "audio/0209.wav", "text": "ה-reproduction steps לא ברורים"}
+{"audio": "audio/0210.wav", "text": "צריך לבדוק את ה-edge cases"}
+{"audio": "audio/0211.wav", "text": "יש off-by-one error"}
+{"audio": "audio/0212.wav", "text": "ה-loop לא מסתיים"}
+{"audio": "audio/0213.wav", "text": "צריך לתקן את ה-recursion"}
+{"audio": "audio/0214.wav", "text": "יש stack overflow"}
+{"audio": "audio/0215.wav", "text": "ה-memory usage גבוה מדי"}
+{"audio": "audio/0216.wav", "text": "צריך לעשות profiling"}
+{"audio": "audio/0217.wav", "text": "יש performance bottleneck"}
+{"audio": "audio/0218.wav", "text": "ה-response time גבוה"}
+{"audio": "audio/0219.wav", "text": "צריך לעשות optimize"}
+{"audio": "audio/0220.wav", "text": "יש בעיה ב-caching strategy"}
+{"audio": "audio/0221.wav", "text": "ה-cache invalidation לא עובד"}
+{"audio": "audio/0222.wav", "text": "צריך לבדוק את ה-TTL"}
+{"audio": "audio/0223.wav", "text": "יש stale data בתצוגה"}
+{"audio": "audio/0224.wav", "text": "ה-synchronization לא עובד"}
+{"audio": "audio/0225.wav", "text": "צריך לעשות lock על ה-resource"}
+{"audio": "audio/0226.wav", "text": "יש deadlock פוטנציאלי"}
+{"audio": "audio/0227.wav", "text": "ה-mutex לא משוחרר"}
+{"audio": "audio/0228.wav", "text": "צריך לבדוק את ה-thread safety"}
+{"audio": "audio/0229.wav", "text": "יש data race"}
+{"audio": "audio/0230.wav", "text": "ה-atomic operation לא atomic"}
+{"audio": "audio/0231.wav", "text": "צריך להוסיף transaction"}
+{"audio": "audio/0232.wav", "text": "יש rollback חסר"}
+{"audio": "audio/0233.wav", "text": "ה-compensation logic לא עובד"}
+{"audio": "audio/0234.wav", "text": "צריך לבדוק את ה-saga pattern"}
+{"audio": "audio/0235.wav", "text": "יש event sourcing issue"}
+{"audio": "audio/0236.wav", "text": "ה-snapshot לא נכון"}
+{"audio": "audio/0237.wav", "text": "צריך לעשות rebuild של ה-state"}
+{"audio": "audio/0238.wav", "text": "יש projection שבור"}
+{"audio": "audio/0239.wav", "text": "ה-read model לא מתעדכן"}
+{"audio": "audio/0240.wav", "text": "צריך לבדוק את ה-event handlers"}
+{"audio": "audio/0241.wav", "text": "יש duplicate event processing"}
+{"audio": "audio/0242.wav", "text": "ה-idempotency לא עובד"}
+{"audio": "audio/0243.wav", "text": "צריך להוסיף deduplication"}
+{"audio": "audio/0244.wav", "text": "יש ordering issue"}
+{"audio": "audio/0245.wav", "text": "ה-timestamp לא נכון"}
+{"audio": "audio/0246.wav", "text": "צריך לסנכרן את ה-clocks"}
+{"audio": "audio/0247.wav", "text": "יש timezone issue"}
+{"audio": "audio/0248.wav", "text": "ה-UTC conversion שבור"}
+{"audio": "audio/0249.wav", "text": "צריך לתקן את ה-date parsing"}
+{"audio": "audio/0250.wav", "text": "ה-Terraform plan מראה changes לא צפויים"}
+{"audio": "audio/0251.wav", "text": "צריך לעשות import ל-existing resource"}
+{"audio": "audio/0252.wav", "text": "ה-state file corrupted"}
+{"audio": "audio/0253.wav", "text": "יש drift ב-infrastructure"}
+{"audio": "audio/0254.wav", "text": "ה-AWS credentials פגו תוקף"}
+{"audio": "audio/0255.wav", "text": "צריך לעדכן את ה-IAM policy"}
+{"audio": "audio/0256.wav", "text": "ה-security group חוסם traffic"}
+{"audio": "audio/0257.wav", "text": "יש בעיה ב-VPC configuration"}
+{"audio": "audio/0258.wav", "text": "ה-subnet לא נכון"}
+{"audio": "audio/0259.wav", "text": "צריך לבדוק את ה-route table"}
+{"audio": "audio/0260.wav", "text": "ה-NAT gateway לא עובד"}
+{"audio": "audio/0261.wav", "text": "יש internet gateway חסר"}
+{"audio": "audio/0262.wav", "text": "ה-elastic IP לא משויך"}
+{"audio": "audio/0263.wav", "text": "צריך להוסיף target group"}
+{"audio": "audio/0264.wav", "text": "ה-ALB לא מנתב נכון"}
+{"audio": "audio/0265.wav", "text": "יש health check failing"}
+{"audio": "audio/0266.wav", "text": "ה-auto scaling group לא עובד"}
+{"audio": "audio/0267.wav", "text": "צריך לעדכן את ה-launch template"}
+{"audio": "audio/0268.wav", "text": "ה-AMI לא נמצא"}
+{"audio": "audio/0269.wav", "text": "יש בעיה ב-user data script"}
+{"audio": "audio/0270.wav", "text": "ה-instance לא עולה"}
+{"audio": "audio/0271.wav", "text": "צריך לבדוק את ה-system logs"}
+{"audio": "audio/0272.wav", "text": "יש disk full error"}
+{"audio": "audio/0273.wav", "text": "ה-EBS volume לא מחובר"}
+{"audio": "audio/0274.wav", "text": "צריך להגדיל את ה-IOPS"}
+{"audio": "audio/0275.wav", "text": "יש בעיה ב-S3 permissions"}
+{"audio": "audio/0276.wav", "text": "ה-bucket policy חוסם access"}
+{"audio": "audio/0277.wav", "text": "צריך להוסיף CORS configuration"}
+{"audio": "audio/0278.wav", "text": "יש lifecycle policy חסר"}
+{"audio": "audio/0279.wav", "text": "ה-versioning לא מופעל"}
+{"audio": "audio/0280.wav", "text": "צריך להוסיף encryption"}
+{"audio": "audio/0281.wav", "text": "ה-KMS key לא נגיש"}
+{"audio": "audio/0282.wav", "text": "יש בעיה ב-secrets manager"}
+{"audio": "audio/0283.wav", "text": "ה-parameter store ריק"}
+{"audio": "audio/0284.wav", "text": "צריך לעדכן את ה-SSM agent"}
+{"audio": "audio/0285.wav", "text": "ה-CloudWatch logs לא מגיעים"}
+{"audio": "audio/0286.wav", "text": "יש retention policy חסר"}
+{"audio": "audio/0287.wav", "text": "ה-metric filter לא עובד"}
+{"audio": "audio/0288.wav", "text": "צריך להוסיף alarm"}
+{"audio": "audio/0289.wav", "text": "ה-SNS notification לא נשלח"}
+{"audio": "audio/0290.wav", "text": "יש Lambda cold start issue"}
+{"audio": "audio/0291.wav", "text": "ה-function timeout"}
+{"audio": "audio/0292.wav", "text": "צריך להגדיל את ה-memory"}
+{"audio": "audio/0293.wav", "text": "ה-layer לא נטען"}
+{"audio": "audio/0294.wav", "text": "יש dependency issue ב-package"}
+{"audio": "audio/0295.wav", "text": "ה-API Gateway לא מנתב"}
+{"audio": "audio/0296.wav", "text": "צריך להוסיף authorizer"}
+{"audio": "audio/0297.wav", "text": "ה-Cognito pool לא מאומת"}
+{"audio": "audio/0298.wav", "text": "יש token validation issue"}
+{"audio": "audio/0299.wav", "text": "ה-WAF חוסם legitimate requests"}
+{"audio": "audio/0300.wav", "text": "בוא נעשה sync על ה-sprint"}
+{"audio": "audio/0301.wav", "text": "צריך לעדכן את ה-stakeholders"}
+{"audio": "audio/0302.wav", "text": "ה-standup היה ארוך מדי היום"}
+{"audio": "audio/0303.wav", "text": "בוא נעשה retrospective על ה-release"}
+{"audio": "audio/0304.wav", "text": "יש לנו blocker שצריך לדון בו"}
+{"audio": "audio/0305.wav", "text": "ה-deadline זז לשבוע הבא"}
+{"audio": "audio/0306.wav", "text": "צריך לעשות estimation לפיצ׳ר הזה"}
+{"audio": "audio/0307.wav", "text": "ה-story points לא מדויקים"}
+{"audio": "audio/0308.wav", "text": "בוא נעשה refinement לתיקיות"}
+{"audio": "audio/0309.wav", "text": "יש לנו technical debt שצריך לטפל בו"}
+{"audio": "audio/0310.wav", "text": "ה-product owner רוצה שינויים"}
+{"audio": "audio/0311.wav", "text": "צריך לעדכן את ה-roadmap"}
+{"audio": "audio/0312.wav", "text": "ה-milestone הבא בעוד חודש"}
+{"audio": "audio/0313.wav", "text": "יש integration עם צוות אחר"}
+{"audio": "audio/0314.wav", "text": "ה-API contract צריך לעבור review"}
+{"audio": "audio/0315.wav", "text": "בוא נעשה design doc לפיצ׳ר"}
+{"audio": "audio/0316.wav", "text": "ה-architecture decision record חסר"}
+{"audio": "audio/0317.wav", "text": "צריך לתעד את ה-trade-offs"}
+{"audio": "audio/0318.wav", "text": "ה-documentation לא מעודכן"}
+{"audio": "audio/0319.wav", "text": "יש onboarding חדש שצריך להכין"}
+{"audio": "audio/0320.wav", "text": "ה-knowledge transfer לא הושלם"}
+{"audio": "audio/0321.wav", "text": "צריך לעשות pair programming"}
+{"audio": "audio/0322.wav", "text": "בוא נעשה code walkthrough"}
+{"audio": "audio/0323.wav", "text": "ה-demo ללקוח ביום חמישי"}
+{"audio": "audio/0324.wav", "text": "צריך להכין את ה-slides"}
+{"audio": "audio/0325.wav", "text": "יש feedback מה-user research"}
+{"audio": "audio/0326.wav", "text": "ה-A/B test results מוכנים"}
+{"audio": "audio/0327.wav", "text": "צריך לנתח את ה-metrics"}
+{"audio": "audio/0328.wav", "text": "ה-KPIs לא עומדים ביעד"}
+{"audio": "audio/0329.wav", "text": "יש churn גבוה ב-feature הזה"}
+{"audio": "audio/0330.wav", "text": "ה-user engagement ירד"}
+{"audio": "audio/0331.wav", "text": "צריך לעשות user interviews"}
+{"audio": "audio/0332.wav", "text": "יש bug reports מהשטח"}
+{"audio": "audio/0333.wav", "text": "ה-support tickets עלו"}
+{"audio": "audio/0334.wav", "text": "צריך לעשות prioritization"}
+{"audio": "audio/0335.wav", "text": "ה-backlog גדול מדי"}
+{"audio": "audio/0336.wav", "text": "יש dependencies בין teams"}
+{"audio": "audio/0337.wav", "text": "ה-handoff לא ברור"}
+{"audio": "audio/0338.wav", "text": "צריך לעשות alignment"}
+{"audio": "audio/0339.wav", "text": "ה-goals לא מסונכרנים"}
+{"audio": "audio/0340.wav", "text": "יש resource constraints"}
+{"audio": "audio/0341.wav", "text": "ה-capacity planning לא מדויק"}
+{"audio": "audio/0342.wav", "text": "צריך להוסיף headcount"}
+{"audio": "audio/0343.wav", "text": "ה-hiring process ארוך"}
+{"audio": "audio/0344.wav", "text": "יש interview pipeline"}
+{"audio": "audio/0345.wav", "text": "ה-candidate pool קטן"}
+{"audio": "audio/0346.wav", "text": "צריך לעשות outreach"}
+{"audio": "audio/0347.wav", "text": "ה-employer branding חלש"}
+{"audio": "audio/0348.wav", "text": "יש culture fit issues"}
+{"audio": "audio/0349.wav", "text": "ה-team dynamics צריכים עבודה"}
+{"audio": "audio/0350.wav", "text": "ה-unit test נכשל"}
+{"audio": "audio/0351.wav", "text": "יש test flakiness issue"}
+{"audio": "audio/0352.wav", "text": "ה-integration tests לא עוברים"}
+{"audio": "audio/0353.wav", "text": "צריך לעדכן את ה-fixtures"}
+{"audio": "audio/0354.wav", "text": "ה-mock לא מתנהג נכון"}
+{"audio": "audio/0355.wav", "text": "יש בעיה ב-test isolation"}
+{"audio": "audio/0356.wav", "text": "ה-test database לא נקי"}
+{"audio": "audio/0357.wav", "text": "צריך לעשות reset ל-state"}
+{"audio": "audio/0358.wav", "text": "יש race condition בטסטים"}
+{"audio": "audio/0359.wav", "text": "ה-parallel execution נכשל"}
+{"audio": "audio/0360.wav", "text": "צריך לסדר את ה-test order"}
+{"audio": "audio/0361.wav", "text": "יש dependency בין tests"}
+{"audio": "audio/0362.wav", "text": "ה-snapshot לא מעודכן"}
+{"audio": "audio/0363.wav", "text": "צריך לעשות regenerate"}
+{"audio": "audio/0364.wav", "text": "יש visual regression"}
+{"audio": "audio/0365.wav", "text": "ה-percy tests נכשלו"}
+{"audio": "audio/0366.wav", "text": "צריך לעדכן את ה-baseline"}
+{"audio": "audio/0367.wav", "text": "יש browser compatibility issue"}
+{"audio": "audio/0368.wav", "text": "ה-selenium tests לא יציבים"}
+{"audio": "audio/0369.wav", "text": "צריך לעבור ל-playwright"}
+{"audio": "audio/0370.wav", "text": "יש selector לא יציב"}
+{"audio": "audio/0371.wav", "text": "ה-locator strategy צריך שינוי"}
+{"audio": "audio/0372.wav", "text": "צריך להוסיף test ids"}
+{"audio": "audio/0373.wav", "text": "יש בעיה ב-async testing"}
+{"audio": "audio/0374.wav", "text": "ה-wait strategy לא עובד"}
+{"audio": "audio/0375.wav", "text": "צריך להוסיף explicit waits"}
+{"audio": "audio/0376.wav", "text": "יש timeout issues"}
+{"audio": "audio/0377.wav", "text": "ה-retry mechanism לא עובד"}
+{"audio": "audio/0378.wav", "text": "צריך להוסיף error screenshots"}
+{"audio": "audio/0379.wav", "text": "יש debugging קשה"}
+{"audio": "audio/0380.wav", "text": "ה-test logs לא מספיקים"}
+{"audio": "audio/0381.wav", "text": "צריך להוסיף tracing"}
+{"audio": "audio/0382.wav", "text": "יש observability gap"}
+{"audio": "audio/0383.wav", "text": "ה-metrics לא מדויקים"}
+{"audio": "audio/0384.wav", "text": "צריך לעשות instrumentation"}
+{"audio": "audio/0385.wav", "text": "יש sampling issue"}
+{"audio": "audio/0386.wav", "text": "ה-distributed tracing שבור"}
+{"audio": "audio/0387.wav", "text": "צריך לתקן את ה-context propagation"}
+{"audio": "audio/0388.wav", "text": "יש correlation id חסר"}
+{"audio": "audio/0389.wav", "text": "ה-request tracking לא עובד"}
+{"audio": "audio/0390.wav", "text": "צריך להוסיף audit logging"}
+{"audio": "audio/0391.wav", "text": "יש compliance requirements"}
+{"audio": "audio/0392.wav", "text": "ה-data retention policy חסר"}
+{"audio": "audio/0393.wav", "text": "צריך לעשות anonymization"}
+{"audio": "audio/0394.wav", "text": "יש PII exposure"}
+{"audio": "audio/0395.wav", "text": "ה-GDPR compliance לא מלא"}
+{"audio": "audio/0396.wav", "text": "צריך להוסיף consent management"}
+{"audio": "audio/0397.wav", "text": "יש cookie policy issue"}
+{"audio": "audio/0398.wav", "text": "ה-privacy policy לא מעודכן"}
+{"audio": "audio/0399.wav", "text": "צריך legal review"}

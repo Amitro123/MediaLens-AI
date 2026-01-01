@@ -1,0 +1,501 @@
+text
+ה-pipeline נכשל בשלב ה-review של ה-state management.
+מי שבר את ה-schema ב-Python?
+חסר לי documentation על ה-pod ב-wiki.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-schema.
+למה ה-state management לא מתרנדר ב-Kubernetes?
+תעשה revert ל-pod לפני ה-demo.
+צריך להוסיף unit tests ל-validate שעשית.
+ה-Rust service נפל בגלל timeout ב-JWT.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-service mesh.
+אל תשכח לעשות revert אחרי ה-code review.
+תעשה squash ל-commits לפני ה-revert.
+תבדוק אם ה-DOM רץ תקין ב-local environment.
+חסר לי documentation על ה-components ב-wiki.
+אנחנו צריכים לעבור ל-Jenkins בשביל ה-performance.
+ה-response חוזר עם 500 error מה-feature branch.
+תעשה squash ל-commits לפני ה-push.
+"ה-PR הזה ענק, תפצל אותו ל-state management קטנים יותר."
+ה-Mongo service נפל בגלל timeout ב-pod.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Vue.
+"ה-staging תקוע ב-pending state, תעשה restart ל-pod."
+ה-logs מראים שיש exception ב-schema.
+תעיף את ה-console logs לפני שאתה עושה mock.
+ה-CSS שבור ב-mobile עבור ה-container.
+אנחנו צריכים לעבור ל-GitLab CI בשביל ה-performance.
+תעשה debug ל-query לפני ה-demo.
+ה-logs מראים שיש exception ב-memory leak.
+ה-CSS שבור ב-mobile עבור ה-memory leak.
+"יש לנו memory leak ב-recursion, חייבים לעשות stashing."
+ה-pipeline נכשל בשלב ה-stashing של ה-load balancer.
+חסר לי documentation על ה-staging ב-wiki.
+ה-CSS שבור ב-mobile עבור ה-token.
+חסר לי documentation על ה-production ב-wiki.
+"יש לנו memory leak ב-query, חייבים לעשות clone."
+אל תשכח לעשות test אחרי ה-code review.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Angular.
+ה-React service נפל בגלל timeout ב-master.
+מי שבר את ה-schema ב-Redis?
+בוא נעשה pair programming על ה-token הזה.
+תעשה mock ל-endpoint לפני ה-demo.
+תגדיר את ה-environment variables ב-Docker dashboard.
+מי שבר את ה-throughput ב-Angular?
+תבדוק אם ה-throughput רץ תקין ב-local environment.
+"יש לנו memory leak ב-components, חייבים לעשות push."
+למה ה-token לא מתרנדר ב-Go?
+"יש לנו memory leak ב-throughput, חייבים לעשות refactor."
+"יש לנו memory leak ב-props, חייבים לעשות clone."
+"ה-endpoint תקוע ב-pending state, תעשה restart ל-pod."
+ה-logs מראים שיש exception ב-feature branch.
+תפתח ticket ב-Jira על ה-bug ב-endpoint.
+בוא נעשה pair programming על ה-DOM הזה.
+ה-response חוזר עם 500 error מה-props.
+תעיף את ה-console logs לפני שאתה עושה push.
+"ה-PR הזה ענק, תפצל אותו ל-query קטנים יותר."
+ה-logs מראים שיש exception ב-props.
+בוא נעשה pair programming על ה-memory leak הזה.
+בוא נעשה pair programming על ה-schema הזה.
+תגדיר את ה-environment variables ב-AWS dashboard.
+ה-API gateway חוסם את ה-request ל-Vue.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Redis.
+"ה-cluster תקוע ב-pending state, תעשה restart ל-pod."
+מי שבר את ה-schema ב-Rust?
+תעיף את ה-console logs לפני שאתה עושה migrate.
+אנחנו צריכים לעבור ל-Azure בשביל ה-performance.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-memory leak.
+אנחנו צריכים לעבור ל-RabbitMQ בשביל ה-performance.
+ה-CSS שבור ב-mobile עבור ה-load balancer.
+ה-response חוזר עם 500 error מה-throughput.
+ה-pipeline נכשל בשלב ה-stashing של ה-cluster.
+"זה לא bug, זה feature של ה-Node integration."
+תעשה squash ל-commits לפני ה-debug.
+בוא נעשה pair programming על ה-master הזה.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-throughput.
+"זה לא bug, זה feature של ה-Python integration."
+ה-pipeline נכשל בשלב ה-commit של ה-state management.
+תבדוק אם ה-JWT רץ תקין ב-local environment.
+תגדיר את ה-environment variables ב-Go dashboard.
+תבדוק אם ה-feature branch רץ תקין ב-local environment.
+תפתח ticket ב-Jira על ה-bug ב-DOM.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-recursion.
+"יש לנו memory leak ב-load balancer, חייבים לעשות mock."
+למה ה-schema לא מתרנדר ב-Node?
+"זה לא bug, זה feature של ה-Next.js integration."
+תעשה clone ל-DOM לפני ה-demo.
+ה-response חוזר עם 500 error מה-recursion.
+תעשה merge ל-JWT לפני ה-demo.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-pod.
+ה-pipeline נכשל בשלב ה-debug של ה-master.
+ה-pipeline נכשל בשלב ה-scale של ה-latency.
+תבדוק אם ה-state management רץ תקין ב-local environment.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Jenkins.
+ה-response חוזר עם 500 error מה-cluster.
+"ה-feature branch תקוע ב-pending state, תעשה restart ל-pod."
+ה-CSS שבור ב-mobile עבור ה-props.
+ה-logs מראים שיש exception ב-staging.
+תבדוק אם ה-load balancer רץ תקין ב-local environment.
+בוא נעשה pair programming על ה-props הזה.
+מי שבר את ה-staging ב-GitLab CI?
+"ה-PR הזה ענק, תפצל אותו ל-throughput קטנים יותר."
+תעיף את ה-console logs לפני שאתה עושה refactor.
+ה-Go service נפל בגלל timeout ב-props.
+ה-API gateway חוסם את ה-request ל-AWS.
+"זה לא bug, זה feature של ה-Redis integration."
+ה-response חוזר עם 500 error מה-service mesh.
+ה-API gateway חוסם את ה-request ל-React.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Next.js.
+תבדוק אם ה-production רץ תקין ב-local environment.
+תפתח ticket ב-Jira על ה-bug ב-load balancer.
+ה-response חוזר עם 500 error מה-pod.
+חסר לי documentation על ה-schema ב-wiki.
+תפתח ticket ב-Jira על ה-bug ב-container.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Kafka.
+תגדיר את ה-environment variables ב-RabbitMQ dashboard.
+ה-Redis service נפל בגלל timeout ב-loop.
+ה-CSS שבור ב-mobile עבור ה-schema.
+ה-API gateway חוסם את ה-request ל-Redis.
+תפתח ticket ב-Jira על ה-bug ב-memory leak.
+תעשה revert ל-loop לפני ה-demo.
+מי שבר את ה-state management ב-Kafka?
+"יש לנו memory leak ב-throughput, חייבים לעשות review."
+מי שבר את ה-components ב-Terraform?
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-cluster.
+תגדיר את ה-environment variables ב-Kafka dashboard.
+למה ה-state management לא מתרנדר ב-React?
+ה-CSS שבור ב-mobile עבור ה-DOM.
+ה-Next.js service נפל בגלל timeout ב-feature branch.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-production.
+צריך להוסיף unit tests ל-serialize שעשית.
+"זה לא bug, זה feature של ה-AWS integration."
+"ה-PR הזה ענק, תפצל אותו ל-schema קטנים יותר."
+תעיף את ה-console logs לפני שאתה עושה monitor.
+ה-pipeline נכשל בשלב ה-commit של ה-feature branch.
+ה-CSS שבור ב-mobile עבור ה-recursion.
+"יש לנו memory leak ב-token, חייבים לעשות mock."
+תעשה stashing ל-pod לפני ה-demo.
+אנחנו צריכים לעבור ל-Go בשביל ה-performance.
+תעשה cherry-pick ל-cluster לפני ה-demo.
+"זה לא bug, זה feature של ה-RabbitMQ integration."
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-loop.
+צריך להוסיף unit tests ל-merge שעשית.
+"ה-PR הזה ענק, תפצל אותו ל-endpoint קטנים יותר."
+ה-GitLab CI service נפל בגלל timeout ב-production.
+בוא נעשה pair programming על ה-loop הזה.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-container.
+אנחנו צריכים לעבור ל-React בשביל ה-performance.
+ה-Jenkins service נפל בגלל timeout ב-feature branch.
+אנחנו צריכים לעבור ל-GCP בשביל ה-performance.
+ה-CSS שבור ב-mobile עבור ה-pod.
+למה ה-master לא מתרנדר ב-Azure?
+תעשה hard-code ל-service mesh לפני ה-demo.
+תעדכן את ה-dependencies ב-package.json בשביל ה-GCP.
+אנחנו צריכים לעבור ל-Mongo בשביל ה-performance.
+תעיף את ה-console logs לפני שאתה עושה scale.
+"יש לנו memory leak ב-load balancer, חייבים לעשות validate."
+תעשה squash ל-commits לפני ה-optimize.
+"יש לנו memory leak ב-props, חייבים לעשות test."
+"זה לא bug, זה feature של ה-Go integration."
+ה-API gateway חוסם את ה-request ל-Azure.
+אל תשכח לעשות migrate אחרי ה-code review.
+תעשה squash ל-commits לפני ה-migrate.
+צריך להוסיף unit tests ל-stashing שעשית.
+תעשה review ל-components לפני ה-demo.
+ה-logs מראים שיש exception ב-JWT.
+ה-response חוזר עם 500 error מה-latency.
+"ה-PR הזה ענק, תפצל אותו ל-master קטנים יותר."
+צריך להוסיף unit tests ל-mock שעשית.
+מי שבר את ה-container ב-Kafka?
+תפתח ticket ב-Jira על ה-bug ב-JWT.
+למה ה-latency לא מתרנדר ב-Node?
+ה-GitLab CI service נפל בגלל timeout ב-state management.
+"יש לנו memory leak ב-query, חייבים לעשות merge."
+למה ה-staging לא מתרנדר ב-Kafka?
+תעשה cherry-pick ל-container לפני ה-demo.
+צריך להוסיף unit tests ל-migrate שעשית.
+צריך להוסיף unit tests ל-hard-code שעשית.
+אל תשכח לעשות monitor אחרי ה-code review.
+ה-pipeline נכשל בשלב ה-push של ה-props.
+"יש לנו memory leak ב-service mesh, חייבים לעשות hard-code."
+ה-API gateway חוסם את ה-request ל-Rust.
+"יש לנו memory leak ב-load balancer, חייבים לעשות migrate."
+ה-API gateway חוסם את ה-request ל-Kafka.
+ה-API gateway חוסם את ה-request ל-Terraform.
+בוא נעשה pair programming על ה-components הזה.
+ה-pipeline נכשל בשלב ה-cherry-pick של ה-JWT.
+ה-logs מראים שיש exception ב-components.
+תגדיר את ה-environment variables ב-Angular dashboard.
+"ה-recursion תקוע ב-pending state, תעשה restart ל-pod."
+ה-logs מראים שיש exception ב-DOM.
+תבדוק אם ה-staging רץ תקין ב-local environment.
+ה-pipeline נכשל בשלב ה-commit של ה-latency.
+תבדוק אם ה-master רץ תקין ב-local environment.
+תבדוק אם ה-service mesh רץ תקין ב-local environment.
+חסר לי documentation על ה-DOM ב-wiki.
+תעשה scale ל-DOM לפני ה-demo.
+צריך להוסיף unit tests ל-refactor שעשית.
+"זה לא bug, זה feature של ה-Angular integration."
+ה-CSS שבור ב-mobile עבור ה-query.
+תפתח ticket ב-Jira על ה-bug ב-schema.
+ה-logs מראים שיש exception ב-master.
+ה-logs מראים שיש exception ב-pod.
+תפתח ticket ב-Jira על ה-bug ב-production.
+אנחנו צריכים לעבור ל-Postgres בשביל ה-performance.
+מי שבר את ה-cluster ב-Rust?
+למה ה-recursion לא מתרנדר ב-Kafka?
+ה-AWS service נפל בגלל timeout ב-production.
+ה-response חוזר עם 500 error מה-DOM.
+מי שבר את ה-endpoint ב-Python?
+בוא נעשה pair programming על ה-cluster הזה.
+מי שבר את ה-latency ב-Node?
+תפתח ticket ב-Jira על ה-bug ב-recursion.
+"יש לנו memory leak ב-props, חייבים לעשות commit."
+ה-logs מראים שיש exception ב-token.
+ה-pipeline נכשל בשלב ה-serialize של ה-props.
+"ה-PR הזה ענק, תפצל אותו ל-pod קטנים יותר."
+תגדיר את ה-environment variables ב-Terraform dashboard.
+תבדוק אם ה-recursion רץ תקין ב-local environment.
+תעשה mock ל-latency לפני ה-demo.
+תעשה commit ל-props לפני ה-demo.
+למה ה-pod לא מתרנדר ב-Azure?
+צריך להוסיף unit tests ל-push שעשית.
+תפתח ticket ב-Jira על ה-bug ב-master.
+"ה-PR הזה ענק, תפצל אותו ל-recursion קטנים יותר."
+מי שבר את ה-query ב-Mongo?
+ה-API gateway חוסם את ה-request ל-GitLab CI.
+"ה-PR הזה ענק, תפצל אותו ל-JWT קטנים יותר."
+בוא נעשה pair programming על ה-state management הזה.
+ה-CSS שבור ב-mobile עבור ה-production.
+תעיף את ה-console logs לפני שאתה עושה debug.
+ה-CSS שבור ב-mobile עבור ה-state management.
+למה ה-query לא מתרנדר ב-Python?
+מי שבר את ה-state management ב-GitLab CI?
+ה-Rust service נפל בגלל timeout ב-latency.
+אל תשכח לעשות hard-code אחרי ה-code review.
+למה ה-container לא מתרנדר ב-Postgres?
+תעשה squash ל-commits לפני ה-scale.
+אנחנו צריכים לעבור ל-Docker בשביל ה-performance.
+ה-pipeline נכשל בשלב ה-monitor של ה-props.
+תעשה squash ל-commits לפני ה-monitor.
+ה-pipeline נכשל בשלב ה-serialize של ה-service mesh.
+ה-pipeline נכשל בשלב ה-deploy של ה-query.
+"ה-service mesh תקוע ב-pending state, תעשה restart ל-pod."
+תעשה mock ל-state management לפני ה-demo.
+צריך להוסיף unit tests ל-commit שעשית.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-components.
+תבדוק אם ה-latency רץ תקין ב-local environment.
+תגדיר את ה-environment variables ב-Python dashboard.
+תגדיר את ה-environment variables ב-Rust dashboard.
+תעיף את ה-console logs לפני שאתה עושה validate.
+ה-API gateway חוסם את ה-request ל-Jenkins.
+חסר לי documentation על ה-master ב-wiki.
+תעשה squash ל-commits לפני ה-validate.
+ה-CSS שבור ב-mobile עבור ה-staging.
+תעדכן את ה-dependencies ב-package.json בשביל ה-GitLab CI.
+מי שבר את ה-cluster ב-GitLab CI?
+ה-pipeline נכשל בשלב ה-monitor של ה-components.
+מי שבר את ה-pod ב-GCP?
+ה-pipeline נכשל בשלב ה-revert של ה-JWT.
+"ה-query תקוע ב-pending state, תעשה restart ל-pod."
+בוא נעשה pair programming על ה-feature branch הזה.
+תעדכן את ה-dependencies ב-package.json בשביל ה-Terraform.
+"ה-PR הזה ענק, תפצל אותו ל-token קטנים יותר."
+ה-Rust service נפל בגלל timeout ב-recursion.
+ה-response חוזר עם 500 error מה-container.
+"יש לנו memory leak ב-staging, חייבים לעשות stashing."
+ה-API gateway חוסם את ה-request ל-Python.
+"ה-PR הזה ענק, תפצל אותו ל-feature branch קטנים יותר."
+תעשה squash ל-commits לפני ה-serialize.
+בוא נעשה pair programming על ה-load balancer הזה.
+תעשה cherry-pick ל-JWT לפני ה-demo.
+ה-response חוזר עם 500 error מה-token.
+ה-logs מראים שיש exception ב-query.
+תעשה squash ל-commits לפני ה-deploy.
+ה-response חוזר עם 500 error מה-staging.
+"ה-props תקוע ב-pending state, תעשה restart ל-pod."
+ה-Next.js service נפל בגלל timeout ב-service mesh.
+תפתח ticket ב-Jira על ה-bug ב-components.
+ה-response חוזר עם 500 error מה-query.
+תעשה mock ל-query לפני ה-demo.
+"ה-PR הזה ענק, תפצל אותו ל-production קטנים יותר."
+בוא נעשה pair programming על ה-production הזה.
+למה ה-schema לא מתרנדר ב-Azure?
+ה-pipeline נכשל בשלב ה-refactor של ה-query.
+ה-API gateway חוסם את ה-request ל-Next.js.
+"יש לנו memory leak ב-cluster, חייבים לעשות monitor."
+"יש לנו memory leak ב-staging, חייבים לעשות clone."
+ה-CSS שבור ב-mobile עבור ה-feature branch.
+ה-API gateway חוסם את ה-request ל-Postgres.
+"ה-PR הזה ענק, תפצל אותו ל-loop קטנים יותר."
+"יש לנו memory leak ב-DOM, חייבים לעשות merge."
+תעיף את ה-console logs לפני שאתה עושה serialize.
+תפתח ticket ב-Jira על ה-bug ב-props.
+ה-Postgres service נפל בגלל timeout ב-load balancer.
+"ה-PR הזה ענק, תפצל אותו ל-cluster קטנים יותר."
+ה-API gateway חוסם את ה-request ל-Go.
+חסר לי documentation על ה-loop ב-wiki.
+מי שבר את ה-props ב-Postgres?
+למה ה-DOM לא מתרנדר ב-React?
+למה ה-token לא מתרנדר ב-Kafka?
+ה-Redis service נפל בגלל timeout ב-query.
+ה-pipeline נכשל בשלב ה-merge של ה-latency.
+חסר לי documentation על ה-throughput ב-wiki.
+חסר לי documentation על ה-container ב-wiki.
+חסר לי documentation על ה-latency ב-wiki.
+תעשה stashing ל-load balancer לפני ה-demo.
+תעשה debug ל-loop לפני ה-demo.
+"ה-token תקוע ב-pending state, תעשה restart ל-pod."
+תעשה serialize ל-pod לפני ה-demo.
+למה ה-endpoint לא מתרנדר ב-GitLab CI?
+ה-pipeline נכשל בשלב ה-commit של ה-cluster.
+מי שבר את ה-state management ב-Next.js?
+צריך להוסיף unit tests ל-deploy שעשית.
+"ה-DOM תקוע ב-pending state, תעשה restart ל-pod."
+"ה-schema תקוע ב-pending state, תעשה restart ל-pod."
+"יש לנו memory leak ב-service mesh, חייבים לעשות review."
+"ה-components תקוע ב-pending state, תעשה restart ל-pod."
+אל תשכח לעשות push אחרי ה-code review.
+ה-CSS שבור ב-mobile עבור ה-service mesh.
+חסר לי documentation על ה-token ב-wiki.
+אנחנו צריכים לעבור ל-Kubernetes בשביל ה-performance.
+"זה לא bug, זה feature של ה-Kafka integration."
+תבדוק אם ה-props רץ תקין ב-local environment.
+ה-Terraform service נפל בגלל timeout ב-cluster.
+ה-logs מראים שיש exception ב-endpoint.
+מי שבר את ה-query ב-RabbitMQ?
+ה-pipeline נכשל בשלב ה-test של ה-token.
+חסר לי documentation על ה-cluster ב-wiki.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-DOM.
+ה-logs מראים שיש exception ב-cluster.
+תגדיר את ה-environment variables ב-Redis dashboard.
+"יש לנו memory leak ב-pod, חייבים לעשות deploy."
+תעדכן את ה-dependencies ב-package.json בשביל ה-React.
+למה ה-components לא מתרנדר ב-Next.js?
+ה-Node service נפל בגלל timeout ב-query.
+בוא נעשה pair programming על ה-staging הזה.
+תעשה squash ל-commits לפני ה-test.
+ה-pipeline נכשל בשלב ה-merge של ה-container.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-load balancer.
+ה-API gateway חוסם את ה-request ל-Docker.
+תעשה squash ל-commits לפני ה-merge.
+חסר לי documentation על ה-service mesh ב-wiki.
+תגדיר את ה-environment variables ב-GitLab CI dashboard.
+תעיף את ה-console logs לפני שאתה עושה deploy.
+ה-GCP service נפל בגלל timeout ב-JWT.
+חסר לי documentation על ה-state management ב-wiki.
+"ה-loop תקוע ב-pending state, תעשה restart ל-pod."
+למה ה-loop לא מתרנדר ב-Node?
+"ה-PR הזה ענק, תפצל אותו ל-load balancer קטנים יותר."
+"זה לא bug, זה feature של ה-Terraform integration."
+למה ה-load balancer לא מתרנדר ב-React?
+ה-CSS שבור ב-mobile עבור ה-loop.
+למה ה-throughput לא מתרנדר ב-GitLab CI?
+תעיף את ה-console logs לפני שאתה עושה review.
+"ה-load balancer תקוע ב-pending state, תעשה restart ל-pod."
+"ה-master תקוע ב-pending state, תעשה restart ל-pod."
+"זה לא bug, זה feature של ה-Jenkins integration."
+צריך להוסיף unit tests ל-debug שעשית.
+למה ה-loop לא מתרנדר ב-RabbitMQ?
+למה ה-memory leak לא מתרנדר ב-Kubernetes?
+תעדכן את ה-dependencies ב-package.json בשביל ה-Mongo.
+למה ה-endpoint לא מתרנדר ב-Mongo?
+ה-CSS שבור ב-mobile עבור ה-components.
+תעיף את ה-console logs לפני שאתה עושה revert.
+למה ה-latency לא מתרנדר ב-Docker?
+תעיף את ה-console logs לפני שאתה עושה stashing.
+למה ה-pod לא מתרנדר ב-RabbitMQ?
+תבדוק אם ה-cluster רץ תקין ב-local environment.
+ה-logs מראים שיש exception ב-load balancer.
+למה ה-recursion לא מתרנדר ב-Jenkins?
+תעשה debug ל-cluster לפני ה-demo.
+אל תשכח לעשות refactor אחרי ה-code review.
+חסר לי documentation על ה-recursion ב-wiki.
+תגדיר את ה-environment variables ב-Node dashboard.
+"יש לנו memory leak ב-components, חייבים לעשות stashing."
+תעשה squash ל-commits לפני ה-stashing.
+למה ה-cluster לא מתרנדר ב-Kubernetes?
+"ה-production תקוע ב-pending state, תעשה restart ל-pod."
+חסר לי documentation על ה-props ב-wiki.
+"ה-PR הזה ענק, תפצל אותו ל-latency קטנים יותר."
+תפתח ticket ב-Jira על ה-bug ב-latency.
+בוא נעשה pair programming על ה-query הזה.
+תבדוק אם ה-token רץ תקין ב-local environment.
+אל תשכח לעשות stashing אחרי ה-code review.
+"ה-state management תקוע ב-pending state, תעשה restart ל-pod."
+תעדכן את ה-dependencies ב-package.json בשביל ה-Go.
+ה-pipeline נכשל בשלב ה-review של ה-staging.
+תעיף את ה-console logs לפני שאתה עושה cherry-pick.
+צריך להוסיף unit tests ל-test שעשית.
+צריך להוסיף unit tests ל-optimize שעשית.
+תבדוק אם ה-endpoint רץ תקין ב-local environment.
+אל תשכח לעשות serialize אחרי ה-code review.
+מי שבר את ה-loop ב-Mongo?
+חסר לי documentation על ה-memory leak ב-wiki.
+תעשה scale ל-token לפני ה-demo.
+ה-API gateway חוסם את ה-request ל-Angular.
+למה ה-feature branch לא מתרנדר ב-Kubernetes?
+ה-pipeline נכשל בשלב ה-hard-code של ה-token.
+תעשה review ל-throughput לפני ה-demo.
+תעשה squash ל-commits לפני ה-clone.
+תגדיר את ה-environment variables ב-Postgres dashboard.
+תפתח ticket ב-Jira על ה-bug ב-staging.
+ה-Jenkins service נפל בגלל timeout ב-cluster.
+אל תשכח לעשות review אחרי ה-code review.
+"יש לנו memory leak ב-staging, חייבים לעשות hard-code."
+ה-Vue service נפל בגלל timeout ב-memory leak.
+תעשה merge ל-latency לפני ה-demo.
+תעשה validate ל-components לפני ה-demo.
+"ה-PR הזה ענק, תפצל אותו ל-staging קטנים יותר."
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-state management.
+אל תשכח לעשות scale אחרי ה-code review.
+תעיף את ה-console logs לפני שאתה עושה clone.
+ה-Redis service נפל בגלל timeout ב-throughput.
+חסר לי documentation על ה-endpoint ב-wiki.
+ה-response חוזר עם 500 error מה-state management.
+ה-CSS שבור ב-mobile עבור ה-master.
+ה-pipeline נכשל בשלב ה-stashing של ה-schema.
+תבדוק אם ה-components רץ תקין ב-local environment.
+מי שבר את ה-production ב-Rust?
+אל תשכח לעשות deploy אחרי ה-code review.
+תעיף את ה-console logs לפני שאתה עושה commit.
+ה-logs מראים שיש exception ב-container.
+אנחנו צריכים לעבור ל-Kafka בשביל ה-performance.
+מי שבר את ה-feature branch ב-Redis?
+ה-React service נפל בגלל timeout ב-production.
+אנחנו צריכים לעבור ל-Node בשביל ה-performance.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-endpoint.
+ה-Kafka service נפל בגלל timeout ב-load balancer.
+"ה-PR הזה ענק, תפצל אותו ל-service mesh קטנים יותר."
+תעדכן את ה-dependencies ב-package.json בשביל ה-RabbitMQ.
+אל תשכח לעשות commit אחרי ה-code review.
+"ה-PR הזה ענק, תפצל אותו ל-props קטנים יותר."
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-feature branch.
+"יש לנו memory leak ב-JWT, חייבים לעשות deploy."
+ה-Jenkins service נפל בגלל timeout ב-token.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-latency.
+ה-pipeline נכשל בשלב ה-refactor של ה-service mesh.
+צריך להוסיף unit tests ל-clone שעשית.
+אנחנו צריכים לעבור ל-Vue בשביל ה-performance.
+למה ה-components לא מתרנדר ב-RabbitMQ?
+"זה לא bug, זה feature של ה-Postgres integration."
+"זה לא bug, זה feature של ה-Docker integration."
+ה-GitLab CI service נפל בגלל timeout ב-JWT.
+ה-Vue service נפל בגלל timeout ב-JWT.
+ה-Angular service נפל בגלל timeout ב-loop.
+ה-CSS שבור ב-mobile עבור ה-latency.
+תגדיר את ה-environment variables ב-Azure dashboard.
+תריץ את ה-tests מקומית לפני שאתה דוחף ל-token.
+ה-pipeline נכשל בשלב ה-serialize של ה-memory leak.
+מי שבר את ה-container ב-GitLab CI?
+תעשה clone ל-cluster לפני ה-demo.
+תגדיר את ה-environment variables ב-Mongo dashboard.
+חסר לי documentation על ה-feature branch ב-wiki.
+ה-GitLab CI service נפל בגלל timeout ב-DOM.
+ה-Postgres service נפל בגלל timeout ב-components.
+למה ה-props לא מתרנדר ב-GCP?
+תעשה scale ל-query לפני ה-demo.
+"יש לנו memory leak ב-schema, חייבים לעשות hard-code."
+"יש לנו memory leak ב-query, חייבים לעשות serialize."
+אל תשכח לעשות optimize אחרי ה-code review.
+למה ה-production לא מתרנדר ב-Kubernetes?
+ה-Mongo service נפל בגלל timeout ב-throughput.
+ה-CSS שבור ב-mobile עבור ה-throughput.
+ה-logs מראים שיש exception ב-state management.
+אל תשכח לעשות clone אחרי ה-code review.
+ה-Angular service נפל בגלל timeout ב-token.
+אנחנו צריכים לעבור ל-Redis בשביל ה-performance.
+למה ה-state management לא מתרנדר ב-Docker?
+"ה-latency תקוע ב-pending state, תעשה restart ל-pod."
+ה-response חוזר עם 500 error מה-load balancer.
+ה-pipeline נכשל בשלב ה-push של ה-endpoint.
+למה ה-load balancer לא מתרנדר ב-Kafka?
+"יש לנו memory leak ב-state management, חייבים לעשות test."
+ה-response חוזר עם 500 error מה-production.
+ה-API gateway חוסם את ה-request ל-Mongo.
+"יש לנו memory leak ב-props, חייבים לעשות refactor."
+"יש לנו memory leak ב-query, חייבים לעשות push."
+תעשה migrate ל-latency לפני ה-demo.
+תגדיר את ה-environment variables ב-Vue dashboard.
+תגדיר את ה-environment variables ב-React dashboard.
+ה-Terraform service נפל בגלל timeout ב-feature branch.
+תגדיר את ה-environment variables ב-Jenkins dashboard.
+"ה-JWT תקוע ב-pending state, תעשה restart ל-pod."
+בוא נעשה pair programming על ה-JWT הזה.
+בוא נעשה pair programming על ה-throughput הזה.
+למה ה-staging לא מתרנדר ב-Next.js?
+תפתח ticket ב-Jira על ה-bug ב-pod.
+תעשה commit ל-pod לפני ה-demo.
+תעשה squash ל-commits לפני ה-mock.
+תעשה revert ל-staging לפני ה-demo.
+תעשה refactor ל-staging לפני ה-demo.
+ה-Angular service נפל בגלל timeout ב-throughput.
+מי שבר את ה-loop ב-GCP?
+תעיף את ה-console logs לפני שאתה עושה hard-code.
+מי שבר את ה-container ב-Rust?
+תפתח ticket ב-Jira על ה-bug ב-token.
+תעשה merge ל-state management לפני ה-demo.
+למה ה-schema לא מתרנדר ב-Angular?
+"ה-throughput תקוע ב-pending state, תעשה restart ל-pod."
+ה-pipeline נכשל בשלב ה-revert של ה-DOM.
+מי שבר את ה-throughput ב-Rust?
+תעשה migrate ל-DOM לפני ה-demo.
+צריך להוסיף unit tests ל-cherry-pick שעשית.

@@ -1,0 +1,6 @@
+{
+  "base_model": "openai/whisper-small",
+  "peft_type": "lora",
+  "task_type": "speech-to-text",
+  "hebrish_optimized": true
+}

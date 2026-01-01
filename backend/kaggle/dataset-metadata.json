@@ -1,0 +1,19 @@
+{
+    "title": "DevLens Hebrish STT Dataset",
+    "id": "devlens/hebrish-stt-dataset",
+    "licenses": [
+        {
+            "name": "CC0-1.0"
+        }
+    ],
+    "subtitle": "400 Hebrew + English tech sentences for Whisper fine-tuning",
+    "description": "Hebrish (Hebrew + English tech terms) dataset for fine-tuning Whisper on Israeli dev meeting recordings. Includes deployment, git, API, frontend, DevOps, and meeting vocabulary.",
+    "keywords": [
+        "hebrew",
+        "whisper",
+        "stt",
+        "speech-to-text",
+        "hebrish",
+        "fine-tuning"
+    ]
+}
