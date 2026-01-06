@@ -49,6 +49,7 @@ class StatusResponse(BaseModel):
     """Response model for task status"""
     status: str
     progress: int
+    stage: str = ""  # Current processing stage label
 
 
 class ResultResponse(BaseModel):
@@ -218,7 +219,8 @@ async def get_status(task_id: str):
     if status_info:
         return StatusResponse(
             status=status_info["status"],
-            progress=status_info["progress"]
+            progress=status_info["progress"],
+            stage=status_info.get("stage", "")
         )
     
     # Fallback: Check calendar sessions for backwards compatibility
@@ -228,13 +230,21 @@ async def get_status(task_id: str):
         session = calendar.get_session(task_id)
         if session:
             progress = 0
-            if session.status == "completed": progress = 100
-            elif session.status == "processing": progress = 60
-            elif session.status == "downloading_from_drive": progress = 30
+            stage = ""
+            if session.status == "completed": 
+                progress = 100
+                stage = "Complete!"
+            elif session.status == "processing": 
+                progress = 60
+                stage = "Processing..."
+            elif session.status == "downloading_from_drive": 
+                progress = 30
+                stage = "Downloading from Drive..."
             
             return StatusResponse(
                 status=session.status,
-                progress=progress
+                progress=progress,
+                stage=stage
             )
     except:
         pass

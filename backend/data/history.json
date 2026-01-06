@@ -1,49 +1,724 @@
 {
   "sessions": [
     {
-      "id": "mtg_3",
-      "timestamp": "2025-12-22T12:01:30.372048",
-      "title": "Architecture Deep Dive",
+      "id": "test_storage_e02cff1a",
+      "timestamp": "2026-01-02T12:04:43.251858",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_376a60e1",
+      "timestamp": "2026-01-02T12:04:42.628482",
+      "title": "Fail Test",
       "topic": "General",
       "status": "failed",
-      "mode": "bug_report",
+      "mode": "general_doc",
       "mode_name": null
     },
     {
-      "id": "aa0ca5e5-9de0-4e6d-980c-aeb9d69270cc",
-      "timestamp": "2025-12-21T21:17:34.136135",
-      "title": "Import: Demo_Walkthrough.mp4",
-      "topic": "Drive Import",
-      "status": "failed",
-      "mode": "bug_report",
-      "mode_name": "General Documentation"
+      "id": "test_complete_a0ee05c5",
+      "timestamp": "2026-01-02T12:04:42.594191",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
     },
     {
-      "id": "cd6cb120-4d9e-4d10-81bf-d307af3645fa",
-      "timestamp": "2025-12-21T21:06:49.823973",
-      "title": "Import: Demo_Walkthrough.mp4",
-      "topic": "Drive Import",
-      "status": "failed",
+      "id": "test_cancel_86a46a2c",
+      "timestamp": "2026-01-02T12:04:42.558406",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_9bc24de0",
+      "timestamp": "2026-01-02T12:04:42.505994",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "processing",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_1f2822e3",
+      "timestamp": "2026-01-02T12:00:47.042871",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
       "mode": "general_doc",
       "mode_name": "General Documentation"
     },
     {
-      "id": "c2b7570d-2763-44c8-b2b9-c90a0251a2eb",
-      "timestamp": "2025-12-21T21:06:49.800877",
-      "title": "Import: Feature_Preview.mov",
-      "topic": "Drive Import",
+      "id": "test_fail_c6322b10",
+      "timestamp": "2026-01-02T12:00:46.924779",
+      "title": "Fail Test",
+      "topic": "General",
       "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_373cb200",
+      "timestamp": "2026-01-02T12:00:46.890527",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_39f7f348",
+      "timestamp": "2026-01-02T12:00:46.860551",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_3066aa3c",
+      "timestamp": "2026-01-02T12:00:46.827568",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "processing",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_c5af085d",
+      "timestamp": "2026-01-02T12:00:46.689683",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_faba831b",
+      "timestamp": "2026-01-02T12:00:46.672960",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_34583ed4",
+      "timestamp": "2026-01-02T12:00:46.641143",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_8c6d7c43",
+      "timestamp": "2026-01-02T11:50:37.633574",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
       "mode": "general_doc",
       "mode_name": "General Documentation"
     },
     {
-      "id": "570ecdd4-adf5-41a1-a555-22752f65084f",
-      "timestamp": "2025-12-21T21:06:49.759608",
-      "title": "Import: Demo_Walkthrough.mp4",
-      "topic": "Drive Import",
+      "id": "test_fail_05270861",
+      "timestamp": "2026-01-02T11:50:37.458147",
+      "title": "Fail Test",
+      "topic": "General",
       "status": "failed",
       "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_d87eaef8",
+      "timestamp": "2026-01-02T11:50:37.414573",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_ef0a38af",
+      "timestamp": "2026-01-02T11:50:37.374049",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_bdbcfc9a",
+      "timestamp": "2026-01-02T11:41:52.091572",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
       "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_70fdf303",
+      "timestamp": "2026-01-02T11:41:51.903031",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_ee2f5f33",
+      "timestamp": "2026-01-02T11:41:51.855941",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_54ddd2a1",
+      "timestamp": "2026-01-02T11:41:51.807573",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_e9a3b494",
+      "timestamp": "2026-01-02T11:37:36.078314",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_856d86ff",
+      "timestamp": "2026-01-02T11:37:35.845690",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_9f658a66",
+      "timestamp": "2026-01-02T11:37:35.785827",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_8338bde3",
+      "timestamp": "2026-01-02T11:37:35.734091",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_a76b2396",
+      "timestamp": "2026-01-02T11:37:35.390787",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_3ed18c99",
+      "timestamp": "2026-01-02T11:26:19.213098",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_e6705cd2",
+      "timestamp": "2026-01-02T11:26:17.869370",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_76e3efc6",
+      "timestamp": "2026-01-02T11:26:17.824876",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_2bc3dc9c",
+      "timestamp": "2026-01-02T11:26:17.794021",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_812194b0",
+      "timestamp": "2026-01-02T11:26:17.615518",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_542d06f6",
+      "timestamp": "2026-01-02T10:58:09.221317",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_22fbb9f3",
+      "timestamp": "2026-01-02T10:58:07.517271",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_238588b4",
+      "timestamp": "2026-01-02T10:58:07.464830",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_b4ee516b",
+      "timestamp": "2026-01-02T10:58:07.410917",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_2fad2adc",
+      "timestamp": "2026-01-02T10:58:06.647929",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_d068755d",
+      "timestamp": "2026-01-02T00:17:27.227685",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_7f13707c",
+      "timestamp": "2026-01-02T00:17:27.131104",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_b496bec8",
+      "timestamp": "2026-01-02T00:17:27.059853",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_227326ed",
+      "timestamp": "2026-01-02T00:17:26.998588",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_39721e5d",
+      "timestamp": "2026-01-02T00:16:43.652307",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_ea8bef77",
+      "timestamp": "2026-01-02T00:16:43.636212",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_7ace8cd8",
+      "timestamp": "2026-01-02T00:16:43.620196",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_856b88b9",
+      "timestamp": "2026-01-02T00:16:43.606699",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_6991415f",
+      "timestamp": "2026-01-02T00:16:43.591776",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_d5467d78",
+      "timestamp": "2026-01-02T00:16:43.575652",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_progress_7eda4433",
+      "timestamp": "2026-01-02T00:16:43.547874",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_b721a8f5",
+      "timestamp": "2026-01-01T23:54:09.301134",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_69275a24",
+      "timestamp": "2026-01-01T23:54:09.251859",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_91ee7f8b",
+      "timestamp": "2026-01-01T23:54:09.185109",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_c736c862",
+      "timestamp": "2026-01-01T23:54:09.127481",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_bc8582ea",
+      "timestamp": "2026-01-01T23:47:20.986121",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_e22ea283",
+      "timestamp": "2026-01-01T23:47:20.938552",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_72395747",
+      "timestamp": "2026-01-01T23:47:20.896068",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_b0ffdd06",
+      "timestamp": "2026-01-01T23:47:20.860932",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_51d243a9",
+      "timestamp": "2026-01-01T23:38:29.281714",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_90359e13",
+      "timestamp": "2026-01-01T23:38:29.184609",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_40299daf",
+      "timestamp": "2026-01-01T23:38:29.152465",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_575a9136",
+      "timestamp": "2026-01-01T23:38:29.122178",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_083dfe3d",
+      "timestamp": "2026-01-01T23:35:39.184612",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_2715e2b0",
+      "timestamp": "2026-01-01T23:35:39.053072",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_e743b2b9",
+      "timestamp": "2026-01-01T23:35:38.998799",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_ed4fc766",
+      "timestamp": "2026-01-01T23:35:38.947234",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_d2c2f571",
+      "timestamp": "2026-01-01T23:31:33.443579",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_43e2bace",
+      "timestamp": "2026-01-01T23:31:33.277472",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_06d14350",
+      "timestamp": "2026-01-01T23:31:33.225845",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_197b70cd",
+      "timestamp": "2026-01-01T23:31:33.193869",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_4c7607e0",
+      "timestamp": "2026-01-01T23:25:32.196702",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_5cfa9c26",
+      "timestamp": "2026-01-01T23:25:32.152626",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_ba27451e",
+      "timestamp": "2026-01-01T23:25:32.094387",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_c92279b7",
+      "timestamp": "2026-01-01T23:25:32.040402",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "a56a97a2-25dd-40f4-b135-233eb4953971",
+      "timestamp": "2026-01-01T23:25:31.680449",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "invalid_mode_xyz",
+      "mode_name": null
+    },
+    {
+      "id": "test_storage_71d4b6b0",
+      "timestamp": "2026-01-01T23:21:55.005464",
+      "title": "Test Session",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "General Documentation"
+    },
+    {
+      "id": "test_fail_131c3950",
+      "timestamp": "2026-01-01T23:21:54.776166",
+      "title": "Fail Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_complete_eb077023",
+      "timestamp": "2026-01-01T23:21:54.722010",
+      "title": "Complete Test",
+      "topic": "General",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "test_cancel_40d0ae35",
+      "timestamp": "2026-01-01T23:21:54.675631",
+      "title": "Cancel Test",
+      "topic": "General",
+      "status": "cancelled",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "3a35b9b1-3c8b-4552-9ec8-66d87eb9f435",
+      "timestamp": "2026-01-01T23:21:53.686457",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "invalid_mode_xyz",
+      "mode_name": null
+    },
+    {
+      "id": "24650064-43f0-4498-b742-81ff250076ad",
+      "timestamp": "2026-01-01T23:15:18.315322",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "invalid_mode_xyz",
+      "mode_name": null
+    },
+    {
+      "id": "33ded8f1-6796-4ee8-be83-0b61360a49ba",
+      "timestamp": "2026-01-01T23:10:27.798015",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "invalid_mode_xyz",
+      "mode_name": null
+    },
+    {
+      "id": "6e24e352-6cd9-4cfe-8570-be4b064be4e5",
+      "timestamp": "2026-01-01T12:52:02.425118",
+      "title": "Untitled Project",
+      "topic": "Technical Documentation Writer",
+      "status": "completed",
+      "mode": "general_doc",
+      "mode_name": "Technical Documentation Writer"
     }
   ]
 }

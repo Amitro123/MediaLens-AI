@@ -27,6 +27,31 @@ services:
       retries: 3
     restart: unless-stopped
   # ============================================================================
+  # Backend GPU - Optional: For Hebrish TTS/STT with GPU acceleration
+  # ============================================================================
+  # Uncomment to run backend with GPU support for faster TTS/STT processing
+  # backend-gpu:
+  #   build: ./backend
+  #   container_name: devlens-backend-gpu
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./backend:/app
+  #     - ./uploads:/app/uploads
+  #     - ./static:/app/static
+  #   environment:
+  #     - CUDA_VISIBLE_DEVICES=0
+  #     - HEBRISH_STT_ENABLED=true
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  #   restart: unless-stopped
+  # ============================================================================
   # PostgreSQL - Optional: For persistent storage
   # ============================================================================
   # postgres:

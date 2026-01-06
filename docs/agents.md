@@ -20,6 +20,10 @@ The system now includes:
 - **Session Timeline Events** - Structured JSONL event logging for pipeline traceability
 - **DevLensAgent Orchestrator** - Single orchestrator coordinating VideoProcessor, AIGenerator, and StorageService
 - **Fast STT Service** - Local faster-whisper transcription for audio relevance with ~10x speedup
+- **Hebrish STT** - Hebrew + English tech term recognition for Israeli dev meetings (deploy, API, kubernetes, etc.)
+- **Granular Progress Bar** - Real-time 0-100% progress with stage labels ("Analyzing content... 30%")
+- **Copy JSON per Frame** - One-click button to copy frame metadata to clipboard for Postman/API testing
+- **Kaggle Fine-tuning** - Notebook for Hebrish vocabulary extraction using Whisper + LoRA
 
 ## Prompt Registry Architecture
 
@@ -472,6 +476,8 @@ Output Structure:
 - **Meeting Type:** [Budget Review / Quarterly Review]
 - **Period Covered:** [Q1 2024, FY2024, etc.]
 - **Attendees:** [Roles/Names if mentioned]
+
+
 
 ## Executive Summary
 Brief overview of financial status and key decisions.

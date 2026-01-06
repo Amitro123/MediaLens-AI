@@ -1,6 +1,0 @@
-{"timestamp": "2025-12-21T11:45:25Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}
-{"timestamp": "2025-12-21T11:46:37Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}
-{"timestamp": "2025-12-21T11:54:51Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}
-{"timestamp": "2025-12-21T11:56:51Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}
-{"timestamp": "2025-12-21T11:57:20Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}
-{"timestamp": "2025-12-22T11:23:05Z", "session_id": "cancel_test", "event": "status_changed", "payload": {"new_status": "processing", "progress": 0}}

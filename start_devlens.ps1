@@ -5,7 +5,7 @@
 .DESCRIPTION
     Starts the DevLens stack in Local Mode:
     - Backend (FastAPI)
-    - Frontend (React/Vite)
+    - Frontend (React/Vite with TypeScript + shadcn/ui)
 
 .NOTES
     Run from project root: .\start_devlens.ps1
@@ -132,7 +132,7 @@ function Start-Frontend {
 Set-Location '$frontendPath'
 Write-Host ''
 Write-Host '============================================' -ForegroundColor Magenta
-Write-Host '      DevLens Frontend Server               ' -ForegroundColor Magenta
+Write-Host '      DevLens Frontend (Lovable UI v2.0)    ' -ForegroundColor Magenta
 Write-Host '============================================' -ForegroundColor Magenta
 Write-Host ''
 $installCmd
@@ -161,9 +161,10 @@ function Write-Summary {
     Write-Host "    API Docs:    http://localhost:8000/docs" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Quick Start:" -ForegroundColor White
-    Write-Host "    1. Select a meeting from the left panel" -ForegroundColor Gray
-    Write-Host "    2. Upload a video in the right panel" -ForegroundColor Gray
-    Write-Host "    3. View generated documentation" -ForegroundColor Gray
+    Write-Host "    1. Click 'Get Started' or go to Dashboard" -ForegroundColor Gray
+    Write-Host "    2. Select a documentation mode (Bug Report, etc.)" -ForegroundColor Gray
+    Write-Host "    3. Upload a video via drag-and-drop" -ForegroundColor Gray
+    Write-Host "    4. View generated documentation" -ForegroundColor Gray
     Write-Host ""
     Write-Host "=============================================================" -ForegroundColor Green
     Write-Host ""

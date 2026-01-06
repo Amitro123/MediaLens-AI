@@ -64,6 +64,7 @@ class FastSttService:
     Features:
     - CPU-only inference (no GPU required)
     - Automatic fallback to Gemini when model unavailable
+    - Hebrish mode integration for Hebrew + tech terms
     - Metrics for monitoring
     
     Usage:
@@ -84,6 +85,7 @@ class FastSttService:
         self.model_size = model_size
         self.model = None
         self._model_load_error: Optional[str] = None
+        self._hebrish_stt = None  # Lazy-loaded Hebrish STT service
         
         if enabled:
             self._load_model()
@@ -112,17 +114,81 @@ class FastSttService:
         """Check if the STT model is loaded and ready"""
         return self.model is not None
     
-    def transcribe_video(self, audio_path: str, session_id: Optional[str] = None) -> SttResult:
+    def _get_hebrish_stt(self):
+        """Lazy-load Hebrish STT service when needed"""
+        if self._hebrish_stt is None:
+            try:
+                from app.core.config import settings
+                if getattr(settings, 'hebrish_stt_enabled', False):
+                    from app.services.stt_hebrish_service import HebrishSTTService
+                    self._hebrish_stt = HebrishSTTService()
+            except Exception as e:
+                logger.warning(f"Failed to load Hebrish STT: {e}")
+        return self._hebrish_stt
+    
+    def is_hebrew_context(self, audio_path: str, session_metadata: Optional[Dict] = None) -> bool:
+        """
+        Detect if audio should use Hebrew-optimized transcription.
+        
+        Args:
+            audio_path: Path to audio file
+            session_metadata: Optional session metadata with language hints
+        
+        Returns:
+            True if Hebrew context detected
+        """
+        path_lower = audio_path.lower()
+        
+        # Check filename hints
+        hebrew_hints = ['hebrew', 'hebrish', 'ivrit', '_he_', '-he-', 'israel']
+        if any(hint in path_lower for hint in hebrew_hints):
+            return True
+        
+        # Check session metadata
+        if session_metadata:
+            lang = session_metadata.get('language', '').lower()
+            if lang in ['he', 'hebrew', 'hebrish']:
+                return True
+            
+            # Check keywords
+            keywords = session_metadata.get('keywords', [])
+            if any(k.lower() in ['hebrew', 'israel', 'tel aviv'] for k in keywords):
+                return True
+        
+        return False
+    
+    def transcribe_video(
+        self, 
+        audio_path: str, 
+        session_id: Optional[str] = None,
+        session_metadata: Optional[Dict] = None,
+        force_hebrish: bool = False
+    ) -> SttResult:
         """
         Transcribe audio file to text segments.
         
         Args:
             audio_path: Path to audio file (WAV, MP3, etc.)
             session_id: Optional session ID for turn logging
+            session_metadata: Optional metadata for language detection
+            force_hebrish: Force Hebrew-optimized transcription
         
         Returns:
             SttResult with segments and metrics
         """
+        # Check if we should use Hebrish STT
+        if force_hebrish or self.is_hebrew_context(audio_path, session_metadata):
+            hebrish_stt = self._get_hebrish_stt()
+            if hebrish_stt and hebrish_stt.is_available:
+                logger.info("Using Hebrish STT for Hebrew context")
+                result = hebrish_stt.transcribe(audio_path)
+                # Convert HebrishResult to SttResult for compatibility
+                return SttResult(
+                    segments=result.segments,
+                    processing_time_ms=result.processing_time_ms,
+                    model_used=result.model_used
+                )
+        
         if not self.model:
             logger.info("Fast STT not available, using Gemini fallback")
             return self._gemini_fallback(audio_path)

@@ -48,9 +48,8 @@ class DevLensResult(BaseModel):
     mode_name: str
     project_name: str
     
-    class Config:
-        # Allow arbitrary types for compatibility
-        arbitrary_types_allowed = True
+    
+    model_config = {"arbitrary_types_allowed": True}
 
 
 # =============================================================================

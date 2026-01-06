@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     fast_stt_enabled: bool = True  # Use local Whisper for fast transcription
     fast_stt_model: str = "small"  # "tiny", "base", "small", "medium"
     
+    # Hebrish STT Configuration (Hebrew + English tech terms)
+    hebrish_stt_enabled: bool = False  # Enable Hebrew-optimized STT
+    hebrish_model: str = "ivrit-ai/faster-whisper-v2-d4"  # Hebrew Whisper model
+    
     # Gemini Model Configuration
     doc_model_pro_name: str = "gemini-2.5-flash-lite"  # High-quality model for documentation
     doc_model_flash_name: str = "gemini-2.5-flash-lite"  # Fast model for analysis

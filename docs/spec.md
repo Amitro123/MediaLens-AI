@@ -7,12 +7,16 @@ To build an automated full-stack pipeline that accepts video inputs and outputs 
 - **Google Drive Import** for seamless video retrieval (public & authenticated)
 - **Audio-First & Combined Multimodal Sampling** for cost and performance optimization
 - **Visual Quality Control** for stable and clear documentation (filtering spinners/blurs)
-- **Groq STT** for ultra-fast Whisper-based transcription with timestamps
+- **Fast STT Service** for local faster-whisper transcription with Gemini fallback (~10x faster)
+- **Hebrish STT** for Hebrew + English tech term recognition (Israeli dev teams)
 - **Active Session Recovery** for persistent processing across browser refreshes
 - **Click-to-Seek Navigation** for interactive video timestamp jumping from documentation images
 - **Zombie Session Cleanup** for automatic expiration of stale processing tasks
 - **Native Google Drive Integration** via `google-api-python-client`
 - **Backend Integration Test Suite** for core flow verification
+- **Granular Progress Bar** for real-time 0-100% progress with stage labels
+- **Copy JSON per Frame** for one-click frame metadata export to clipboard
+- **Kaggle Fine-tuning** for Hebrish vocabulary extraction via Whisper + LoRA
 
 ## 2. Architecture Overview
 
@@ -182,6 +186,43 @@ The `FastSttService` provides **~10x faster** audio transcription using local fa
 **Key Files:**
 - `backend/app/services/stt_fast_service.py` - FastSttService class
 - `backend/app/services/ai_generator.py` - Uses STT for relevance analysis
+
+## 2.5 Hebrish STT Service: Hebrew + Tech Terms
+
+The `HebrishSTTService` provides specialized transcription for Israeli dev meetings using the `ivrit-ai/faster-whisper-v2-d4` model with tech vocabulary bias.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  HebrishSTTService API                      │
+│                                                             │
+│  transcribe(audio_path) → HebrishResult                     │
+│                                                             │
+│  Features:                                                  │
+│  • ivrit-ai/faster-whisper-v2-d4 Hebrew model               │
+│  • Tech vocab bias: deploy, API, kubernetes, commit, etc.   │
+│  • Auto GPU/CPU detection                                   │
+│                                                             │
+│  Config:                                                    │
+│  • HEBRISH_STT_ENABLED=False (default)                      │
+│  • HEBRISH_MODEL="ivrit-ai/faster-whisper-v2-d4"            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Integration:**
+- FastSttService auto-detects Hebrew context via `is_hebrew_context()`
+- Detection based on filename hints (`hebrew`, `hebrish`, `ivrit`) or session metadata
+- Seamless fallback to standard STT when Hebrew not detected
+
+**Dataset Generator:**
+- 500 pre-built Hebrish sentences in `data/hebrish_dataset.csv`
+- CLI: `python -m app.cli generate-hebrish-dataset`
+- Output: JSONL manifest + WAV files for Whisper LoRA fine-tuning
+
+**Key Files:**
+- `backend/app/services/stt_hebrish_service.py` - HebrishSTTService class
+- `backend/app/scripts/generate_hebrish_dataset.py` - Dataset generator
+- `backend/app/cli.py` - CLI commands
+- `data/hebrish_dataset.csv` - 500 Hebrish sentences
 
 ## 3. API Endpoints (FastAPI)
 
@@ -464,6 +505,27 @@ pydantic==2.5.0
 - Validate video duration (max 15 minutes)
 - Sanitize file names
 - Store in isolated upload directory
+
+### 3.1 Session Management
+- **Dashboard**:
+  - [x] Drag-and-drop video upload
+  - [x] Mode selection (Bug Report, Feature Spec, etc.)
+  - [x] Processing progress bar with stages (Transcribing → Analyzing → Generating)
+  - [x] **New**: Calendar Integration (Upcoming Meetings view)
+  - [x] **New**: Active Session Recovery (Restore progress on refresh)
+
+- **History**:
+  - [x] List past sessions with status badges & relative time
+  - [x] **New**: Export options (Markdown, Notion, Jira, Clipboard)
+
+### 3.2 Documentation View
+- **Interactive Timeline**:
+  - [x] Video player with seek controls
+  - [x] Clickable key frame thumbnails (jump to timestamp)
+  - [x] Transcript segment navigation
+- **Content**:
+  - [x] Markdown rendering with code highlighting
+  - [x] Copy to clipboard functionality
 
 ### Audio File Handling
 - Temporary audio files cleaned up after processing
