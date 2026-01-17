@@ -20,7 +20,7 @@ class TestHealthEndpoints:
         data = response.json()
         # Root returns name, description, version, docs
         assert "name" in data
-        assert "DevLens" in data["name"]
+        assert "MediaLens" in data["name"]
 
     def test_health_check(self, client):
         """Test health check endpoint"""

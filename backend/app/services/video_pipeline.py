@@ -17,7 +17,8 @@ from app.services.video_processor import (
     get_video_duration,
     VideoProcessingError,
     split_into_segments,
-    extract_segment_frames
+    extract_segment_frames,
+    create_low_fps_proxy
 )
 from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import PromptConfig
@@ -117,7 +118,6 @@ async def process_video_pipeline(
     
     try:
         logger.info("Starting Dual-Stream Optimization: Creating Low-FPS Proxy...")
-        from app.services.video_processor import create_low_fps_proxy
         
         if progress_callback:
             await progress_callback(20, "Creating optimized proxy...")
@@ -146,9 +146,8 @@ async def process_video_pipeline(
 
     frames_dir = task_dir / "frames"
     try:
-        timestamps = None
+        timestamps = []
         if relevant_segments:
-            timestamps = []
             for seg in relevant_segments:
                 # Add key timestamps precisely selected by Gemini Flash
                 if 'key_timestamps' in seg:
@@ -163,7 +162,9 @@ async def process_video_pipeline(
             # Deduplicate and sort timestamps
             timestamps = sorted(list(set(timestamps)))
             logger.info(f"Smart Sampling: Extracting {len(timestamps)} high-res frames at specific timestamps")
-        
+        else:
+             timestamps = None # Use None to indicate regular sampling if no smart segments found
+
         # Extract from ORIGINAL high-quality video
         frame_paths = await run_in_threadpool(
             extract_frames,

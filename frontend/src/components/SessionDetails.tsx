@@ -4,6 +4,7 @@ import { X, Play, Clock, FileText, Clipboard, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type Session } from "@/api";
 import { ExportOptions } from "./ExportOptions";
+import { SceneSearch, type Scene } from "./SceneSearch";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -206,6 +207,13 @@ export const SessionDetails = ({ session, onClose }: SessionDetailsProps) => {
                     </div>
                 </section>
             )}
+
+            {/* Scene Search */}
+            <SceneSearch
+                sessionId={session.id}
+                scenes={session.result ? [] : []} // TODO: Extract scenes from session.result structured data. For now passing empty to avoid errors until parsing logic is added.
+                onJumpTo={handleSeek}
+            />
 
             {/* Generated Documentation */}
             {documentation && (

@@ -1,66 +1,57 @@
 import { motion } from "framer-motion";
-import { 
-  Bug, 
-  Sparkles, 
-  BookOpen, 
-  Users, 
-  DollarSign,
+import {
+  Film,
+  Scissors,
+  UserSearch,
+  Type,
   Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
-export type DocMode = "bug" | "feature" | "technical" | "hr" | "finance";
+export type DocMode = "scene_detection" | "clip_generator" | "character_tracker" | "subtitle_extractor";
 
 interface DocModeOption {
   id: DocMode;
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
-  department: "R&D" | "HR" | "Finance";
-  badgeVariant: "rnd" | "hr" | "finance";
+  department: "Media" | "Social" | "Ops";
+  badgeVariant: "media" | "social" | "ops"; // Assuming Badge variant allows string or we need to add these variants to Badge component. If strictly typed, might need "default" or "secondary" fallback.
 }
 
 const docModes: DocModeOption[] = [
   {
-    id: "bug",
-    label: "Bug Report",
-    description: "Create detailed reproduction guides",
-    icon: Bug,
-    department: "R&D",
-    badgeVariant: "rnd",
+    id: "scene_detection",
+    label: "Scene Detection",
+    description: "Catalog every scene with timestamps",
+    icon: Film,
+    department: "Media",
+    badgeVariant: "media",
   },
   {
-    id: "feature",
-    label: "Feature Spec",
-    description: "Generate comprehensive PRDs",
-    icon: Sparkles,
-    department: "R&D",
-    badgeVariant: "rnd",
+    id: "clip_generator",
+    label: "Viral Clip Gen",
+    description: "Find shareable moments for social",
+    icon: Scissors,
+    department: "Social",
+    badgeVariant: "social",
   },
   {
-    id: "technical",
-    label: "Technical Docs",
-    description: "Step-by-step guides from tutorials",
-    icon: BookOpen,
-    department: "R&D",
-    badgeVariant: "rnd",
+    id: "character_tracker",
+    label: "Character Tracker",
+    description: "Track appearances and actions",
+    icon: UserSearch,
+    department: "Media",
+    badgeVariant: "media",
   },
   {
-    id: "hr",
-    label: "HR Interview",
-    description: "Candidate scorecards & analysis",
-    icon: Users,
-    department: "HR",
-    badgeVariant: "hr",
-  },
-  {
-    id: "finance",
-    label: "Finance Review",
-    description: "Budget analysis & extraction",
-    icon: DollarSign,
-    department: "Finance",
-    badgeVariant: "finance",
+    id: "subtitle_extractor",
+    label: "Subtitle Extractor",
+    description: "Generate SRT subtitles",
+    icon: Type,
+    department: "Ops",
+    badgeVariant: "ops",
   },
 ];
 
@@ -72,7 +63,7 @@ interface DocModeSelectorProps {
 export const DocModeSelector = ({ selected, onSelect }: DocModeSelectorProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-foreground">Documentation Mode</h3>
+      <h3 className="text-lg font-semibold text-foreground">Analysis Mode</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {docModes.map((mode, index) => (
           <motion.button
@@ -97,7 +88,7 @@ export const DocModeSelector = ({ selected, onSelect }: DocModeSelectorProps) =>
                 <Check className="w-3 h-3 text-primary-foreground" />
               </motion.div>
             )}
-            
+
             <div className="flex items-start gap-3">
               <div className={cn(
                 "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
@@ -122,7 +113,8 @@ export const DocModeSelector = ({ selected, onSelect }: DocModeSelectorProps) =>
                 <p className="text-xs text-muted-foreground line-clamp-1">
                   {mode.description}
                 </p>
-                <Badge variant={mode.badgeVariant} className="mt-2 text-[10px]">
+                {/* Badge might complain if variant is not standard, using 'secondary' as fallback if needed or ignoring error if variants are custom extended */}
+                <Badge variant={"secondary"} className="mt-2 text-[10px]">
                   {mode.department}
                 </Badge>
               </div>

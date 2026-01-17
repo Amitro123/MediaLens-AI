@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI application
 app = FastAPI(
-    title="DevLens AI",
-    description="Automated Video to Documentation Pipeline using Multimodal AI",
+    title="MediaLens AI",
+    description="Turn video content into searchable intelligence",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -49,9 +49,9 @@ app.mount("/uploads", StaticFiles(directory=upload_path), name="uploads")
 async def root():
     """Root endpoint with API information"""
     return {
-        "name": "DevLens AI",
+        "name": "MediaLens AI",
         "version": "0.1.0",
-        "description": "Turn video recordings into professional technical documentation",
+        "description": "Turn video content into searchable intelligence",
         "docs": "/docs"
     }
 

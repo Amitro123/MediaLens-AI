@@ -14,16 +14,16 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 // Map UI modes to backend mode strings
+// Map UI modes to backend mode strings
 const modeMap: Record<DocMode, string> = {
-  bug: "bug_report",
-  feature: "feature_kickoff",
-  technical: "general_doc",
-  hr: "hr_interview",
-  finance: "finance_review",
+  scene_detection: "scene_detection",
+  clip_generator: "clip_generator",
+  character_tracker: "character_tracker",
+  subtitle_extractor: "subtitle_extractor",
 };
 
 export const Dashboard = () => {
-  const [selectedMode, setSelectedMode] = useState<DocMode>("technical");
+  const [selectedMode, setSelectedMode] = useState<DocMode>("scene_detection");
   const [projectName, setProjectName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState<ProcessingStep>("upload");
@@ -177,10 +177,10 @@ export const Dashboard = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Start <span className="text-gradient">Documenting</span>
+            Start <span className="text-gradient">Analyzing</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Upload a video and let AI create professional documentation in minutes
+            Upload a video and let AI extract actionable intelligence in minutes
           </p>
         </motion.div>
 
