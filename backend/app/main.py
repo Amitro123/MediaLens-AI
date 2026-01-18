@@ -65,19 +65,11 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Application startup tasks"""
-    import asyncio
-    from app.services.calendar_service import start_notification_scheduler
-    
     logger.info("Starting MediaLens AI...")
     logger.info(f"Upload directory: {settings.upload_dir}")
-    logger.info(f"Frame interval: {settings.frame_interval}s")
-    logger.info(f"Max video length: {settings.max_video_length}s")
     
     # Create upload directory
     settings.get_upload_path()
-    
-    # Start notification scheduler (background task)
-    asyncio.create_task(start_notification_scheduler())
     
     logger.info("MediaLens AI started successfully")
 
@@ -85,9 +77,6 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Application shutdown tasks"""
-    from app.services.calendar_service import stop_notification_scheduler
-    
-    stop_notification_scheduler()
     logger.info("Shutting down MediaLens AI...")
 
 

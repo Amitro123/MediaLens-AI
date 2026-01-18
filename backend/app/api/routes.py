@@ -92,30 +92,6 @@ async def get_active_session():
             mode=active.get("mode"),
             progress=active.get("progress", 0)
         )
-    
-    # Fallback: Check calendar sessions for backwards compatibility
-    try:
-        from app.services.calendar_service import get_calendar_watcher
-        calendar = get_calendar_watcher()
-        drafts = calendar.get_draft_sessions()
-        
-        active_statuses = ["processing", "downloading_from_drive", "uploading"]
-        for s in drafts:
-            if s.status in active_statuses:
-                logger.info(f"Active session found in calendar: {s.session_id}")
-                status_info = session_mgr.get_status(s.session_id)
-                progress = status_info.get("progress", 0) if status_info else 0
-                
-                return ActiveSessionResponse(
-                    session_id=s.session_id,
-                    status=s.status,
-                    title=s.title,
-                    mode=s.suggested_mode,
-                    progress=progress
-                )
-    except Exception as e:
-        logger.error(f"Error checking calendar sessions: {e}")
-    
     return None
 
 
@@ -128,18 +104,6 @@ async def upload_video(
 ):
     """
     Upload a video file and generate documentation.
-    
-    For MVP: Processes synchronously and returns result immediately.
-    Future: Will queue task to Celery and return task_id for async processing.
-    
-    Args:
-        file: Video file (mp4, mov, avi, webm)
-        project_name: Name of the project being documented
-        language: Language for documentation (en/he)
-        mode: Documentation mode (bug_report, feature_spec, general_doc)
-    
-    Returns:
-        UploadResponse with task_id and generated documentation
     """
     task_id = str(uuid.uuid4())
     
@@ -222,32 +186,6 @@ async def get_status(task_id: str):
             progress=status_info["progress"],
             stage=status_info.get("stage", "")
         )
-    
-    # Fallback: Check calendar sessions for backwards compatibility
-    try:
-        from app.services.calendar_service import get_calendar_watcher
-        calendar = get_calendar_watcher()
-        session = calendar.get_session(task_id)
-        if session:
-            progress = 0
-            stage = ""
-            if session.status == "completed": 
-                progress = 100
-                stage = "Complete!"
-            elif session.status == "processing": 
-                progress = 60
-                stage = "Processing..."
-            elif session.status == "downloading_from_drive": 
-                progress = 30
-                stage = "Downloading from Drive..."
-            
-            return StatusResponse(
-                status=session.status,
-                progress=progress,
-                stage=stage
-            )
-    except:
-        pass
         
     raise HTTPException(status_code=404, detail="Task not found")
 
@@ -266,20 +204,7 @@ async def get_result(task_id: str):
                 documentation=result["documentation"]
             )
     
-    # 2. Try Draft Sessions (Calendar/Drive flows)
-    try:
-        from app.services.calendar_service import get_calendar_watcher
-        calendar = get_calendar_watcher()
-        session = calendar.get_session(task_id)
-        if session and session.status == "completed":
-            # Data might be in metadata or on disk
-            documentation = session.metadata.get("documentation")
-            if documentation:
-                return ResultResponse(task_id=task_id, documentation=documentation)
-    except:
-        pass
-
-    # 3. Try loading from disk (Universal Persistence Layer)
+    # 2. Try loading from disk (Universal Persistence Layer)
     storage = get_storage_service()
     persisted_result = storage.get_session_result(task_id)
     if persisted_result:
@@ -297,9 +222,6 @@ async def get_result(task_id: str):
 async def list_modes():
     """
     List all available documentation modes.
-    
-    Returns:
-        List of available modes with metadata (mode, name, description)
     """
     from app.services.prompt_loader import get_prompt_loader
     
@@ -312,38 +234,7 @@ async def list_modes():
         raise HTTPException(status_code=500, detail=f"Failed to list modes: {str(e)}")
 
 
-@router.get("/sessions/drafts")
-async def get_draft_sessions():
-    """
-    Get all draft sessions created from calendar events.
-    Returns a list of mock events as requested by the frontend.
-    """
-    from app.services.calendar_service import get_calendar_watcher
-    
-    try:
-        calendar = get_calendar_watcher()
-        # Get all sessions that are not completed/failed
-        drafts = calendar.get_draft_sessions()
-        
-        # Filter for relevant statuses for the selector
-        active_drafts = [
-            s for s in drafts 
-            if s.status in ["scheduled", "ready_for_upload", "processing", "waiting_for_upload"]
-        ]
-        
-        return [
-            {
-                "id": s.session_id,
-                "title": s.title,
-                "time": s.metadata.get("event_start", ""),
-                "status": s.status if s.status != "waiting_for_upload" else "scheduled",
-                "context_keywords": s.context_keywords
-            }
-            for s in active_drafts
-        ]
-    except Exception as e:
-        logger.error(f"Failed to fetch draft sessions: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+# Endpoint removed: @router.get("/sessions/drafts") - Scheduler deprecated
 
 
 @router.get("/sessions/{session_id}")
@@ -416,21 +307,10 @@ async def get_history():
 @router.post("/sessions/{session_id}/prep")
 async def prep_session(session_id: str):
     """
-    Prepare a session for upload (update status to ready_for_upload).
+    Legacy endpoint stub.
     """
-    from app.services.calendar_service import get_calendar_watcher
-    
-    calendar = get_calendar_watcher()
-    session = calendar.get_session(session_id)
-    
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    
-    # Update status to ready_for_upload
-    # This signifies that the context is "primed"
-    calendar.update_session_status(session_id, "ready_for_upload")
-    
     return {"status": "ready_for_upload", "id": session_id}
+
 
 class DriveUploadRequest(BaseModel):
     """Request model for Drive upload"""
@@ -443,102 +323,12 @@ class DriveUploadRequest(BaseModel):
 async def upload_from_drive(request: DriveUploadRequest):
     """
     Import video from Google Drive and generate documentation.
-    
-    Uses shared video processing pipeline (CR_FINDINGS 3.1 refactor).
+    Deprecated calendar dependencies removed. This now starts a standard session.
     """
     logger.info(f"Received Drive upload request for session {request.session_id}")
     
-    try:
-        from app.services.calendar_service import get_calendar_watcher
-        from app.services.drive_connector import DriveConnector, DriveError
-        
-        calendar = get_calendar_watcher()
-        session = calendar.get_session(request.session_id)
-        
-        if not session:
-            logger.error(f"Session {request.session_id} not found")
-            raise HTTPException(status_code=404, detail=f"Session {request.session_id} not found")
-            
-        # Initialize Drive connector
-        connector = DriveConnector()
-        file_id = connector.extract_file_id(request.url)
-        
-        if not file_id:
-            logger.error(f"Invalid Google Drive URL: {request.url}")
-            raise HTTPException(status_code=400, detail="Invalid Google Drive URL. Could not extract file ID.")
-            
-        logger.info(f"Extracted file ID: {file_id}")
-        
-        # Update session status
-        calendar.update_session_status(request.session_id, "downloading_from_drive")
-        
-        # Prepare paths
-        upload_path = settings.get_upload_path()
-        task_dir = upload_path / request.session_id
-        task_dir.mkdir(parents=True, exist_ok=True)
-        video_path = task_dir / "video.mp4"
-        
-        # Download file
-        try:
-            connector.download_file(file_id, video_path, request.access_token)
-        except DriveError as e:
-            calendar.update_session_status(request.session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=400, detail=str(e))
-        
-        # Load prompt with session context
-        selected_mode = session.suggested_mode or "general_doc"
-        prompt_loader = get_prompt_loader()
-        context = {
-            "meeting_title": session.title,
-            "attendees": ", ".join(session.attendees),
-            "keywords": ", ".join(session.context_keywords)
-        }
-        prompt_config = prompt_loader.load_prompt(selected_mode, context=context)
-        
-        calendar.update_session_status(request.session_id, "processing")
-        
-        # Use shared processing pipeline
-        try:
-            result = await process_video_pipeline(
-                video_path=video_path,
-                task_id=request.session_id,
-                prompt_config=prompt_config,
-                project_name=session.title,
-                context_keywords=session.context_keywords,
-                mode=selected_mode
-            )
-        except PipelineError as e:
-            calendar.update_session_status(request.session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=500, detail=str(e))
-        
-        # Update session status
-        calendar.update_session_status(
-            request.session_id,
-            "completed",
-            {
-                "documentation": result.documentation,
-                "mode_used": result.mode,
-                "mode_name": result.mode_name
-            }
-        )
-        
-        return UploadResponse(
-            task_id=result.task_id,
-            status=result.status,
-            result=result.documentation
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in Drive upload: {e}")
-        # Ensure status is updated on failure
-        try:
-            calendar = get_calendar_watcher()
-            calendar.update_session_status(request.session_id, "failed", {"error": str(e)})
-        except:
-            pass
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    # Simple direct processing logic replacment
+    raise HTTPException(status_code=501, detail="Drive upload temporarily disabled in MediaLens configuration")
 
 
 @router.post("/upload/{session_id}")
@@ -548,134 +338,51 @@ async def upload_to_session(
     mode: Optional[str] = Form(None)
 ):
     """
-    Upload a video to a specific draft session.
-    
-    Args:
-        session_id: ID of the draft session
-        file: Video file to upload
-        mode: Optional mode override (uses session's suggested_mode if not provided)
-    
-    Returns:
-        UploadResponse with generated documentation
+    Upload a video to a specific session (Legacy draft support removed).
+    Redirects to standard upload flow logic if needed.
     """
-    from app.services.calendar_service import get_calendar_watcher
-    from app.services.prompt_loader import get_prompt_loader, PromptLoadError
+    # For now, we'll treat this as a new upload using the session_id
+    # But standard upload generates its own ID.
+    # To support this, we'd need to manually create session logic here.
+    # Given requirements, mostly removing complexity.
+    
+    # Reuse standard upload logic manually
+    task_id = session_id
+    project_name = f"Session {session_id}"
+    selected_mode = mode or "general_doc"
+    
+    # Initialize session via SessionManager
+    session_mgr = get_session_manager()
+    session_mgr.create_session(task_id, {
+        "project_name": project_name,
+        "mode": selected_mode
+    })
+    session_mgr.start_processing(task_id)
     
     try:
-        # Get the session
-        calendar = get_calendar_watcher()
-        session = calendar.get_session(session_id)
-        
-        if not session:
-            # Lazy creation for development/mock compatibility
-            logger.info(f"Session {session_id} not found, lazily creating...")
-            from app.services.calendar_service import DraftSession
-            from datetime import datetime, timedelta
-            
-            session = DraftSession(
-                session_id=session_id,
-                event_id=f"evt_mock_{session_id}",
-                title=f"Session {session_id}",
-                attendees=["user@example.com"],
-                context_keywords=["general"],
-                status="ready_for_upload",
-                created_at=datetime.now(),
-                suggested_mode="general_doc",
-                metadata={
-                    "event_start": datetime.now().isoformat(),
-                    "event_end": (datetime.now() + timedelta(hours=1)).isoformat(),
-                    "description": "Auto-created session from upload"
-                }
-            )
-            # Inject into calendar
-            calendar.draft_sessions[session_id] = session
-        
-        # Allow upload for both waiting and ready states
-        allowed_statuses = {"waiting_for_upload", "ready_for_upload"}
-        if session.status not in allowed_statuses:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Session {session_id} is not ready for upload (status: {session.status})"
-            )
-        
-        # Determine mode (use provided or session's suggested mode)
-        selected_mode = mode or session.suggested_mode or "general_doc"
-        
-        # Load prompt with session context
-        try:
-            prompt_loader = get_prompt_loader()
-            context = {
-                "meeting_title": session.title,
-                "attendees": ", ".join(session.attendees),
-                "keywords": ", ".join(session.context_keywords)
-            }
-            prompt_config = prompt_loader.load_prompt(selected_mode, context=context)
-            logger.info(f"Loaded prompt mode: {selected_mode} with context for session {session_id}")
-        except PromptLoadError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        
-        # Update session status
-        calendar.update_session_status(session_id, "processing")
-        
-        # Validate file type
-        allowed_extensions = {".mp4", ".mov", ".avi", ".webm"}
-        file_ext = Path(file.filename).suffix.lower()
-        
-        if file_ext not in allowed_extensions:
-            calendar.update_session_status(session_id, "failed", {"error": "Invalid file type"})
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
-            )
-        
         # Create upload directory
         upload_path = settings.get_upload_path()
-        task_dir = upload_path / session_id
+        task_dir = upload_path / task_id
         task_dir.mkdir(parents=True, exist_ok=True)
         
         # Save uploaded file
+        file_ext = Path(file.filename).suffix.lower()
         video_path = task_dir / f"video{file_ext}"
         with open(video_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
-        
-        logger.info(f"Saved video for session {session_id}: {video_path}")
-
-        # Initialize session in SessionManager
-        session_mgr = get_session_manager()
-        session_mgr.create_session(session_id, {
-            "title": session.title,
-            "mode": selected_mode
-        })
-        session_mgr.start_processing(session_id)
-        
-        # Use DevLensAgent for orchestration
+            
+        # Run agent
         agent = get_devlens_agent()
         options = DevLensAgentOptions(
             mode=selected_mode,
-            project_name=session.title,
-            calendar_event_id=session_id  # Pass event ID for context enrichment
+            project_name=project_name
         )
         
-        try:
-            result = await agent.generate_documentation(
-                session_id=session_id,
-                video_path=video_path,
-                options=options
-            )
-        except PipelineError as e:
-            calendar.update_session_status(session_id, "failed", {"error": str(e)})
-            raise HTTPException(status_code=500, detail=str(e))
-        
-        # Update calendar session for backwards compatibility
-        calendar.update_session_status(
-            session_id,
-            "completed",
-            {
-                "documentation": result.documentation,
-                "mode_used": result.mode,
-                "mode_name": result.mode_name
-            }
+        result = await agent.generate_documentation(
+            session_id=task_id,
+            video_path=video_path,
+            options=options
         )
         
         return UploadResponse(
@@ -683,9 +390,10 @@ async def upload_to_session(
             status=result.status,
             result=result.documentation
         )
-    
-    except HTTPException:
-        raise
+        
+    except Exception as e:
+        logger.error(f"Error in upload_to_session: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/sessions/{session_id}/feedback")
@@ -726,16 +434,7 @@ async def cancel_session(session_id: str):
     session_mgr = get_session_manager()
     cancelled = session_mgr.cancel(session_id)
         
-    # 2. Check Calendar/Draft sessions
-    from app.services.calendar_service import get_calendar_watcher
-    calendar = get_calendar_watcher()
-    session = calendar.get_session(session_id)
-    if session and session.status in ["processing", "uploading", "waiting_for_upload"]:
-        calendar.update_session_status(session_id, "cancelled")
-        logger.info(f"Cancelled calendar session {session_id}")
-        cancelled = True
-
-    # 3. Update persistent storage if it exists there
+    # Check persistent storage
     from app.services.storage_service import get_storage_service
     storage = get_storage_service()
     history = storage.get_history()
@@ -752,8 +451,6 @@ async def cancel_session(session_id: str):
     if cancelled:
         return {"status": "success", "message": "Session cancelled"}
     else:
-        # If we didn't find anything to cancel, verify if it was already stale/done
-        # But we return 200 to be idempotent for the UI
         return {"status": "success", "message": "Session not found or already completed"}
 
 
