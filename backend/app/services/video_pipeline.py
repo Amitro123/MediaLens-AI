@@ -7,7 +7,9 @@ to eliminate code duplication (CR_FINDINGS 3.1).
 
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Callable, Awaitable
+from typing import Optional, List, Dict, Any, Callable, Awaitable
 import logging
+import time
 
 from fastapi.concurrency import run_in_threadpool
 
@@ -20,6 +22,10 @@ from app.services.video_processor import (
     extract_segment_frames,
     create_low_fps_proxy
 )
+from app.services.clip_generator import ClipGenerator
+import json
+import re
+
 from app.services.ai_generator import get_generator, AIGenerationError
 from app.services.prompt_loader import PromptConfig
 from app.services.storage_service import get_storage_service
@@ -140,6 +146,63 @@ async def process_video_pipeline(
         logger.warning(f"Semantic analysis failed, falling back to regular sampling: {e}")
         relevant_segments = None
     
+    # 3.5 Optional: Hebrish STT Transcription
+    transcript_text = ""
+    srt_subtitles = ""
+    try:
+        from app.services.stt_hebrish_service import get_hebrish_stt_service
+        from app.services.video_processor import extract_audio
+        
+        should_run_stt = settings.hebrish_stt_enabled or mode == "subtitle_extractor"
+        
+        if should_run_stt:
+            if progress_callback:
+                await progress_callback(40, "Transcribing audio (Hebrish)...")
+                
+            logger.info("Starting Hebrish STT transcription...")
+            start_time = time.time()
+            
+            # Extract audio first
+            audio_path = await run_in_threadpool(extract_audio, str(video_path))
+            
+            # Transcribe
+            stt_service = get_hebrish_stt_service()
+            if stt_service.is_available:
+                stt_result = await run_in_threadpool(stt_service.transcribe, audio_path)
+                
+                # Format results
+                transcript_text = "\n".join([s["text"] for s in stt_result.segments])
+                
+                # Generate SRT
+                # Quick helper for SRT formatting
+                def format_srt_time(seconds):
+                    millis = int((seconds % 1) * 1000)
+                    seconds = int(seconds)
+                    minutes = seconds // 60
+                    hours = minutes // 60
+                    minutes %= 60
+                    seconds %= 60
+                    return f"{hours:02d}:{minutes:02d}:{seconds:02d},{millis:03d}"
+
+                srt_lines = []
+                for i, seg in enumerate(stt_result.segments, 1):
+                    srt_lines.append(f"{i}")
+                    srt_lines.append(f"{format_srt_time(seg['start'])} --> {format_srt_time(seg['end'])}")
+                    srt_lines.append(f"{seg['text']}\n")
+                
+                srt_subtitles = "\n".join(srt_lines)
+                
+                logger.info(f"STT complete. Duration: {time.time() - start_time:.2f}s")
+                
+                # If mode is subtitle_extractor, we might short-circuit here or pass it to generation
+            else:
+                logger.warning("Hebrish STT service requested but model unavailable")
+                
+    except Exception as e:
+        logger.error(f"STT processing failed: {e}")
+        # Continue pipeline without STT
+
+    
     # 4. Frame extraction (Smart Extraction from Original High-Qual Video)
     if progress_callback:
         await progress_callback(50, "Extracting key frames...")
@@ -194,17 +257,66 @@ async def process_video_pipeline(
             "project_name": project_name
         })
         
-        # Wrapped in run_in_threadpool to prevent blocking the event loop (CR_FINDINGS 1.1)
-        documentation = await run_in_threadpool(
-            generator.generate_documentation,
-            frame_paths,
-            prompt_config,
-            "",  # RAG context (future enhancement)
-            project_name
-        )
-        logger.info(f"Generated documentation for task {task_id}")
+        if mode == "subtitle_extractor" and srt_subtitles:
+             # Short-circuit for subtitle mode if we have result
+             documentation = srt_subtitles
+             logger.info(f"Generated subtitles for task {task_id}")
+        else:
+            # Wrapped in run_in_threadpool to prevent blocking the event loop (CR_FINDINGS 1.1)
+            documentation = await run_in_threadpool(
+                generator.generate_documentation,
+                frame_paths,
+                prompt_config,
+                transcript_text,  # Pass STT transcript as context
+                project_name
+            )
+            logger.info(f"Generated documentation for task {task_id}")
         
-        # Record doc generation complete
+        # 5.5 Post-Processing for Clip Generator
+        if mode == "clip_generator":
+            try:
+                # Extract JSON from potential markdown blocks
+                json_str = documentation
+                json_match = re.search(r'```json\s*(.*?)\s*```', documentation, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                
+                clips_data = json.loads(json_str)
+                if isinstance(clips_data, list):
+                    logger.info(f"Generating {len(clips_data)} viral clips...")
+                    clip_gen = ClipGenerator(output_dir=str(task_dir / "clips"))
+                    
+                    generated_clips_info = []
+                    for i, clip in enumerate(clips_data):
+                        try:
+                            # Parse timestamps (flexible handling)
+                            start = float(clip.get("start_time", clip.get("start", 0)))
+                            end = float(clip.get("end_time", clip.get("end", 0)))
+                            
+                            clip_path = await run_in_threadpool(
+                                clip_gen.create_clip,
+                                str(video_path),
+                                start,
+                                end,
+                                "vertical" # Default to vertical for social
+                            )
+                            
+                            generated_clips_info.append(f"- **Clip {i+1}**: {clip.get('hook', 'Viral Clip')} ([View]({Path(clip_path).name}))")
+                            clip['file_path'] = str(clip_path) # Update data with path
+                            
+                        except Exception as e:
+                            logger.error(f"Failed to generate clip {i}: {e}")
+                            generated_clips_info.append(f"- **Clip {i+1}**: Failed ({str(e)})")
+                    
+                    # Append generation report to documentation
+                    documentation += "\n\n## Generated Clips\n" + "\n".join(generated_clips_info)
+                    
+            except json.JSONDecodeError:
+                logger.warning("Failed to parse Clip Generator output as JSON")
+            except Exception as e:
+                logger.error(f"Error in clip generation post-processing: {e}")
+
+        # Record doc generation complete in both cases
         record_event(task_id, EventType.DOC_GENERATION_COMPLETED, {
             "doc_length": len(documentation)
         })

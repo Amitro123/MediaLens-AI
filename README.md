@@ -69,6 +69,9 @@ MediaLens empowers broadcasters and production teams to instantly search, analyz
    # UI running at http://localhost:5173
    ```
 
+### 🚀 One-Click Launch (Windows)
+Double-click `start_app.ps1` (or right-click -> Run with PowerShell) to start both servers simultaneously.
+
 ## 🎯 Production Use Cases
 
 - **Archive Search**: "Find the clip from 2018 where [Politician] mentions [Topic]."

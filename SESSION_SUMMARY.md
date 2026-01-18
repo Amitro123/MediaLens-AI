@@ -4,30 +4,27 @@
 ### Objectives
 - Clone DevLens and adapt for Media use cases (Scene functionality, Viral Clips foundation).
 - Rebrand UI and Backend configuration.
-- Ensure core video pipeline supports new features.
+- Implement Hebrish STT and Viral Clip generation logic.
 
 ### Outcomes
 - **Rebranding Core**: 
-  - Updated `README.md`, `package.json`, `backend/app/main.py`.
+  - Updated `README.md`, `package.json`, `backend/app/main.py` (Logs & Branding).
   - Frontend Header & Dashboard updated to "MediaLens AI".
-  - Configured `DocModeSelector` with new modes: Scene Detection, Clip Gen, Character Tracker, Subtitle Extractor.
+  - Configured `DocModeSelector` with new modes.
 - **Backend Features**:
-  - Implemented prompt templates: `scene_detection.yaml`, `clip_generator.yaml`, `character_tracker.yaml`, `subtitle_extractor.yaml`.
-  - Created `backend/app/services/clip_generator.py` (Service Stub/Foundation).
-  - Refactored `backend/app/services/video_pipeline.py` to fix smart frame extraction logic (timestamps initialization).
+  - **Hebrish STT**: Integrated `faster-whisper` based Hebrish service into `video_pipeline.py`. Enabled via env.
+  - **Viral Clip Generator**: Implemented `ClipGenerator` service and integrated logic into `video_pipeline.py` to parse AI JSON and generate physical clips.
+  - **Prompts**: Finalized YAML templates for all new modes.
 - **Frontend Features**:
-  - Created `SceneSearch.tsx` for searching within analyzed scenes.
-  - Integrated `SceneSearch` into `SessionDetails.tsx`.
+  - Created `SceneSearch.tsx` and integrated into `SessionDetails.tsx`.
 - **Verification**:
-  - Fixed standard backend tests (`test_video_pipeline.py`) to pass with new logic.
-  - Validated API routes integration.
+  - `test_video_pipeline.py` **PASSED** with new imports and logic.
+  - Pipeline is ready for "Ramzor" demo clip testing.
 
 ### Decisions
-- Maintained DevLens architecture for rapid adaptation.
-- Used YAML-based prompt configuration for flexibility in AI modes.
-- Adopted "Smart Extraction" logic in video pipeline to utilize Gemini's specific timestamp recommendations.
+- **STT Integration**: Added optional STT step in video pipeline. If `hebrish_stt_enabled` or mode is `subtitle_extractor`, it runs before doc generation.
+- **Clip Generation**: Implemented as a post-processing step. If mode is `clip_generator`, the pipeline parses the JSON output from Gemini and uses FFmpeg to generate vertical 9:16 clips.
 
 ### Next Steps
-- Implement full backend logic for `clip_generator.py` (currently a stub/basic ffmpeg wrapper).
-- Connect Frontend `SceneSearch` to real backend data structure.
-- Full End-to-End testing of the upload flow with the new modes.
+- **Visual Demo**: Upload test video and verify end-to-end flow.
+- **Frontend Polish**: Ensure generated clips are nicely displayed in `SessionDetails` (currently appended as markdown links).
