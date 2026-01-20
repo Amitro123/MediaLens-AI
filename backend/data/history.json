@@ -2,10 +2,10 @@
   "sessions": [
     {
       "id": "0d5123cc-80a8-4376-8d7a-7c98ca5c1713",
-      "timestamp": "2026-01-20T14:33:54.205705",
+      "timestamp": "2026-01-20T14:36:49.118349",
       "title": "Untitled Project",
       "topic": "General",
-      "status": "processing",
+      "status": "completed",
       "mode": "scene_detection",
       "mode_name": null
     },

@@ -114,6 +114,25 @@ async def startup_event():
 async def shutdown_event():
     """Application shutdown tasks"""
     logger.info("Shutting down MediaLens AI...")
+    
+    # Gracefully fail any in-progress sessions
+    try:
+        from app.services.session_manager import get_session_manager
+        session_manager = get_session_manager()
+        
+        # Get all sessions
+        all_sessions = session_manager.get_all_sessions()
+        
+        # Fail any that are still processing
+        for session_id, session_data in all_sessions.items():
+            if session_data.get("status") == "processing":
+                logger.warning(f"Failing in-progress session {session_id} due to server shutdown")
+                session_manager.fail(
+                    session_id, 
+                    "Server restarted during processing. Please try again."
+                )
+    except Exception as e:
+        logger.error(f"Error during graceful shutdown: {e}")
 
 
 if __name__ == "__main__":
