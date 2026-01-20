@@ -12,3 +12,5 @@ Learned:
 ✅ Approved: [User Choice AI] → Pattern: For critical AI features with performance/accuracy trade-offs (e.g. STT), expose a transparent choice to the user (Fast vs Accurate) rather than hardcoding a single path.
 ✅ Approved: [Sync API Types] → Pattern: When modifying backend Pydantic models (e.g. `ResultResponse`), immediately update the corresponding Frontend TypeScript interfaces (`api.ts`) to maintain type safety and avoid `as any` casting.
 ✅ Approved: [Comprehensive Mocks] → Pattern: When adding new fields to a core data class (e.g. `VideoPipelineResult`), aggressively grep and update all test mocks that instantiate it to prevent unrelated unit test failures.
+✅ Approved: [Async Test Mocking] → Pattern: When mocking async methods (e.g., `transcribe`), explicitly use `AsyncMock` instead of `MagicMock` to ensure the awaited call is handled correctly by the test runner.
+✅ Approved: [Frontend Test Sanity] → Pattern: When setting up a new test harness (e.g., Vitest), always start with a trivial sanity check (e.g. `Simple.test.tsx`) to validate the environment configuration before debugging complex component tests.
