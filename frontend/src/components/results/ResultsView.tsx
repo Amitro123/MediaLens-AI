@@ -98,6 +98,9 @@ export const ResultsView = ({ sessionId }: ResultsViewProps) => {
                 // Determine STT Provider (API result > Session > Default)
                 const provider = responseData.stt_provider || (sessionRes as any).stt_provider || "unknown";
 
+                console.log('🎤 Transcript segments:', responseData.transcript_segments);
+                console.log('📝 Transcript segments count:', responseData.transcript_segments?.length || 0);
+
                 setData({
                     scenes: Array.isArray(jsonData) ? jsonData : [],
                     metadata: {
