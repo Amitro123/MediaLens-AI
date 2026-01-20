@@ -1,8 +1,35 @@
 {
   "sessions": [
     {
-      "id": "0d5123cc-80a8-4376-8d7a-7c98ca5c1713",
-      "timestamp": "2026-01-20T14:36:49.118349",
+      "id": "test_progress_d8521479",
+      "timestamp": "2026-01-20T14:42:36.463012",
+      "title": "Progress Test",
+      "topic": "General",
+      "status": "failed",
+      "mode": "general_doc",
+      "mode_name": null
+    },
+    {
+      "id": "e7bd7d40-2fe1-49f0-b432-87184533e3e2",
+      "timestamp": "2026-01-20T14:42:36.437274",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "scene_detection",
+      "mode_name": null
+    },
+    {
+      "id": "df3ffa78-57f5-48cc-a8c0-7ef4b88b00d8",
+      "timestamp": "2026-01-20T14:42:36.400492",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "failed",
+      "mode": "scene_detection",
+      "mode_name": null
+    },
+    {
+      "id": "e92dd64e-1f9f-4a8c-994c-4890b0d5c567",
+      "timestamp": "2026-01-20T14:42:35.865785",
       "title": "Untitled Project",
       "topic": "General",
       "status": "completed",
@@ -10,20 +37,11 @@
       "mode_name": null
     },
     {
-      "id": "df3ffa78-57f5-48cc-a8c0-7ef4b88b00d8",
-      "timestamp": "2026-01-20T14:30:53.047712",
+      "id": "0d5123cc-80a8-4376-8d7a-7c98ca5c1713",
+      "timestamp": "2026-01-20T14:36:49.118349",
       "title": "Untitled Project",
       "topic": "General",
-      "status": "processing",
-      "mode": "scene_detection",
-      "mode_name": null
-    },
-    {
-      "id": "e7bd7d40-2fe1-49f0-b432-87184533e3e2",
-      "timestamp": "2026-01-20T14:29:45.062247",
-      "title": "Untitled Project",
-      "topic": "General",
-      "status": "processing",
+      "status": "completed",
       "mode": "scene_detection",
       "mode_name": null
     },
@@ -60,15 +78,6 @@
       "title": "Cancel Test",
       "topic": "General",
       "status": "cancelled",
-      "mode": "general_doc",
-      "mode_name": null
-    },
-    {
-      "id": "test_progress_d8521479",
-      "timestamp": "2026-01-20T09:30:31.491949",
-      "title": "Progress Test",
-      "topic": "General",
-      "status": "processing",
       "mode": "general_doc",
       "mode_name": null
     },

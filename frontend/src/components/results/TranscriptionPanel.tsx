@@ -50,45 +50,60 @@ export const TranscriptionPanel = ({ scenes, transcriptSegments, currentTime, on
         <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-2">
                 {hasRawSegments ? (
-                    // Render Raw Segments
-                    transcriptSegments!.map((seg, idx) => {
-                        const isActive = currentTime >= seg.start && currentTime < seg.end;
-                        return (
-                            <div
-                                key={idx}
-                                ref={isActive ? activeRef : null}
-                                className={cn(
-                                    "group p-3 rounded-lg border text-left transition-all cursor-pointer relative overflow-hidden",
-                                    isActive
-                                        ? "bg-primary/5 border-primary shadow-sm"
-                                        : "bg-card border-border hover:bg-muted/50"
-                                )}
-                                onClick={() => onSeek(seg.start)}
-                            >
-                                <div className="flex gap-3">
-                                    <div className={cn(
-                                        "flex-shrink-0 w-12 text-xs font-mono py-1 rounded text-center h-fit",
-                                        isActive ? "text-primary font-bold bg-primary/10" : "text-muted-foreground bg-muted"
-                                    )}>
-                                        {formatTime(seg.start)}
+                    // Render Raw Segments (Filter out empty ones)
+                    (() => {
+                        const nonEmptySegments = transcriptSegments!.filter(seg => seg.text && seg.text.trim().length > 0);
+
+                        if (nonEmptySegments.length === 0) {
+                            return (
+                                <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                                    <div className="text-center space-y-2">
+                                        <p className="text-sm">No dialogue detected in this video</p>
+                                        <p className="text-xs">The video may contain only background sounds or music</p>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className={cn(
-                                            "text-sm leading-relaxed",
-                                            isActive ? "text-foreground font-medium" : "text-muted-foreground"
-                                        )} dir="auto">
-                                            {seg.text}
-                                        </p>
-                                    </div>
-                                    <div className="opacity-0 group-hover:opacity-100 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity">
-                                        <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
-                                            <Play className="w-3 h-3 fill-current" />
+                                </div>
+                            );
+                        }
+
+                        return nonEmptySegments.map((seg, idx) => {
+                            const isActive = currentTime >= seg.start && currentTime < seg.end;
+                            return (
+                                <div
+                                    key={idx}
+                                    ref={isActive ? activeRef : null}
+                                    className={cn(
+                                        "group p-3 rounded-lg border text-left transition-all cursor-pointer relative overflow-hidden",
+                                        isActive
+                                            ? "bg-primary/5 border-primary shadow-sm"
+                                            : "bg-card border-border hover:bg-muted/50"
+                                    )}
+                                    onClick={() => onSeek(seg.start)}
+                                >
+                                    <div className="flex gap-3">
+                                        <div className={cn(
+                                            "flex-shrink-0 w-12 text-xs font-mono py-1 rounded text-center h-fit",
+                                            isActive ? "text-primary font-bold bg-primary/10" : "text-muted-foreground bg-muted"
+                                        )}>
+                                            {formatTime(seg.start)}
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className={cn(
+                                                "text-sm leading-relaxed",
+                                                isActive ? "text-foreground font-medium" : "text-muted-foreground"
+                                            )} dir="auto">
+                                                {seg.text}
+                                            </p>
+                                        </div>
+                                        <div className="opacity-0 group-hover:opacity-100 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity">
+                                            <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
+                                                <Play className="w-3 h-3 fill-current" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })
+                            );
+                        });
+                    })()
                 ) : (
                     // Render Scenes (Fallback)
                     scenes.map((scene, idx) => {
