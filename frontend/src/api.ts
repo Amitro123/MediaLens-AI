@@ -26,6 +26,7 @@ export interface Session {
     status: string;
     mode?: string;
     topic?: string;
+    timestamp?: string;  // Added for history display
     created_at?: string;
     doc_markdown?: string;
     result?: string;
@@ -96,6 +97,7 @@ export const api = {
         transcript_segments?: any[];
     }>(`/api/v1/result/${taskId}`),
     getSession: (sessionId: string) => http.get<Session>(`/api/v1/sessions/${sessionId}`),
+    getSessions: () => http.get<{ sessions: Session[] }>('/api/v1/history'),
 
     // ============ MODES ============
     getModes: () => http.get<{ modes: Mode[] }>('/api/v1/modes'),

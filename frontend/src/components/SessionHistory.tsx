@@ -21,10 +21,10 @@ export const SessionHistory = () => {
         try {
             const response = await api.getSessions();
             // Filter to only completed sessions and sort by timestamp (newest first)
-            const completedSessions = response.data
+            const completedSessions = response.data.sessions
                 .filter((s: Session) => s.status === "completed")
                 .sort((a: Session, b: Session) =>
-                    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                    new Date(b.timestamp || b.created_at || 0).getTime() - new Date(a.timestamp || a.created_at || 0).getTime()
                 );
             setSessions(completedSessions);
         } catch (error) {
@@ -123,7 +123,7 @@ export const SessionHistory = () => {
                                             {session.title || "Untitled Project"}
                                         </h4>
                                         <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                            {formatDate(session.timestamp)}
+                                            {formatDate(session.timestamp || session.created_at || new Date().toISOString())}
                                         </span>
                                     </div>
 
