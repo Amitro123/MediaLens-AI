@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => ({
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
+            "\\.(css|less|sass|scss)$": path.resolve(__dirname, "./src/tests/styleMock.js"),
         },
+    },
+    test: {
+        globals: true,
+        environment: "jsdom",
+        setupFiles: "./src/tests/setup.ts",
     },
 }));

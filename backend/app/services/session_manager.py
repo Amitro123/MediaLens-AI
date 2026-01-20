@@ -147,7 +147,7 @@ class SessionManager:
         
         logger.debug(f"Session {session_id}: {stage} @ {progress}%")
     
-    def complete(self, session_id: str, result_path: Optional[str] = None, documentation: Optional[str] = None) -> None:
+    def complete(self, session_id: str, result_path: Optional[str] = None, documentation: Optional[str] = None, stt_provider: Optional[str] = None, transcript: Optional[str] = None, transcript_segments: Optional[List] = None, frames_count: Optional[int] = None) -> None:
         """
         Mark a session as completed and store the result path.
         
@@ -155,6 +155,9 @@ class SessionManager:
             session_id: Session to complete
             result_path: Path to the generated documentation file
             documentation: Full documentation content (optional, for persistence)
+            stt_provider: The STT provider used (optional)
+            transcript: Raw transcript text (optional)
+            transcript_segments: List of transcript segments (optional)
         """
         state = self._get_or_create(session_id)
         state.status = SessionStatus.COMPLETED
@@ -165,6 +168,18 @@ class SessionManager:
         
         if documentation:
             state.metadata["documentation"] = documentation
+        
+        if stt_provider:
+             state.metadata["stt_provider"] = stt_provider
+
+        if transcript:
+            state.metadata["transcript"] = transcript
+        
+        if transcript_segments:
+            state.metadata["transcript_segments"] = transcript_segments
+
+        if frames_count is not None:
+             state.metadata["frames_count"] = frames_count
         
         # Persist to disk
         self._persist(state, documentation=documentation)
@@ -393,6 +408,18 @@ class SessionManager:
             metadata["documentation"] = documentation
         elif "documentation" in state.metadata:
             metadata["documentation"] = state.metadata["documentation"]
+
+        if "stt_provider" in state.metadata:
+            metadata["stt_provider"] = state.metadata["stt_provider"]
+        
+        if "transcript" in state.metadata:
+            metadata["transcript"] = state.metadata["transcript"]
+            
+        if "transcript_segments" in state.metadata:
+            metadata["transcript_segments"] = state.metadata["transcript_segments"]
+
+        if "frames_count" in state.metadata:
+            metadata["frames_count"] = state.metadata["frames_count"]
         
         self._storage.add_session(state.session_id, metadata)
     

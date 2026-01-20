@@ -225,21 +225,27 @@ Return STRICTLY JSON:
     def generate_documentation(
         self,
         frame_paths: List[str],
-        prompt_config: 'PromptConfig',
+        prompt_config: Optional['PromptConfig'] = None,
         context: str = "",
         project_name: str = "Project",
         audio_transcript: Optional[str] = None,
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        system_instruction: Optional[str] = None,
+        user_prompt: Optional[str] = None,
+        model_name: str = "pro"
     ) -> str:
         """
         Generate technical documentation from video frames using dynamic prompts.
         
         Args:
             frame_paths: List of paths to extracted frame images
-            prompt_config: PromptConfig object with system instructions
+            prompt_config: PromptConfig object (optional if system_instruction provided)
             context: Optional organizational context from RAG
             project_name: Name of the project being documented
             audio_transcript: Optional audio transcript to include
+            system_instruction: content for system prompt (overrides prompt_config)
+            user_prompt: content for user prompt (overrides default construction)
+            model_name: "pro" or "flash" (default: "pro")
         
         Returns:
             Generated Markdown documentation
@@ -249,27 +255,34 @@ Return STRICTLY JSON:
         """
         try:
             logger.info(f"Generating documentation for {project_name} with {len(frame_paths)} frames")
-            logger.info(f"Using prompt mode: {prompt_config.name}")
+            # Determine system instruction
+            sys_instr = system_instruction
+            if not sys_instr and prompt_config:
+                sys_instr = prompt_config.system_instruction
             
-            # Prepare the prompt
-            user_prompt = f"# Documentation Request\n\n"
-            user_prompt += f"**Project:** {project_name}\n\n"
+            if not sys_instr:
+                raise AIGenerationError("No system instruction provided (neither explicit nor in prompt_config)")
+
+            # Prepare the user prompt
+            final_user_prompt = ""
             
-            
-            # TODO: IMPLEMENT RBAC - Filter context by user.department
-            # Ensure developers cannot access HR vector embeddings, and vice versa.
-            # Example: if user.department != prompt_config.department: filter_or_deny_context()
-            if context:
-                user_prompt += f"**Organizational Context:**\n{context}\n\n"
-            
-            if audio_transcript:
-                user_prompt += f"**Audio Transcript:**\n{audio_transcript}\n\n"
-            
-            user_prompt += f"**Visual Frames:** {len(frame_paths)} screenshots from a video demonstration.\n\n"
-            user_prompt += "Please analyze the frames"
-            if audio_transcript:
-                user_prompt += " and transcript"
-            user_prompt += " and create documentation according to your instructions.\n"
+            if user_prompt:
+                final_user_prompt = user_prompt
+            else:
+                final_user_prompt = f"# Documentation Request\n\n"
+                final_user_prompt += f"**Project:** {project_name}\n\n"
+                
+                if context:
+                    final_user_prompt += f"**Organizational Context:**\n{context}\n\n"
+                
+                if audio_transcript:
+                    final_user_prompt += f"**Audio Transcript:**\n{audio_transcript}\n\n"
+                
+                final_user_prompt += f"**Visual Frames:** {len(frame_paths)} screenshots from a video demonstration.\n\n"
+                final_user_prompt += "Please analyze the frames"
+                if audio_transcript:
+                    final_user_prompt += " and transcript"
+                final_user_prompt += " and create documentation according to your instructions.\n"
             
             # Upload frames
             uploaded_files = []
@@ -284,16 +297,19 @@ Return STRICTLY JSON:
             if not uploaded_files:
                 raise AIGenerationError("Failed to upload any frames to Gemini")
             
-            # Construct the full prompt with dynamic system instruction
-            prompt_parts = [prompt_config.system_instruction, user_prompt]
+            # Construct the full prompt
+            prompt_parts = [sys_instr, final_user_prompt]
             prompt_parts.extend(uploaded_files)
             
-            # Generate content with Pro model
-            logger.info("Sending generation request to Gemini Pro...")
-            response = self.model_pro.generate_content(
+            # Select model
+            model = self.model_pro if model_name == "pro" else self.model_flash
+            
+            # Generate content
+            logger.info(f"Sending generation request to Gemini {model_name}...")
+            response = model.generate_content(
                 prompt_parts,
                 generation_config=genai.GenerationConfig(
-                    temperature=0.4,  # Lower temperature for more focused output
+                    temperature=0.4,
                     top_p=0.95,
                     top_k=40,
                     max_output_tokens=8192,
@@ -304,7 +320,24 @@ Return STRICTLY JSON:
             if not response.text:
                 raise AIGenerationError("Gemini returned empty response")
             
+            raw_text = response.text
+            logger.info(f"Successfully generated {len(raw_text)} characters of documentation")
+            
+            # Get raw response
             documentation = response.text.strip()
+
+            # CRITICAL: Strip markdown fences before further processing
+            documentation = self.strip_markdown_fences(documentation)
+            logger.info(f"🧹 After stripping fences: {len(documentation)} chars")
+
+            # Validate JSON (don't fail - just log)
+            try:
+                parsed = json.loads(documentation)
+                item_count = len(parsed) if isinstance(parsed, list) else 1
+                logger.info(f"✅ Valid JSON detected: {item_count} items")
+            except json.JSONDecodeError as e:
+                logger.warning(f"⚠️ Content is not JSON (might be Markdown): {e}")
+            logger.info(f"Cleaned documentation: {len(documentation)} characters")
             
             # --- Post-Processing: Embed Images ---
             # Replace [Frame X] with actual image Markdown
@@ -334,7 +367,7 @@ Return STRICTLY JSON:
             # Replace [Frame X] patterns
             documentation = re.sub(r'\[Frame (\d+)\]', replace_match, documentation)
             
-            logger.info(f"Successfully generated {len(documentation)} characters of documentation")
+            logger.info(f"Final output: {len(documentation)} characters")
             
             # Log DOC_SECTION turn if session_id provided
             if session_id:
@@ -350,6 +383,46 @@ Return STRICTLY JSON:
         except Exception as e:
             logger.error(f"Documentation generation failed: {str(e)}")
             raise AIGenerationError(f"Failed to generate documentation: {str(e)}")
+
+    @staticmethod
+    def strip_markdown_fences(text: str) -> str:
+        """
+        Remove markdown code fences from Gemini JSON responses.
+        
+        DevLens pattern: Handle cases where Gemini wraps JSON in ```json blocks
+        despite being instructed not to.
+        """
+        s = text.strip()
+        
+        # Check if wrapped in code fences
+        if s.startswith("```"):
+            lines = s.splitlines()
+            
+            # Remove first line (```json or ```)
+            if lines:
+                lines = lines[1:]
+            
+            # Remove last line (```)
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            
+            s = "\n".join(lines)
+        
+        return s.strip()
+
+    def _strip_markdown_codeblocks(self, text: str) -> str:
+        """
+        Remove markdown code block formatting.
+        
+        Handles:
+        - ```json\n...\n```
+        - ```\n...\n```
+        - ` ` (inline code)
+        
+        Returns:
+            Clean text without markdown
+        """
+        return self.strip_markdown_fences(text)
     
     def generate_segment_doc(
         self,

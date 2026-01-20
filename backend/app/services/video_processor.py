@@ -543,3 +543,22 @@ def extract_segment_frames(
         raise VideoProcessingError(f"Unexpected error during segment frame extraction: {str(e)}")
 
 
+def extract_frames_at_times(
+    video_path: str,
+    output_dir: str,
+    timestamps: List[float]
+) -> List[str]:
+    """
+    Extract frames at specific timestamps (alias/wrapper for extract_frames_at_timestamps).
+    
+    Args:
+        video_path: Path to video file
+        output_dir: Directory to save frames
+        timestamps: List of timestamps in seconds
+    
+    Returns:
+        List of frame file paths
+    """
+    return extract_frames_at_timestamps(video_path, output_dir, timestamps)
+
+

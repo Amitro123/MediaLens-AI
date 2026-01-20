@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// API base URL - uses proxy in dev mode (vite.config.ts handles /api -> localhost:8000)
 const http = axios.create({
-    baseURL: '',
+    baseURL: 'http://localhost:8000',
+    timeout: 300000, // 5 minutes for video upload
     headers: { 'Content-Type': 'application/json' }
 });
 
@@ -65,54 +65,40 @@ export interface ActiveSession {
 
 // API Client - connected to real backend
 export const api = {
-    // ============ SESSIONS / HISTORY ============
-    // List all past sessions (for History view)
-    listSessions: () => http.get<Session[]>('/api/sessions'),
-
-    // Get single session details (with key_frames, doc_markdown, segments)
-    getSession: (sessionId: string) => http.get<Session>(`/api/sessions/${sessionId}`),
-
-    // Get draft sessions from calendar
-    getDraftMeetings: () => http.get<Session[]>('/api/v1/sessions/drafts'),
-
-    // Prep session for upload
-    prepSession: (sessionId: string) =>
-        http.post<{ status: string; id: string }>(`/api/v1/sessions/${sessionId}/prep`),
-
     // ============ UPLOADS ============
-    // Upload to existing session (calendar-based)
-    uploadToSession: (sessionId: string, file: File, mode?: string) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        if (mode) formData.append('mode', mode);
-        return http.post<UploadResponse>(`/api/v1/upload/${sessionId}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-    },
-
     // Manual upload (creates new session)
-    manualUpload: (file: File, mode: string, projectName?: string) => {
+    manualUpload: (file: File, mode: string, projectName?: string, sttProvider: string = "auto", onProgress?: (percent: number) => void) => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('mode', mode);
+        formData.append('stt_provider', sttProvider);
         if (projectName) formData.append('project_name', projectName);
         return http.post<UploadResponse>('/api/v1/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: {
+                'Content-Type': undefined,
+            },
+            onUploadProgress: (progressEvent) => {
+                if (onProgress && progressEvent.total) {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    onProgress(percentCompleted);
+                }
+            }
         });
     },
 
     // ============ STATUS & RESULTS ============
     getStatus: (taskId: string) => http.get<StatusResponse>(`/api/v1/status/${taskId}`),
-    getResult: (taskId: string) => http.get<{ task_id: string; documentation: string }>(`/api/v1/result/${taskId}`),
-    getActiveSession: () => http.get<ActiveSession | null>('/api/v1/active-session'),
+    getResult: (taskId: string) => http.get<{
+        task_id: string;
+        documentation: string;
+        stt_provider?: string;
+        transcript?: string;
+        transcript_segments?: any[];
+    }>(`/api/v1/result/${taskId}`),
+    getSession: (sessionId: string) => http.get<Session>(`/api/v1/sessions/${sessionId}`),
 
     // ============ MODES ============
     getModes: () => http.get<{ modes: Mode[] }>('/api/v1/modes'),
-
-    // ============ DRIVE / MCP ============
-    getDriveFiles: () => http.get<{ files: any[] }>('/api/v1/integrations/drive/files'),
-    importFromDrive: (fileUri: string, fileName: string, mode: string) =>
-        http.post<UploadResponse>('/api/v1/import/drive', { file_uri: fileUri, file_name: fileName, mode }),
 
     // ============ ACTIONS ============
     sendFeedback: (sessionId: string, rating: number, comment?: string) =>

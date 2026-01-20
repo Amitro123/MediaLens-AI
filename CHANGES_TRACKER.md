@@ -17,3 +17,37 @@
     - [x] Enabled `HEBRISH_STT_ENABLED=True` in `.env`
     - [x] Verified STT Service loading logic (`ivrit-ai/faster-whisper-v2-d4`)
     - [x] Confirmed UI branding (MediaLens AI)
+
+## 2026-01-19
+- [x] Fixed "Network Error" during video upload:
+    - [x] Removed conflicting backend processes (PID cleaning)
+    - [x] Fixed `frontend/src/api.ts` to use `Content-Type: undefined` (Preference #6) for correct FormData boundary handling.
+    - [x] Verified Backend Health (OK)
+    - [x] Increased frontend API timeout to 5 minutes (300000ms) to fix `ECONNABORTED` on large uploads.
+    - [x] Implemented Real-Time Progress Updates:
+        - [x] Refactored `upload` endpoint to use `BackgroundTasks` and return `task_id` immediately.
+        - [x] Added `progress_callback` plumbing through `AgeneOrchestrator` and `VideoPipeline`.
+        - [x] Verified Frontend `Dashboard.tsx` polling logic aligns with backend.
+        - [x] Added Client-Side Upload Progress (0-15%) to prevent "Stuck on 0%" perception during large file transfers.
+    - [x] **Transcript Integration**:
+        - [x] Updated `ResultsView` to fetch and pass `transcript` and `transcript_segments` from API.
+        - [x] Updated `TranscriptionPanel` to support raw transcript segments playback.
+        - [x] Updated Backend `VideoPipelineResult` and `DevLensResult` to carry transcript data.
+        - [x] Updated `SessionManager` to persist transcript data to storage.
+        - [x] Verified with tests `test_video_pipeline.py` and `test_agent_orchestrator.py`.
+    - [x] **Critical Bug Fix**:
+        - [x] Fixed empty "Detected Scenes (0)" issue by adding robust JSON string parsing to `ResultsView.tsx`.
+        - [x] Added debug logging to frontend results fetching for easier troubleshooting.
+        - [x] Added debug logging to backend `get_result` endpoint.
+    - [x] **UI Polish (DevLens Style)**:
+        - [x] Re-implemented `ResultsView.tsx` with Tailwind/Shadcn/Lucide to match existing design system.
+        - [x] Added Transcript Timeline, Generated Documentation panel, and Key Moments grid.
+        - [x] Added `/results/:sessionId` route to `App.tsx`.
+        - [x] Added `/api/v1/debug/{session_id}` endpoint for troubleshooting.
+    - [x] **Scene Detection Logic Fix**:
+        - [x] Refactored `agent_orchestrator` to use `_process_scene_cataloging` for comprehensive analysis.
+        - [x] Implemented uniform frame extraction (`extract_frames_uniform`).
+        - [x] Updated `ai_generator` to support explicit system/user prompts.
+        - [x] Updated `scene_detection.yaml` prompt for full cataloging.
+        - [x] Verified with new unit test `test_scene_cataloging_flow`.
+        - [x] Fixed `ResultsView.tsx` JSON parsing to strips Markdown code blocks (fixes "Detected Scenes (0)" issue).

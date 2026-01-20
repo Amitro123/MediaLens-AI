@@ -1,0 +1,12 @@
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task_stt", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task_stt", "event": "frames_sampled", "payload": {"count": 1, "mode": "regular"}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task_stt", "event": "doc_generation_started", "payload": {"frame_count": 1, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task_stt", "event": "doc_generation_completed", "payload": {"doc_length": 11}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task_stt", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task_stt", "event": "frames_sampled", "payload": {"count": 1, "mode": "regular"}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task_stt", "event": "doc_generation_started", "payload": {"frame_count": 1, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task_stt", "event": "doc_generation_completed", "payload": {"doc_length": 11}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task_stt", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task_stt", "event": "frames_sampled", "payload": {"count": 1, "mode": "regular"}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task_stt", "event": "doc_generation_started", "payload": {"frame_count": 1, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task_stt", "event": "doc_generation_completed", "payload": {"doc_length": 11}}

@@ -59,6 +59,9 @@ MediaLens empowers broadcasters and production teams to instantly search, analyz
    
    python run.py
    # Server running at http://localhost:8000
+   
+   # Run Tests
+   pytest
    ```
 
 3. **Frontend Setup**
@@ -67,6 +70,9 @@ MediaLens empowers broadcasters and production teams to instantly search, analyz
    npm install
    npm run dev
    # UI running at http://localhost:5173
+   
+   # Run Tests
+   npm test
    ```
 
 ### 🚀 One-Click Launch (Windows)

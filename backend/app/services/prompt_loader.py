@@ -15,9 +15,17 @@ class PromptConfig(BaseModel):
     name: str = Field(..., description="Display name of the prompt mode")
     description: str = Field(..., description="Description of what this mode does")
     department: str = Field(default="R&D", description="Department this mode belongs to (R&D, HR, Finance)")
-    system_instruction: str = Field(..., description="System instruction for the AI")
+    system_instruction: Optional[str] = Field(None, description="System instruction for the AI")
+    system_prompt: Optional[str] = Field(None, description="Alias for system_instruction")
+    user_prompt: Optional[str] = Field(None, description="User prompt template")
     output_format: str = Field(default="markdown", description="Expected output format")
     guidelines: list[str] = Field(default_factory=list, description="Additional guidelines")
+
+    def __init__(self, **data):
+        # Allow system_prompt alias for system_instruction
+        if 'system_prompt' in data and not data.get('system_instruction'):
+            data['system_instruction'] = data['system_prompt']
+        super().__init__(**data)
 
 
 class PromptLoadError(Exception):

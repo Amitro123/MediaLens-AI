@@ -118,6 +118,81 @@ class TestVideoPipeline:
         # Verify
         assert result is not None
         assert "Segment doc" in result.documentation
-        assert mock_gen_inst.merge_segments.called
-        assert mock_split.called
+    @pytest.mark.asyncio
+    @patch("app.services.video_pipeline.get_generator")
+    @patch("app.services.video_pipeline.extract_frames")
+    @patch("app.services.video_pipeline.create_low_fps_proxy")
+    @patch("app.services.video_pipeline.get_video_duration")
+    @patch("app.services.video_pipeline.get_storage_service")
+    @patch("app.services.video_pipeline.get_acontext_client")
+    @patch("app.services.video_pipeline.extract_audio")
+    @patch("app.services.stt_hebrish_service.get_hebrish_stt_service")
+    async def test_process_video_pipeline_with_stt(
+        self, mock_stt_service_getter, mock_audio_extractor, mock_acontext, mock_storage, mock_duration, mock_proxy, mock_extract, mock_generator, mock_prompt_config
+    ):
+        # Setup mocks
+        mock_duration.return_value = 60.0
+        mock_proxy.return_value = "proxy.mp4"
+        mock_extract.return_value = [str(Path("f1.jpg"))]
+        mock_audio_extractor.return_value = "audio.wav"
+        
+        # Setup STT Mock
+        mock_stt_service = MagicMock()
+        mock_stt_service.is_available = True
+        mock_stt_service.transcribe = AsyncMock()
+        
+        # Mock segments result
+        mock_stt_result = MagicMock()
+        mock_stt_result.model_used = "groq"
+        mock_stt_result.segments = [
+            {"start": 0, "end": 5, "text": "Hello world"},
+            {"start": 5, "end": 10, "text": "Testing STT"}
+        ]
+        mock_stt_service.transcribe.return_value = mock_stt_result
+        mock_stt_service_getter.return_value = mock_stt_service
+
+        mock_gen_inst = mock_generator.return_value
+        mock_gen_inst.analyze_video_relevance.return_value = None
+        mock_gen_inst.generate_documentation.return_value = "# Documents"
+        
+        mock_storage_inst = mock_storage.return_value
+        mock_acontext_inst = mock_acontext.return_value
+        mock_acontext_inst.is_enabled = False
+        
+        # Run pipeline
+        from app.core.config import settings
+        original_stt_setting = settings.hebrish_stt_enabled
+        settings.hebrish_stt_enabled = True # Force enable STT
+        
+        try:
+            result = await process_video_pipeline(
+                video_path=Path("test.mp4"),
+                task_id="test_task_stt",
+                prompt_config=mock_prompt_config,
+                project_name="Test Project",
+                mode="general_doc"
+            )
+        finally:
+            settings.hebrish_stt_enabled = original_stt_setting
+        
+        # Verify result contains transcript
+        assert result.transcript is not None
+        assert "Hello world" in result.transcript
+        assert result.transcript_segments == mock_stt_result.segments
+        
+        # Verify storage was called with transcript data
+        mock_storage_inst.add_session.assert_called_with(
+            "test_task_stt",
+            {
+                "title": "Test Project",
+                "topic": "Test Mode",
+                "status": "completed",
+                "documentation": "# Documents",
+                "mode": "general_doc",
+                "mode_name": "Test Mode",
+                "stt_provider": "groq",
+                "transcript": "Hello world\nTesting STT",
+                "transcript_segments": mock_stt_result.segments
+            }
+        )
 

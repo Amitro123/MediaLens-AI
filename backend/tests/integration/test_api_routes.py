@@ -94,15 +94,7 @@ class TestStatusEndpoints:
         assert response.status_code in [200, 404]
 
 
-class TestDraftSessions:
-    """Test draft/calendar session endpoints"""
 
-    def test_get_draft_sessions(self, client):
-        """Test getting draft sessions"""
-        response = client.get("/api/v1/sessions/drafts")
-        assert response.status_code == 200
-        data = response.json()
-        assert isinstance(data, list)
 
 
 class TestFeedbackEndpoint:

@@ -3,17 +3,15 @@ import { motion } from "framer-motion";
 import { UploadZone } from "./UploadZone";
 import { DocModeSelector, type DocMode } from "./DocModeSelector";
 import { ProcessingProgress, type ProcessingStep } from "./ProcessingProgress";
-import { SessionHistory } from "./SessionHistory";
-import { SessionDetails } from "./SessionDetails";
-import { CalendarDashboard } from "./CalendarDashboard";
 import { ExportOptions } from "./ExportOptions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api, type Session } from "@/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ResultsView } from "./results/ResultsView";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-// Map UI modes to backend mode strings
 // Map UI modes to backend mode strings
 const modeMap: Record<DocMode, string> = {
   scene_detection: "scene_detection",
@@ -25,6 +23,7 @@ const modeMap: Record<DocMode, string> = {
 export const Dashboard = () => {
   const [selectedMode, setSelectedMode] = useState<DocMode>("scene_detection");
   const [projectName, setProjectName] = useState("");
+  const [sttProvider, setSttProvider] = useState("auto");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState<ProcessingStep>("upload");
   const [progress, setProgress] = useState(0);
@@ -32,7 +31,6 @@ export const Dashboard = () => {
   const [showResults, setShowResults] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [generatedDoc, setGeneratedDoc] = useState<string>("");
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Poll for status when processing (with timeout and retry limits)
@@ -40,7 +38,7 @@ export const Dashboard = () => {
     if (!currentTaskId || !isProcessing) return;
 
     const MAX_RETRIES = 5;
-    const MAX_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+    const MAX_DURATION_MS = 10 * 60 * 1000; // 10 minutes (increased for long videos)
     let retryCount = 0;
     const startTime = Date.now();
 
@@ -99,32 +97,6 @@ export const Dashboard = () => {
     return () => clearInterval(interval);
   }, [currentTaskId, isProcessing]);
 
-  // Check for active session on mount
-  useEffect(() => {
-    const checkActiveSession = async () => {
-      try {
-        const response = await api.getActiveSession();
-        if (response.data) {
-          const { session_id, progress: sessionProgress, stage: sessionStage } = response.data;
-          setCurrentTaskId(session_id);
-          setIsProcessing(true);
-          setProgress(sessionProgress);
-          if (sessionStage) setStage(sessionStage);
-
-          // Derive processing step from progress to avoid UI flash
-          if (sessionProgress < 20) setProcessingStep("upload");
-          else if (sessionProgress < 40) setProcessingStep("transcribe");
-          else if (sessionProgress < 70) setProcessingStep("analyze");
-          else if (sessionProgress < 100) setProcessingStep("generate");
-          else setProcessingStep("complete");
-        }
-      } catch (err) {
-        // No active session, that's fine
-      }
-    };
-
-    checkActiveSession();
-  }, []);
 
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
@@ -135,7 +107,20 @@ export const Dashboard = () => {
 
     try {
       const backendMode = modeMap[selectedMode];
-      const response = await api.manualUpload(file, backendMode, projectName || undefined);
+
+      console.log('STT Provider selected:', sttProvider);
+
+      const response = await api.manualUpload(
+        file,
+        backendMode,
+        projectName || undefined,
+        sttProvider,
+        (uploadPercent) => {
+          // Map upload (0-100) to pipeline progress (0-15)
+          const mappedProgress = Math.round((uploadPercent / 100) * 15);
+          setProgress(mappedProgress);
+        }
+      );
 
       const { task_id, status, result } = response.data;
       setCurrentTaskId(task_id);
@@ -155,16 +140,6 @@ export const Dashboard = () => {
     }
   };
 
-  const handleSessionSelect = (session: Session) => {
-    setSelectedSession(session);
-    // Reset the upload/results view when viewing a session from history
-    setShowResults(false);
-    setGeneratedDoc("");
-  };
-
-  const handleCloseSession = () => {
-    setSelectedSession(null);
-  };
 
   return (
     <section id="dashboard" className="py-24 px-4">
@@ -184,76 +159,90 @@ export const Dashboard = () => {
           </p>
         </motion.div>
 
-        {/* Show SessionDetails if a session is selected, otherwise show upload UI */}
-        {selectedSession ? (
-          <SessionDetails session={selectedSession} onClose={handleCloseSession} />
-        ) : (
-          <div className="space-y-8">
-            {/* Calendar Dashboard - Upcoming Meetings */}
-            <CalendarDashboard />
+        <div className="space-y-8">
+          {/* Doc Mode Selector */}
+          <DocModeSelector selected={selectedMode} onSelect={setSelectedMode} />
 
-            {/* Doc Mode Selector */}
-            <DocModeSelector selected={selectedMode} onSelect={setSelectedMode} />
+          {/* Project Name Input */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="max-w-md"
+          >
+            <Label htmlFor="project" className="text-foreground mb-2 block">
+              Project Name (Optional)
+            </Label>
+            <Label htmlFor="project" className="text-foreground mb-2 block">
+              Project Name (Optional)
+            </Label>
+            <Input
+              id="project"
+              placeholder="e.g., Auth System Refactor"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              className="bg-card border-border focus:border-primary"
+            />
+          </motion.div>
 
-            {/* Project Name Input */}
+          {/* STT Provider Selection */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-md"
+          >
+            <Label className="text-foreground mb-2 block">Transcription Speed</Label>
+            <Select value={sttProvider} onValueChange={setSttProvider}>
+              <SelectTrigger className="bg-card border-border">
+                <SelectValue placeholder="Select speed" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Auto (Smart choice)</SelectItem>
+                <SelectItem value="groq">Fast (Groq - 4 seconds) ⚡</SelectItem>
+                <SelectItem value="google">Accurate (Google - 4 minutes) 🎯</SelectItem>
+              </SelectContent>
+            </Select>
+          </motion.div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-destructive">
+              {error}
+            </div>
+          )}
+
+          {/* Upload Zone or Processing Progress */}
+          {isProcessing ? (
+            <ProcessingProgress currentStep={processingStep} progress={progress} stage={stage} />
+          ) : (
+            <UploadZone onFileSelect={handleFileSelect} />
+          )}
+
+          {/* Results Section */}
+          {showResults && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="max-w-md"
+              className="space-y-8"
             >
-              <Label htmlFor="project" className="text-foreground mb-2 block">
-                Project Name (Optional)
-              </Label>
-              <Input
-                id="project"
-                placeholder="e.g., Auth System Refactor"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                className="bg-card border-border focus:border-primary"
-              />
-            </motion.div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-destructive">
-                {error}
-              </div>
-            )}
-
-            {/* Upload Zone or Processing Progress */}
-            {isProcessing ? (
-              <ProcessingProgress currentStep={processingStep} progress={progress} stage={stage} />
-            ) : (
-              <UploadZone onFileSelect={handleFileSelect} />
-            )}
-
-            {/* Results Section */}
-            {showResults && generatedDoc && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
-              >
-                {/* Documentation Preview */}
+              {currentTaskId ? (
+                <ResultsView sessionId={currentTaskId} />
+              ) : (
+                // Fallback if no task ID but generic showing
                 <div className="glass rounded-2xl p-6 md:p-8">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Generated Documentation</h3>
-                  <div className="prose prose-invert max-w-none bg-secondary/50 rounded-lg p-6 overflow-auto max-h-[600px]">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {generatedDoc}
-                    </ReactMarkdown>
-                  </div>
+                  <p>Results ready.</p>
                 </div>
+              )}
 
-                {/* Export Options */}
-                <ExportOptions sessionId={currentTaskId || undefined} documentation={generatedDoc} />
-              </motion.div>
-            )}
+              {/* Legacy Markdown View (Optional Toggle?) - Removing for now as per "DevLens Style" request */}
 
-            {/* Session History - connected to API */}
-            <SessionHistory onSelectSession={handleSessionSelect} />
-          </div>
-        )}
+              {/* Export Options */}
+              <ExportOptions sessionId={currentTaskId || undefined} documentation={generatedDoc} />
+            </motion.div>
+          )}
+
+        </div>
       </div>
     </section>
   );

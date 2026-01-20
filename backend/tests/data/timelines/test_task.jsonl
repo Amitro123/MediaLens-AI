@@ -1,0 +1,48 @@
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:15:12Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:15:40Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:15:59Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:17:03Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:17:04Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:18:19Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "frames_sampled", "payload": {"count": 2, "mode": "smart"}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "doc_generation_started", "payload": {"frame_count": 2, "project_name": "Test Project"}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "doc_generation_completed", "payload": {"doc_length": 16}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "video_uploaded", "payload": {"filename": "test.mp4", "duration_sec": 60.0, "mode": "segmented"}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "segment_created", "payload": {"segment_count": 2, "segment_duration_sec": 30}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 0, "frame_count": 1, "doc_length": 11}}
+{"timestamp": "2026-01-19T13:19:18Z", "session_id": "test_task", "event": "segment_processed", "payload": {"segment_index": 1, "frame_count": 1, "doc_length": 11}}

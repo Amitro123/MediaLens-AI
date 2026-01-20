@@ -56,6 +56,10 @@ class ResultResponse(BaseModel):
     """Response model for task result"""
     task_id: str
     documentation: str
+    stt_provider: Optional[str] = "unknown"
+    transcript: Optional[str] = None
+    transcript_segments: Optional[list] = None 
+    frames_count: Optional[int] = None 
 
 
 class FeedbackRequest(BaseModel):
@@ -95,15 +99,63 @@ async def get_active_session():
     return None
 
 
+from fastapi import BackgroundTasks
+
+async def process_video_background(
+    task_id: str,
+    video_path: Path,
+    options: DevLensAgentOptions
+):
+    """
+    Background task to process video and update progress.
+    """
+    session_mgr = get_session_manager()
+    agent = get_devlens_agent()
+    
+    try:
+        logger.info(f"[BG] Starting processing for {task_id}")
+        session_mgr.update_progress(task_id, "initializing", 10)
+        
+        # Define callback to update session manager
+        async def progress_callback(progress: int, stage_label: str):
+            session_mgr.update_progress(task_id, stage_label, progress)
+            
+        result = await agent.generate_documentation(
+            session_id=task_id,
+            video_path=video_path,
+            options=options,
+            progress_callback=progress_callback
+        )
+        
+        # Mark as completed
+        session_mgr.complete(
+            task_id, 
+            result_path=None, 
+            documentation=result.documentation,
+            stt_provider=result.stt_provider,
+            transcript=getattr(result, "transcript", None),
+            transcript_segments=getattr(result, "transcript_segments", None),
+            frames_count=getattr(result, "frames_count", None)
+        )
+        logger.info(f"[BG] Processing completed for {task_id}")
+        
+    except Exception as e:
+        logger.error(f"[BG] Processing failed for {task_id}: {str(e)}")
+        session_mgr.fail(task_id, str(e))
+
+
 @router.post("/upload", response_model=UploadResponse)
 async def upload_video(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     project_name: str = Form("Untitled Project"),
     language: str = Form("en"),
-    mode: str = Form("general_doc")
+    mode: str = Form("scene_detection"),
+    stt_provider: str = Form("auto")
 ):
     """
-    Upload a video file and generate documentation.
+    Upload a video file and start background processing.
+    Returns immediately with session ID for progress polling.
     """
     task_id = str(uuid.uuid4())
     
@@ -111,9 +163,13 @@ async def upload_video(
     session_mgr = get_session_manager()
     session_mgr.create_session(task_id, {
         "project_name": project_name,
-        "mode": mode
+        "mode": mode,
+        "language": language
     })
-    session_mgr.start_processing(task_id)
+    
+    logger.info(f"[Upload] Session: {task_id}")
+    logger.info(f"[Upload] Mode: {mode}")
+    logger.info(f"[Upload] STT Provider: {stt_provider}")
     
     try:
         # Validate file type
@@ -121,6 +177,7 @@ async def upload_video(
         file_ext = Path(file.filename).suffix.lower()
         
         if file_ext not in allowed_extensions:
+            session_mgr.fail(task_id, "Invalid file type")
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
@@ -133,41 +190,54 @@ async def upload_video(
         
         # Save uploaded file
         video_path = task_dir / f"video{file_ext}"
-        with open(video_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
+        
+        # Stream file to disk (better for large files)
+        try:
+             with open(video_path, "wb") as buffer:
+                while content := await file.read(1024 * 1024):  # 1MB chunks
+                    buffer.write(content)
+        except Exception as e:
+            logger.error(f"File write error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to write file to disk")
         
         logger.info(f"Saved video for task {task_id}: {video_path}")
         
-        # Use DevLensAgent for orchestration
-        agent = get_devlens_agent()
+        # Update state before starting background task
+        session_mgr.update_progress(task_id, "uploaded", 5)
+        session_mgr.start_processing(task_id) # Sets to PROCESSING, 0%
+        
+        # Setup options
         options = DevLensAgentOptions(
             mode=mode,
             language=language,
-            project_name=project_name
+            project_name=project_name,
+            stt_provider=stt_provider
         )
         
-        try:
-            result = await agent.generate_documentation(
-                session_id=task_id,
-                video_path=video_path,
-                options=options
-            )
-        except PipelineError as e:
-            raise HTTPException(status_code=500, detail=str(e))
-        except PromptLoadError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        # Start background processing
+        background_tasks.add_task(
+            process_video_background,
+            task_id,
+            video_path,
+            options
+        )
         
         return UploadResponse(
-            task_id=result.session_id,
-            status=result.status,
-            result=result.documentation
+            task_id=task_id,
+            status="processing",
+            result=None
         )
     
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error processing video: {str(e)}")
+        # If session was created, mark it failed using correct method if available
+        # But here we might not have a session_mgr instance if it failed early (though we do above)
+        try:
+            get_session_manager().fail(task_id, str(e))
+        except:
+            pass
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
@@ -195,26 +265,58 @@ async def get_result(task_id: str):
     """
     Get the generated documentation for a completed task.
     """
+    logger.info(f"[DEBUG] Fetching result for task: {task_id}")
+    
     # 1. Try task_results first (Manual uploads)
+    result = None
     if task_id in task_results:
         result = task_results[task_id]
-        if result["status"] == "completed":
-            return ResultResponse(
-                task_id=task_id,
-                documentation=result["documentation"]
-            )
-    
-    # 2. Try loading from disk (Universal Persistence Layer)
-    storage = get_storage_service()
-    persisted_result = storage.get_session_result(task_id)
-    if persisted_result:
-        # Cache in memory
-        task_results[task_id] = persisted_result
-        return ResultResponse(
-            task_id=task_id,
-            documentation=persisted_result["documentation"]
-        )
+        logger.info(f"[DEBUG] Found in memory task_results")
+    else:
+        # 2. Try loading from disk (Universal Persistence Layer)
+        storage = get_storage_service()
+        result = storage.get_session_result(task_id)
+        if result:
+             # Cache in memory
+            task_results[task_id] = result
+            logger.info(f"[DEBUG] Found in persistent storage")
+
+    if result:
+         # ADD THESE LOGS:
+        logger.info(f"[DEBUG] Result found for {task_id}")
+        logger.info(f"[DEBUG] Status: {result.get('status')}")
         
+        # Retroactive fix: Calculate frames_count if missing
+        if "frames_count" not in result:
+             try:
+                 upload_path = settings.get_upload_path()
+                 frames_dir = upload_path / task_id / "frames"
+                 if frames_dir.exists():
+                     count = len([f for f in frames_dir.iterdir() if f.suffix in ['.jpg', '.jpeg', '.png']])
+                     result["frames_count"] = count
+                     logger.info(f"[DEBUG] Calculated frames_count from disk: {count}")
+             except Exception as e:
+                 logger.warning(f"[DEBUG] Failed to count frames: {e}")
+        
+        doc = result.get("documentation")
+        if doc is not None:
+             logger.info(f"[DEBUG] Documentation length: {len(doc)}")
+             logger.info(f"[DEBUG] Documentation type: {type(doc)}")
+             logger.info(f"[DEBUG] First 200 chars: {str(doc)[:200]}")
+        else:
+             logger.info(f"[DEBUG] Documentation is None")
+
+        response = ResultResponse(
+            task_id=task_id,
+            documentation=result["documentation"],
+            stt_provider=result.get("stt_provider", "unknown"),
+            transcript=result.get("transcript"),
+            transcript_segments=result.get("transcript_segments"),
+            frames_count=result.get("frames_count")
+        )
+        return response
+        
+    logger.warning(f"[DEBUG] No result found for {task_id}")
     raise HTTPException(status_code=404, detail="Task or result not found")
 
 
@@ -543,7 +645,7 @@ async def list_drive_files():
 class DriveImportRequest(BaseModel):
     file_uri: str
     file_name: str
-    mode: str = "general_doc"
+    mode: str = "scene_detection"
 
 @router.post("/import/drive")
 async def import_drive_file(request: DriveImportRequest):
@@ -643,3 +745,74 @@ async def get_session_minimal(session_id: str):
     if not details:
         raise HTTPException(status_code=404, detail="Session not found")
     return details
+
+
+@router.get("/sessions/{session_id}/video")
+async def get_session_video(session_id: str, request: Request, range: Optional[str] = Header(None)):
+    """Serve the original video file (alias for stream endpoint)."""
+    return await stream_video_endpoint(session_id, request, range)
+
+
+@router.get("/sessions/{session_id}/frames/{frame_id}")
+async def get_session_frame(session_id: str, frame_id: str):
+    """Serve a specific frame."""
+    upload_path = settings.get_upload_path()
+    frames_dir = upload_path / session_id / "frames"
+    
+    if not frames_dir.exists():
+        raise HTTPException(status_code=404, detail="Frames directory not found")
+
+    # Clean the ID (remove extension)
+    clean_id = frame_id.replace(".jpg", "").replace(".jpeg", "")
+    
+    frame_path = None
+    
+    # 1. Try exact match first
+    candidate = frames_dir / frame_id
+    if candidate.exists():
+        frame_path = candidate
+    
+    # 2. Try constructing standard names
+    if not frame_path:
+        # If it looks like an index (e.g. "0" or "1")
+        if clean_id.isdigit():
+            idx = int(clean_id)
+            # Look for any file starting with frame_{idx:04d}
+            prefix = f"frame_{idx:04d}"
+            # Check for files
+            for f in frames_dir.iterdir():
+                if f.name.startswith(prefix) and f.suffix in [".jpg", ".jpeg", ".png"]:
+                    frame_path = f
+                    break
+    
+    # 3. Last ditch: try as direct filename if clean_id wasn't digit
+    if not frame_path:
+         candidate = frames_dir / f"{clean_id}.jpg"
+         if candidate.exists():
+             frame_path = candidate
+
+    if not frame_path or not frame_path.exists():
+        raise HTTPException(status_code=404, detail="Frame not found")
+    
+    return FileResponse(frame_path, media_type="image/jpeg")
+
+
+@router.get("/debug/{session_id}")
+async def debug_session(session_id: str):
+    """Debug endpoint to inspect session data."""
+    session_mgr = get_session_manager()
+    session = session_mgr.get_session(session_id)
+    
+    # Also check persistent storage
+    storage = get_storage_service()
+    persistent_result = storage.get_session_result(session_id)
+    
+    return {
+        "session_exists": session is not None,
+        "status": session.get("status") if session else None,
+        "has_result_in_memory": session.get("result") is not None if session else None,
+        "has_result_in_storage": persistent_result is not None,
+        "documentation_type": type(persistent_result.get("documentation")).__name__ if persistent_result else None,
+        "documentation_length": len(persistent_result.get("documentation", "") or "") if persistent_result else 0,
+        "first_100_chars": str(persistent_result.get("documentation"))[:100] if persistent_result and persistent_result.get("documentation") else None
+    }

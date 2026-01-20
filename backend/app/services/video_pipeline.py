@@ -20,7 +20,8 @@ from app.services.video_processor import (
     VideoProcessingError,
     split_into_segments,
     extract_segment_frames,
-    create_low_fps_proxy
+    create_low_fps_proxy,
+    extract_audio
 )
 from app.services.clip_generator import ClipGenerator
 import json
@@ -49,7 +50,10 @@ class VideoPipelineResult:
         status: str = "completed",
         mode: str = "general_doc",
         mode_name: str = "Technical Documentation",
-        project_name: str = "Untitled Project"
+        project_name: str = "Untitled Project",
+        stt_provider: str = "unknown",
+        transcript: Optional[str] = None,
+        transcript_segments: Optional[List[Dict[str, Any]]] = None
     ):
         self.task_id = task_id
         self.documentation = documentation
@@ -57,6 +61,9 @@ class VideoPipelineResult:
         self.mode = mode
         self.mode_name = mode_name
         self.project_name = project_name
+        self.stt_provider = stt_provider
+        self.transcript = transcript
+        self.transcript_segments = transcript_segments
 
 
 async def process_video_pipeline(
@@ -66,6 +73,7 @@ async def process_video_pipeline(
     project_name: str,
     context_keywords: Optional[List[str]] = None,
     mode: Optional[str] = None,
+    stt_provider: str = "auto",
     progress_callback: Optional[Callable[[int, str], Awaitable[None]]] = None
 ) -> VideoPipelineResult:
     """
@@ -143,15 +151,27 @@ async def process_video_pipeline(
             context_keywords=context_keywords
         )
     except Exception as e:
-        logger.warning(f"Semantic analysis failed, falling back to regular sampling: {e}")
+        logger.warning("="*80)
+        logger.warning("⚠️  [Gemini] Semantic analysis FAILED")
+        logger.warning(f"⚠️  Error type: {type(e).__name__}")
+        logger.warning(f"⚠️  Error message: {str(e)}")
+        
+        # Check if it's API key error:
+        error_str = str(e)
+        if "API key not valid" in error_str or "dummy_key" in str(settings.gemini_api_key):
+            logger.warning("⚠️  Gemini API key is invalid or dummy key detected")
+            logger.warning("⚠️  To use semantic analysis, set a valid GEMINI_API_KEY")
+        
+        logger.warning("✅ Falling back to regular frame sampling (works without Gemini)")
+        logger.warning("="*80)
         relevant_segments = None
     
     # 3.5 Optional: Hebrish STT Transcription
     transcript_text = ""
     srt_subtitles = ""
+    stt_provider_used = "unknown"
     try:
         from app.services.stt_hebrish_service import get_hebrish_stt_service
-        from app.services.video_processor import extract_audio
         
         should_run_stt = settings.hebrish_stt_enabled or mode == "subtitle_extractor"
         
@@ -168,7 +188,14 @@ async def process_video_pipeline(
             # Transcribe
             stt_service = get_hebrish_stt_service()
             if stt_service.is_available:
-                stt_result = await run_in_threadpool(stt_service.transcribe, audio_path)
+                # Pass task_id for progress updates and stt_provider
+                stt_result = await stt_service.transcribe(audio_path, task_id, stt_provider)
+                
+                # Determine provider used for metadata
+                if "groq" in stt_result.model_used.lower():
+                     stt_provider_used = "groq"
+                elif "whisper" in stt_result.model_used.lower() or "ivrit-ai" in stt_result.model_used.lower():
+                     stt_provider_used = "google" # Maps to 'Accurate' option
                 
                 # Format results
                 transcript_text = "\n".join([s["text"] for s in stt_result.segments])
@@ -329,14 +356,24 @@ async def process_video_pipeline(
     # 7. Persist to history
     storage = get_storage_service()
     selected_mode = mode or "general_doc"
-    storage.add_session(task_id, {
+    
+    # Prepare session data
+    session_data = {
         "title": project_name,
         "topic": prompt_config.name,
         "status": "completed",
         "documentation": documentation,
         "mode": selected_mode,
-        "mode_name": prompt_config.name
-    })
+        "mode_name": prompt_config.name,
+        "stt_provider": stt_provider_used,
+        "transcript": transcript_text, # Save raw text
+    }
+    
+    # Check if we have segments to save (for interactive transcript)
+    if 'stt_service' in locals() and 'stt_result' in locals() and hasattr(stt_result, 'segments'):
+         session_data["transcript_segments"] = stt_result.segments
+
+    storage.add_session(task_id, session_data)
     
     return VideoPipelineResult(
         task_id=task_id,
@@ -344,7 +381,10 @@ async def process_video_pipeline(
         status="completed",
         mode=selected_mode,
         mode_name=prompt_config.name,
-        project_name=project_name
+        project_name=project_name,
+        stt_provider=stt_provider_used,
+        transcript=transcript_text,
+        transcript_segments=stt_result.segments if 'stt_result' in locals() else None
     )
 
 
@@ -574,4 +614,183 @@ async def process_video_pipeline_segmented(
         mode_name=prompt_config.name,
         project_name=project_name
     )
+
+
+def extract_frames_uniform(
+    video_path: str,
+    output_dir: str,
+    interval_seconds: float = 5.0
+) -> List[str]:
+    """
+    Extract frames at uniform intervals (for scene cataloging).
+    
+    Args:
+        video_path: Path to video
+        output_dir: Directory to save frames
+        interval_seconds: Extract one frame every N seconds
+    
+    Returns:
+        List of frame file paths
+    """
+    try:
+        duration = get_video_duration(video_path)
+        num_frames = int(duration / interval_seconds)
+        
+        logger.info(f"Extracting ~{num_frames} frames (1 per {interval_seconds}s)")
+        
+        # Calculate exact timestamps
+        timestamps = [i * interval_seconds for i in range(num_frames)]
+        
+        # Use existing extract_frames but with specific timestamps
+        frames = extract_frames(
+            video_path=video_path,
+            output_dir=output_dir,
+            timestamps=timestamps
+        )
+        
+        logger.info(f"Extracted {len(frames)} uniform frames")
+        
+        return frames
+        
+    except Exception as e:
+        logger.error(f"Error extracting uniform frames: {e}")
+        raise
+
+
+
+async def detect_scene_boundaries_with_flash(
+    proxy_video_path: str,
+    transcription: str,
+    context_keywords: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Use Gemini Flash to analyze proxy and identify scene boundaries.
+    
+    DevLens pattern: Fast, cheap analysis on 1fps proxy to find key moments.
+    
+    Returns:
+        List of {"time_sec": float, "reason": str, "quality_ok": bool}
+    """
+    import google.generativeai as genai
+    import asyncio
+    
+    generator = get_generator()
+    
+    keywords_str = ", ".join(context_keywords) if context_keywords else "general content"
+    
+    prompt = f"""Analyze this video and identify distinct scenes.
+
+Context keywords: {keywords_str}
+
+Transcription:
+{transcription}
+
+Look for:
+1. Location/setting changes (indoor → outdoor, different rooms)
+2. New people entering or exiting frame
+3. Significant action changes
+4. Topic shifts in dialogue
+
+VISUAL QUALITY CONTROL:
+- NEVER select timestamps showing blank/white screens
+- NEVER select loading spinners or blurred transitions
+- If a scene boundary happens during loading, shift ±2-3 seconds to find rendered content
+
+Return STRICTLY this JSON format (NO markdown fences):
+{{
+  "scene_boundaries": [
+    {{"time_sec": 0.0, "reason": "Opening scene", "quality_ok": true}},
+    {{"time_sec": 15.3, "reason": "Location change to kitchen", "quality_ok": true}}
+  ]
+}}"""
+
+    try:
+        # Upload proxy to Gemini
+        logger.info("📤 Uploading proxy to Gemini Flash...")
+        video_file = await run_in_threadpool(genai.upload_file, proxy_video_path)
+        
+        # Wait for processing
+        while video_file.state.name == "PROCESSING":
+            await asyncio.sleep(1)
+            video_file = await run_in_threadpool(genai.get_file, video_file.name)
+        
+        if video_file.state.name == "FAILED":
+            raise Exception(f"Video processing failed: {video_file.state}")
+        
+        # Analyze with Flash (fast model)
+        logger.info("⚡ Analyzing with Gemini Flash...")
+        
+        # Wrapped in run_in_threadpool
+        response = await run_in_threadpool(
+            generator.model_flash.generate_content,
+            [video_file, prompt],
+            generation_config=genai.GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                max_output_tokens=2048,
+                response_mime_type="application/json"
+            )
+        )
+        
+        # Parse response
+        text = response.text.strip()
+        if hasattr(generator, 'strip_markdown_fences'):
+             text = generator.strip_markdown_fences(text)
+             
+        result = json.loads(text)
+        boundaries = result.get("scene_boundaries", [])
+        
+        # Filter out low-quality frames
+        quality_boundaries = [b for b in boundaries if b.get("quality_ok", True)]
+        
+        logger.info(f"🎬 Detected {len(quality_boundaries)} quality scene boundaries")
+        return quality_boundaries
+        
+    except Exception as e:
+        logger.error(f"Scene boundary detection failed: {e}")
+        raise
+
+
+async def transcribe_audio(
+    session_id: str,
+    video_path: Path,
+    stt_provider: str = "auto"
+) -> Dict[str, Any]:
+    """
+    Transcribe audio from video using Hebrish STT.
+    
+    Args:
+        session_id: Session ID
+        video_path: Path to video
+        stt_provider: STT provider preference
+    
+    Returns:
+        Dict with "full_text" and "segments"
+    """
+    from app.services.stt_hebrish_service import get_hebrish_stt_service
+    
+    
+    logger.info(f"🎤 [STT] Provider requested: {stt_provider}")
+    logger.info("Starting Hebrish STT transcription...")
+    try:
+        # Extract audio
+        audio_path = await run_in_threadpool(extract_audio, str(video_path))
+        
+        # Transcribe
+        stt_service = get_hebrish_stt_service()
+        if stt_service.is_available:
+            stt_result = await stt_service.transcribe(audio_path, session_id, stt_provider)
+            
+            transcript_text = "\n".join([s["text"] for s in stt_result.segments])
+            
+            return {
+                "full_text": transcript_text,
+                "segments": stt_result.segments,
+                "provider": stt_result.model_used
+            }
+    except Exception as e:
+        logger.error(f"STT processing failed: {e}")
+        return {"full_text": "", "segments": []}
+    
+    return {"full_text": "", "segments": []}
 

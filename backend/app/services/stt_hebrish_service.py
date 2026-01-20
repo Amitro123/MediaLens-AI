@@ -10,6 +10,9 @@ import logging
 import threading
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
+import os
+from groq import Groq
+from fastapi.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,6 @@ class HebrishResult:
 
 
 # Tech vocabulary for initial prompt bias
-# Try to load from Kaggle-extracted file, fallback to default
 def _load_tech_prompt() -> str:
     """Load tech vocab prompt from file or use default"""
     from pathlib import Path
@@ -59,23 +61,9 @@ TECH_VOCAB_PROMPT = _load_tech_prompt()
 class HebrishSTTService:
     """
     Hebrew + Technical English STT using ivrit-ai Whisper model.
-    
-    Optimized for Israeli dev meetings with mixed Hebrew/English content.
-    Uses tech vocabulary bias to improve recognition of English terms.
-    
-    Usage:
-        service = HebrishSTTService()
-        result = service.transcribe("/path/to/audio.wav")
-        print(result.segments)
     """
     
     def __init__(self, device: Optional[str] = None):
-        """
-        Initialize the Hebrish STT service.
-        
-        Args:
-            device: "cuda" or "cpu". If None, auto-detect.
-        """
         self.model = None
         self._model_load_error: Optional[str] = None
         self._device = device
@@ -114,68 +102,6 @@ class HebrishSTTService:
         """Check if the model is loaded and ready"""
         return self.model is not None
     
-    def transcribe(self, audio_path: str) -> HebrishResult:
-        """
-        Transcribe audio file with Hebrew + tech vocab optimization.
-        
-        Args:
-            audio_path: Path to audio file (WAV, MP3, etc.)
-        
-        Returns:
-            HebrishResult with segments and metrics
-        """
-        if not self.model:
-            logger.error("Hebrish model not available")
-            return HebrishResult(
-                segments=[],
-                processing_time_ms=0.0,
-                model_used="unavailable"
-            )
-        
-        start_time = time.time()
-        
-        try:
-            # Run transcription with Hebrew language and tech vocab bias
-            segments_iter, info = self.model.transcribe(
-                audio_path,
-                language="he",  # Hebrew primary
-                initial_prompt=TECH_VOCAB_PROMPT,  # Tech vocab bias
-                beam_size=5,
-                vad_filter=True,
-                vad_parameters=dict(min_silence_duration_ms=500)
-            )
-            
-            # Convert to list of dicts
-            segments_list = []
-            for seg in segments_iter:
-                segments_list.append({
-                    "start": seg.start,
-                    "end": seg.end,
-                    "text": seg.text.strip(),
-                    "confidence": getattr(seg, 'avg_logprob', 0.0)
-                })
-            
-            processing_time = (time.time() - start_time) * 1000
-            
-            logger.info(
-                f"Hebrish STT completed: {len(segments_list)} segments "
-                f"in {processing_time:.0f}ms (duration: {info.duration:.1f}s)"
-            )
-            
-            return HebrishResult(
-                segments=segments_list,
-                processing_time_ms=processing_time,
-                model_used="ivrit-ai/faster-whisper-v2-d4"
-            )
-        
-        except Exception as e:
-            logger.error(f"Hebrish transcription failed: {e}")
-            return HebrishResult(
-                segments=[],
-                processing_time_ms=0.0,
-                model_used="error"
-            )
-    
     def get_health_status(self) -> Dict[str, Any]:
         """Get health status for monitoring"""
         return {
@@ -184,6 +110,164 @@ class HebrishSTTService:
             "model": "ivrit-ai/faster-whisper-v2-d4",
             "error": self._model_load_error
         }
+
+    def _get_audio_duration(self, audio_path: str) -> float:
+        import subprocess
+        try:
+             result = subprocess.run(
+                 ['ffprobe', '-v', 'error', '-show_entries', 
+                  'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', 
+                  audio_path],
+                 capture_output=True, text=True, check=False
+             )
+             if result.returncode == 0:
+                 return float(result.stdout.strip())
+        except Exception:
+             pass
+        return 0.0
+
+    async def transcribe(self, audio_path: str, task_id: Optional[str] = None, provider: str = "auto") -> HebrishResult:
+        """
+        Transcribe audio file with Hebrew + tech vocab optimization.
+        Async wrapper for Groq (async) + Local (sync fallback).
+        """
+        logger.info(f"🔊 [STT] Starting transcription (Provider: {provider})")
+        
+        try:
+            duration = self._get_audio_duration(audio_path)
+            logger.info(f"🔊 [STT] Audio duration: {duration:.1f}s")
+            
+            # Auto-select provider
+            selected_provider = provider
+            if provider == "auto":
+                # Short videos (< 5 min): Groq
+                if duration < 300 and os.getenv("GROQ_API_KEY"):
+                    selected_provider = "groq"
+                    logger.info("⚡ [STT] Auto-selected Groq (fast, short audio)")
+                else:
+                    selected_provider = "local"
+                    logger.info("🐢 [STT] Auto-selected Local (long audio or no key)")
+            
+            # Execute transcription
+            if selected_provider == "groq" and os.getenv("GROQ_API_KEY"):
+                try:
+                    return await self._transcribe_groq(audio_path, task_id)
+                except Exception as e:
+                    logger.error(f"❌ [STT] Groq failed: {e}")
+                    logger.info("🔄 [STT] Falling back to Local...")
+                    # Fallback to local
+                    return await run_in_threadpool(self._transcribe_local, audio_path, task_id, duration)
+            
+            # Default to local
+            return await run_in_threadpool(self._transcribe_local, audio_path, task_id, duration)
+            
+        except Exception as e:
+            logger.error(f"❌ [STT] Transcription failed: {e}")
+            raise
+
+    async def _transcribe_groq(self, audio_path: str, task_id: Optional[str] = None) -> HebrishResult:
+        """Transcribe using Groq Whisper API."""
+        logger.info("🚀 [STT] Using Groq Whisper API...")
+        start_time = time.time()
+        
+        # Init session manager for progress
+        session_manager = None
+        if task_id:
+             from app.services.session_manager import get_session_manager
+             try: session_manager = get_session_manager()
+             except: pass
+        
+        if session_manager: session_manager.update_progress(task_id, "Transcribing with Groq...", 42)
+
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        
+        def _call_groq():
+            with open(audio_path, "rb") as audio_file:
+                return client.audio.transcriptions.create(
+                    model="whisper-large-v3-turbo", 
+                    file=audio_file,
+                    language="he",
+                    response_format="verbose_json"
+                )
+        
+        # Groq client is sync by default from 'groq' package unless 'AsyncGroq' is used.
+        response = await run_in_threadpool(_call_groq)
+        
+        segments = []
+        for seg in response.segments:
+            segments.append({
+                "start": seg["start"],
+                "end": seg["end"],
+                "text": seg["text"].strip(),
+                "confidence": seg.get("avg_logprob", 0.0)
+            })
+        
+        elapsed = (time.time() - start_time) * 1000
+        
+        if session_manager: session_manager.update_progress(task_id, "Transcription complete!", 60)
+        
+        return HebrishResult(
+            segments=segments,
+            processing_time_ms=elapsed,
+            model_used="groq/whisper-large-v3-turbo"
+        )
+
+    def _transcribe_local(self, audio_path: str, task_id: Optional[str] = None, duration: float = 0.0) -> HebrishResult:
+        """Transcribe using local Faster Whisper model (Sync, CPU/GPU)."""
+        if not self.model:
+            logger.error("Hebrish local model not available")
+            return HebrishResult(model_used="unavailable")
+            
+        start_time = time.time()
+        
+        # Init session manager
+        session_manager = None
+        if task_id:
+             from app.services.session_manager import get_session_manager
+             try: session_manager = get_session_manager()
+             except: pass
+
+        logger.info("🐢 [STT] Using local Whisper model...")
+        if session_manager: session_manager.update_progress(task_id, "Loading Whisper model...", 40)
+        
+        segments_iter, info = self.model.transcribe(
+            audio_path,
+            language="he",
+            initial_prompt=TECH_VOCAB_PROMPT,
+            beam_size=5,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=500)
+        )
+        
+        if duration == 0.0 and info.duration:
+            duration = info.duration
+            
+        segments_list = []
+        last_progress_update = 0
+        
+        for seg in segments_iter:
+            segments_list.append({
+                "start": seg.start,
+                "end": seg.end,
+                "text": seg.text.strip(),
+                "confidence": getattr(seg, 'avg_logprob', 0.0)
+            })
+            
+            # Progress updates
+            if session_manager and duration > 0 and (seg.end - last_progress_update >= 10):
+                pct = 40 + int((seg.end / duration) * 20)
+                pct = min(pct, 59)
+                session_manager.update_progress(task_id, f"Transcribing: {int(seg.end)}s/{int(duration)}s", pct)
+                last_progress_update = seg.end
+        
+        elapsed = (time.time() - start_time) * 1000
+        if session_manager: session_manager.update_progress(task_id, "Transcription complete!", 60)
+
+        return HebrishResult(
+            segments=segments_list,
+            processing_time_ms=elapsed,
+            model_used="ivrit-ai/faster-whisper-v2-d4"
+        )
 
 
 # Singleton instance with thread-safe initialization
