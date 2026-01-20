@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { api, type Session } from "@/api";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ResultsView } from "./results/ResultsView";
+import { SessionHistory } from "./SessionHistory";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -239,6 +240,18 @@ export const Dashboard = () => {
 
               {/* Export Options */}
               <ExportOptions sessionId={currentTaskId || undefined} documentation={generatedDoc} />
+            </motion.div>
+          )}
+
+          {/* Session History - Always visible */}
+          {!isProcessing && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="glass rounded-2xl p-6 md:p-8 mt-8"
+            >
+              <SessionHistory />
             </motion.div>
           )}
 
