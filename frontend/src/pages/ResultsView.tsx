@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Copy, Clock, Play } from 'lucide-react';
+import { Copy, Clock, Play, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { parseDocumentation } from '@/utils/jsonParser';
 
@@ -43,6 +43,7 @@ interface ResultResponse {
 
 export function ResultsView() {
     const { sessionId } = useParams<{ sessionId: string }>();
+    const navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const [scenes, setScenes] = useState<Scene[]>([]);
@@ -157,6 +158,19 @@ export function ResultsView() {
 
     return (
         <div className="container mx-auto p-6 max-w-[1400px]">
+            {/* Back Button */}
+            <div className="mb-6">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="gap-2"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Dashboard
+                </Button>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
                 {/* LEFT COLUMN */}
                 <div className="space-y-6">
