@@ -1,6 +1,15 @@
 {
   "sessions": [
     {
+      "id": "0d5123cc-80a8-4376-8d7a-7c98ca5c1713",
+      "timestamp": "2026-01-20T14:33:54.205705",
+      "title": "Untitled Project",
+      "topic": "General",
+      "status": "processing",
+      "mode": "scene_detection",
+      "mode_name": null
+    },
+    {
       "id": "df3ffa78-57f5-48cc-a8c0-7ef4b88b00d8",
       "timestamp": "2026-01-20T14:30:53.047712",
       "title": "Untitled Project",
